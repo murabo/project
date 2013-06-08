@@ -4,7 +4,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+     ('Settings_localに記載', 'murakami.shinya@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -50,6 +50,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
+# アップロードを想定したエリアらしい。
 MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
@@ -61,6 +62,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
+# アップロードを想定しないエリア　完全性的エリア
 STATIC_ROOT = ''
 
 # URL prefix for static files.
@@ -107,10 +109,15 @@ ROOT_URLCONF = 'maplus.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'maplus.wsgi.application'
 
+from os.path import dirname
+ROOT_PATH = dirname(__file__)
+
+
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    ROOT_PATH + 'template',
 )
 
 INSTALLED_APPS = (

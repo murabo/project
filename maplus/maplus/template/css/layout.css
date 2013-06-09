@@ -1,0 +1,120 @@
+@charset "utf-8";
+
+/*
+ outline
+----------------------------------------------------------------------------------------------------*/
+html{height:100%;}
+body{
+	position:relative;
+	margin:0;
+	padding:0;
+	height:100%;
+  background: #fff;
+	word-wrap:break-word;
+	word-break: break-all;
+}
+
+
+/*テキスト
+--------------------------------------------------------------------------------*/
+body{
+	font-family:HiraKakuProN-W3,Helvetica,sans-serif;
+	font-sizea:14px;
+	line-height:1.5;
+	color:#000;
+	-webkit-text-size-adjust:none;
+}
+
+body,input,textarea,select{font-size:14px;}
+body,input,select,textarea{color:#000;}
+
+
+/*
+ main
+--------------------------------------------------------------------------------*/
+.contents{
+    padding:10px 11px;
+}
+
+
+/*リンク
+--------------------------------------------------------------------------------*/
+a{
+	color:#000;
+	text-decoration: none;
+}
+a:hover,
+a:active{
+	color:inherit;
+	text-decoration: none;
+}
+.linkarea{
+	padding:10px;
+	display:block;
+	cursor:pointer;
+}
+a.no_highlight { -webkit-tap-highlight-color: rgba(0,0,0,0); }
+a.underline {
+	text-decoration: none;
+	color: #000000;
+	font-weight: bold;
+	border-bottom-color: #000000;
+	border-bottom-style: dashed;
+	border-bottom-width: 1px;
+	padding-bottom: 1px;
+}
+.load_anime{
+    background:#FFFF;
+    background:url(../images/loader.gif) 0 0 no-repeat;
+    background-size:30px 30px;
+    border: none;
+    background-position:48% 48%;
+}
+
+
+/*
+ ▼汎用 レイアウト
+--------------------------------------------------------------------------------*/
+.media{
+    overflow:hidden;
+}
+/*clearfix*/
+.media:before,
+.media:after{content:"";display:table;}
+.media:after{clear:both;}
+/*/clearfix*/
+.media .img { float:left; margin-right: 10px; }
+.media .bd{
+    overflow:hidden;
+}
+.media .img_ext { float:right; margin-left: 10px;}
+
+/*テーブル*/
+.tbl{
+    display:table;
+    width:100%;
+}
+.tbl-cell{
+    display:table-cell;
+    vertical-align:middle;
+}
+input[type="text"]{
+  width: 100%;
+  height:30px;
+  line-height:30px;
+}
+
+/*
+ ▼汎用 ボタン
+--------------------------------------------------------------------------------*/
+.btn{
+    width: 100%;
+    display:block;
+    height:30px;
+    line-height:25px;
+    padding:0 8px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    font-weight:bold;
+}

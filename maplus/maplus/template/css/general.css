@@ -219,27 +219,19 @@ clearfix
 /*
  背景
 ----------------------------------------------------------------------------------------------------*/
-.bg_color_none{
+.bg_col_none{
 	background:none;
 }
-.bg_color_white{
+.bg_col_fff{
 	background:#fff;
 }
-.bg_color_pink{
-	background:#fcf5f5;
-}
-.bg_color_lavender{
-    background:#E7D3EA;
-}
-.bg_color_neutral_warm{
-    background:#FFEDBF;
-}
+
 
 /*
  幅
 ----------------------------------------------------------------------------------------------------*/
-.w40{
-	width:100px;
+.w60{
+	width:60px;
 }
 .w100p{
 	width:100%;

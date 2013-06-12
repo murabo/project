@@ -1,9 +1,9 @@
 #encoding:utf8
 
-from comparator.AgeComparator import AgeComparator
-from comparator.HeightComparator import HeightComparator
-from human import Human
-from myclass import MyClass
+from Comparator.AgeComparator import AgeComparator
+from Comparator.HeightComparator import HeightComparator
+from Human import Human
+from Myclass import MyClass
 
 class Main:
     def __init__(self):
@@ -26,7 +26,8 @@ class Main:
         print result
 
 
-
+if __name__ == '__main__':
+    main = Main()
 
 
 

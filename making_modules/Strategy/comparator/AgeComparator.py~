@@ -1,5 +1,5 @@
 #coding:utf8
-from Comparator.Comparator import Comparator
+from Comparator import Comparator
 
 class AgeComparator(Comparator):
     def compare(self, h1, h2):

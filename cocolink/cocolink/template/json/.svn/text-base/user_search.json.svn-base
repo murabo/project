@@ -1,0 +1,88 @@
+{
+    "response": {
+        "result_code": 1,
+        "result": {
+            "list": [
+                {
+                    "id": "1",
+                    "name": "username",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": false
+                },
+                {
+                    "id": "2",
+                    "name": "username2",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "3",
+                    "name": "username3",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": false
+                },
+                {
+                    "id": "4",
+                    "name": "username4",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": false
+                },
+                {
+                    "id": "5",
+                    "name": "username5",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "6",
+                    "name": "username6",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "7",
+                    "name": "username7",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "8",
+                    "name": "username8",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "9",
+                    "name": "username9",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": {
+                        "join_datetime": "2012-09-04 19:42:46",
+                        "last_action_datetime": "0000-00-00 00:00:00"
+                    }
+                },
+                {
+                    "id": "10",
+                    "name": "username10",
+                    "profile_image_url": "https://si0.twimg.com/sticky/default_profile_images/default_profile_2_normal.png",
+                    "join_status": false
+                }
+            ],
+            "next_offset": false
+        }
+    }
+}

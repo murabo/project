@@ -1,0 +1,127 @@
+img.disp_img{
+    max-width: 100px;
+    max-height: 100px;
+}
+
+
+
+.icon{
+    width: 30px;
+    height: 30px;
+}
+
+
+.star_review{
+    position:relative;
+
+
+}
+.star_review ul{
+   height: 15px;
+   position:absolute;
+   top:0px;
+   left:0px;
+}
+.star_review ul li{
+	float:left;
+    width: 15px;
+    height: 15px;
+}
+
+.starlevel5 {
+   background-image: url('../images/starlevels.gif');
+   background-repeat: no-repeat; /* ŒJ‚è•Ô‚µ‚ÍƒiƒV */
+   width: 75px;                  /* ‰¡•‚Í¯‚T‚Â•ª */
+   height: 15px;                 /* ‚‚³‚Í¯‚P‚Â•ª */
+}
+.star50 { background-position: left top; }
+.star40 { background-position: -15px top; }
+.star30 { background-position: -30px top; }
+.star20 { background-position: -45px top; }
+.star10 { background-position: -60px top; }
+.star00 { background-position: -75px top; }
+
+.star45 { background-position: -150px top; }
+.star35 { background-position: -165px top; }
+.star25 { background-position: -180px top; }
+.star15 { background-position: -195px top; }
+.star05 { background-position: -210px top; }
+
+
+
+
+footer {
+    position: fixed !important;
+    position:rerative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background:#303030;
+    color: #fff;
+}
+.contents2{
+    margin: 0;
+    padding: 0 0 50px 0;
+    overflow: auto;
+}
+
+
+
+.menu{
+    position:absolute;
+    top:0;
+    width: 40px;
+    height: 40px;
+    background:red;
+    border:4px solid #fff;
+    -webkit-border-radius:50%;
+    -moz-border-radius:50%;
+    border-radius:50%;
+    cursor:pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    /* ƒAƒjƒ[ƒVƒ‡ƒ“ */
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-out;
+    -webkit-animation-duration: 0.5s;
+}
+
+.menu.pos1.anime{
+    -webkit-animation-name: menu_rotate1;
+}
+.menu.pos1.fixed{
+    bottom:-100px;
+    left:50px;
+}
+@-webkit-keyframes menu_rotateP<p></p>1 {
+    100% {-webkit-transform:translate(100px,-50px);}
+}
+.menu.pos2.anime{
+    -webkit-animation-name: menu_rotate2;
+}
+@-webkit-keyframes menu_rotate2 {
+    100% {-webkit-transform:translate(85px,-100px);}
+}
+.menu.pos3.anime{
+    -webkit-animation-name: menu_rotate3;
+}
+@-webkit-keyframes menu_rotate3 {
+    100% {-webkit-transform:translate(50px,-130px);}
+}
+.menu.pos4.anime{
+    -webkit-animation-name: menu_rotate4;
+}
+@-webkit-keyframes menu_rotate4 {
+    100% {-webkit-transform:translate(10px,-150px);}
+}
+
+
+
+
+
+
+
+
+
+
+

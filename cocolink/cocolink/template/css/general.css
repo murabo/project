@@ -127,6 +127,7 @@ clearfix
 
 /*margin : top
 ----------------------------------------------------------------------*/
+.mt5{margin-top:5px !important;}
 .mt10{margin-top:10px !important;}
 .mt20{margin-top:20px !important;}
 
@@ -142,6 +143,7 @@ clearfix
 /*margin : right
 ----------------------------------------------------------------------*/
 .mr10{margin-right:10px !important;}
+.mr5{margin-right:5px !important;}
 
 
 /*
@@ -200,7 +202,7 @@ clearfix
  テキストカラー
 ----------------------------------------------------------------------------------------------------*/
 .text_col_gray{color:#999;}
-
+.text_col_link{color:#8B4513;}
 
 /*画像サイズ*/
 .img_size_75{
@@ -235,6 +237,9 @@ clearfix
 }
 .w100p{
 	width:100%;
+}
+.w70{
+	width:70px;
 }
 
 /*

@@ -1,8 +1,12 @@
 #coding:utf-8
 
-class Singleton(object)
-    __obj = Singleton()
-    def __init__(self):
-        return self.get_instance(self)
+class Singleton(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance=object.__new__(cls, *args, **kwargs)
+        return cls._instance 
+    
     def get_instance(self):
-        return self.__obj
+        return self._instance

@@ -6,7 +6,9 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'cocolink.view.index_view', name='index_view'),
+    url(r'^$', 'cocolink.views.index_view', name='index_view'),
+    url(r'^sign_in/$', 'cocolink.views.sign_in_view', name='sign_in_view'),
+    url(r'^input_user/', 'cocolink.myuser.views.input_user_view', name='input_user_view'),
     # url(r'^cocolink/', include('cocolink.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

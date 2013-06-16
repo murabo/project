@@ -2,11 +2,11 @@
 
 class HtmlWriter(object):
     def __init__(self, fsock):
-        self._fsock = fsock
+        self.__fsock = fsock
 
     def __print(self,  string):
         try:
-            print >>self._fsock, string
+            print >>self.__fsock, string
         except:
             print "I/O error (%s) : %S" % (errno, strerror)
 

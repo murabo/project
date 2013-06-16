@@ -1,7 +1,7 @@
 #coding:utf-8
 
 from HtmlWriter import HtmlWriter
-from Database import Database
+from Bean import Bean
 
 class PageMaker(object):
     def __init__(self): raise Exception("Do not construct instances")
@@ -14,12 +14,10 @@ class PageMaker(object):
             print "I/O error(%s): %s" % (errno, strerror)
 
         htmlwriter = HtmlWriter(fsock)
-        dbList = Database.getProperties()
+        dbList = Bean.getProperties()
 
         htmlwriter.makeTitle("Link page")
         for t in dbList:
             htmlwriter.makeMailTo(t[0],  t[1])
         htmlwriter.close()
-
-
 

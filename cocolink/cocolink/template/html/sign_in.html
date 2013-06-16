@@ -19,39 +19,39 @@
 
 <header class="tbl">
 	<div class="tbl-cell w60 left_bx"></div>
-	<div class="tbl-cell canter_bx">ログイン</div>
-	<div class="tbl-cell w60"></div>
+	<div class="tbl-cell canter_bx">ココリンク</div>
+	<div class="tbl-cell w60 right_bx js-submit">signin</div>
 </header>	
 
 <section class="contents_top">
-	<form method="POST" action="confirm_user.html" class="mt20">
+	<form id = "form1" method="POST" action="feed.html" class="mt20">
+		<span class="error" id="js-form-error">※ユーザー名とパスワードが一致しません</span>
 		<div class="mt10">
 			<div class="text12 fw_bld">
 				ユーザー名
-				<span class="error">※エラーメッセージ</span>
+				<span class="error js-error" id="js-user-name-error"></span>
 			</div> 
-			<input type="text" name="user_name" maxlength="16" value="">
+			<input type="text" name="user_name" id="js-user-name" maxlength="16" value="">
 		</div>
 		<div class="mt10">
 			<div class="text12 fw_bld">
 				パスワード
-				<span class="error">※エラーメッセージ</span>
+				<span class="error js-error" id="js-password-error"></span>
 			</div> 
-			<input type="text" name="password" maxlength="16" value="">
+			<input type="text" name="password" id="js-password"  maxlength="16" value="">
 		</div>
 	</form>
-
 <section>
 
 
-<script type="text/javascript" src="../js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="../js/common/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="../js/plugin/jquery.lazyload.min.js"></script>
 <script type="text/javascript" src="../js/plugin/jquery.autoResize.min.js"></script>
-<script type="text/javascript" src="../js/general.js"></script>
-<script type="text/javascript" src="../js/ajax_common.js"></script>
+<script type="text/javascript" src="../js/common//general.js"></script>
+<script type="text/javascript" src="../js/common/ajax_common.js"></script>
 
 
 <script type="text/javascript" src="../js/lib/plus.js"></script>
-<script type="text/javascript" src="../js/feed.js"></script>
+<script type="text/javascript" src="../js/sign_in.js"></script>
 </body>
 </html>

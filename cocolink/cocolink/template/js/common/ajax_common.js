@@ -119,11 +119,27 @@ Super.prototype = {
 var Validate = function(){};
 //エラーの表示
 Validate.prototype.error = function (obj,error) {
-	$('#'+obj.attr('id')+'_error').text(error);
+
+	$('#'+obj.attr('id')+'-error').text(error);
 	$('body').enableBtn();
 }
+//文字数チェック
+Validate.prototype.count = function (obj,minnum,maxnum,error) {
 
-//空文字
+	var len = obj.val().length;
+
+	if( (minnum && (len < minnum)) || (maxnum && (len > maxnum)) ){
+		this.error(obj,error);
+		return true;
+	}
+
+	return false;
+}
+
+
+
+
+//空文字(未使用)
 Validate.prototype.isset = function (obj,error) {
 	if (!obj.val().match(/\S/g)){
 		if(error != ''){
@@ -133,7 +149,8 @@ Validate.prototype.isset = function (obj,error) {
 	}
 	return false;
 }
-//日付
+
+//日付(未使用)
 Validate.prototype.checkDate = function (obj,error,year, month, day){
 	var dt = new Date(year, month - 1, day);
 	if(dt == null || dt.getFullYear() != year || dt.getMonth() + 1 != month || dt.getDate() != day) {
@@ -143,7 +160,7 @@ Validate.prototype.checkDate = function (obj,error,year, month, day){
 	return false;
 }
 
-//YYYY-MM-DD形式にフォーマット
+//YYYY-MM-DD形式にフォーマット(未使用)
 Validate.prototype.formatDate = function (year, month, day){
 	return function(){
 		if(month<10)month='0'+month;

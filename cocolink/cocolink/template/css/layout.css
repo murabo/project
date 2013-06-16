@@ -133,11 +133,13 @@ header{
     left:0; 
     margin-bottom: 100px;
 }
-header div:nth-child(3){
+header .right_bx{
 	border-left: 1px solid #CCC;
 
 }
-
+header .disable{
+    opacity:0.3;
+}
 
 
 

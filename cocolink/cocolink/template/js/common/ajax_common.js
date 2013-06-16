@@ -116,6 +116,13 @@ Super.prototype = {
 /*===================================================================================
 バリデート
 ===================================================================================*/
+var err_txt = {
+	txt1 : "6〜16文字で入力してください。",
+	txt2 : "1〜10文字で入力してください。",
+	txt3 : "パスワードが一致していません。"
+} 
+
+
 var Validate = function(){};
 //エラーの表示
 Validate.prototype.error = function (obj,error) {
@@ -135,7 +142,19 @@ Validate.prototype.count = function (obj,minnum,maxnum,error) {
 
 	return false;
 }
+//文字数チェック
+Validate.prototype.matchStr = function (obj,obj2,error) {
 
+
+	var val1 = obj.val();
+	var val2 = obj2.val();
+	if(val1 !== val2){
+		this.error(obj2,error);
+		return true;
+	}
+
+	return false;
+}
 
 
 

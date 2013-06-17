@@ -1,0 +1,33 @@
+{% extends 'tteditor/base.html' %}
+{% block title %}index{% endblock %}
+{% block content %}
+
+<h2>TTサーバ一覧</h2>
+
+<div class="module">
+    <table>
+        <caption>TTサーバ一覧</caption>
+        <thead>
+        <tr>
+            <th>key</th>
+            <th>HOST</th>
+            <th>PORT</th>
+            <th>SHOST</th>
+            <th>SPORT</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for k, v in tte.settings_dict.iteritems %}
+            <tr class="{% cycle "row1" "row2" %}">
+                <td><a href="{% url tteditor/keys_on_server k 1 %}">{{k}}</a></td>
+                <td>{{v.HOST}}</td>
+                <td>{{v.PORT}}</td>
+                <td>{{v.SHOST}}</td>
+                <td>{{v.SPORT}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+        
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'tteditor/base.html' %}
+{% load tteditor_tags %}
+{% block content %}
+
+<h2>サーバ内キー一欄</h2>
+
+<p><a href="{% url tteditor/index %}">TOP</a>&gt;{{ttname}}</p>
+
+
+
+
+<div class="module">
+    <div id="toolbar"><form id="changelist-search" action="./" method="get">
+    <label for="searchbar"><img src="/media/img/admin/icon_searchbox.png" alt="Search" /></label>
+    <input type="text" size="40" name="q" value="{{q}}" id="searchbar" />
+    <input type="submit" value="検索" />
+    </form></div>
+    <table>
+        <caption>キー一覧</caption>
+        <thead>
+        <tr>
+            <th>key</th>
+            {% for mode in modes %}
+                <th>{{mode}}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for key in page.object_list %}
+            <tr class="{% cycle "row1" "row2" %}">
+                <td><a href="{% url tteditor/edit ttname key 'msgpack' %}">{{key}}</a></td>
+                {% for mode in modes %}
+                    <td><a href="{% url tteditor/edit ttname key mode %}">{{mode}}</a></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div style="text-align:center">
+{% paginator page 'tteditor/keys_on_server' ttname %}
+</div>
+{% endblock %}

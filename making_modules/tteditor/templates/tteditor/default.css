@@ -1,0 +1,180 @@
+
+nav#menubar{
+    display:block;
+    background-color:#000000;
+    width:100%;
+    padding:0.3em;
+}
+
+nav#menubar a{
+    color:#ffffff;
+    text-decoration:none;
+    font-weight:bold;
+    margin-right:0.5em;
+}
+nav#menubar a:hover{
+    text-decoration:underline;
+    color:#ffffaa;
+}
+
+
+div.module table{
+    width:100%;
+}
+
+div.graph{
+    margin:10px;
+    background:#eeeeee;
+    border: 1px solid #aaaaaa;
+    position:relative;
+    width:500px;
+    height:500px;
+    float:left;
+}
+
+div.plot{
+    font-size:6px;
+    color:#ffffff;
+    width:1.5em;
+    text-align:center;
+    font-weight:bold;
+}
+
+div.element_holy{
+    background:#0000aa;
+    border:2px solid #0000aa;
+    border-radius: 4px;
+}
+div.element_unholy{
+    background:#aa0000;
+    border:2px solid #aa0000;
+    border-radius: 4px;
+}
+div.element_god{
+    background:#007700;
+    border:2px solid #007700;
+    border-radius: 4px;
+}
+
+.clearer{
+    clear:left;
+}
+
+
+/*
+card display
+*/
+div.card{
+    background:#ccc;
+    border:1px solid #777;
+    float:left;
+    width:240px;
+    height:700px;
+    text-align:center;
+    margin:5px;
+    position:relative;
+}
+div.card div.element_area{
+    position:absolute;
+    top:10px;
+    left:15px;
+}
+div.card div.rarity_area{
+    position:absolute;
+    top:10px;
+    right:15px;
+}
+
+div.card span.ELEMENT_1{
+    padding:0 0.5em;
+    background:#000099;
+    color:#ffffff;
+}
+div.card span.ELEMENT_2{
+    padding:0 0.5em;
+    background:#770000;
+    color:#ffffff;
+}
+div.card span.ELEMENT_3{
+    padding:0 0.5em;
+    background:#007700;
+    color:#ffffff;
+}
+div.card span.srare{
+    padding:0 0.5em;
+    background:#777700;
+    color:#ffffff;
+}
+div.card span.rare{
+    padding:0 0.5em;
+    background:#007799;
+    color:#ffffff;
+}
+div.card span.common{
+    padding:0 0.5em;
+    background:#888888;
+    color:#ffffff;
+}
+
+
+div.card h3{
+    color:#770000;
+    text-align:center;
+}
+img.card_image_huge{
+    width:210px;
+    height:280px;
+}
+img.card_image_thumbnail{
+    width:36px;
+    height:48px;
+}
+
+div.card table{
+    width:210px;
+    margin:auto;
+    border-collapse:collapse;
+}
+
+div.card table tr,div.card table th,div.card table td{
+    border-bottom:1px solid #777;
+}
+div.card table th{
+    text-align:right;
+    color:#778899;
+}
+div.card table td{
+    text-align:left;
+    color:#000;
+}
+div.card div.description{
+    text-align:left;
+    z-index:2;
+}
+div.card div.description span.strong{
+    color:#770000;
+}
+div.card h4{
+    background:#ddbbaa;
+    margin:0.3em 1em 0 1em;
+}
+div.card div.thumbnail_block{
+    width:240px;
+    position:absolute;
+    bottom:0;
+    left:0;
+}
+div.card div.ability{
+    width:240px;
+    position:absolute;
+    bottom:60px;
+    left:0;
+} 
+
+.color_attention {
+	color:#FF0000;
+}
+
+.common {color:#808080}
+.rare {color:#99ddff}
+.srare {color:#ff77dd}

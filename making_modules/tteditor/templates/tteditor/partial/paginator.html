@@ -1,0 +1,16 @@
+{# ページネーター #}
+{% if url_first_page %}
+    <a href="{{url_first_page}}{{query_string}}">最初</a>&nbsp;|&nbsp;
+{% endif %}
+{% if url_previous_page %}
+<a href="{{url_previous_page}}{{query_string}}">◀前へ</a>
+{% else %}
+◀前へ
+{% endif %}
+[{{page.number}}/{{page.paginator.num_pages}}]
+{% if url_next_page %}
+<a href="{{url_next_page}}{{query_string}}">次へ▶</a>
+{% else %}
+次へ▶
+{% endif %}
+

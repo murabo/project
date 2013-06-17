@@ -1,0 +1,41 @@
+{% extends 'tteditor/base.html' %}
+{% load tteditor_tags %}
+{% block content %}
+
+<h2>値の編集</h2>
+
+{% if save_done %}
+<ul class="messagelist">
+    <li>保存しました</li>
+</ul>
+{% endif %}
+
+<p><a href="{% url tteditor/index %}">TOP</a>&gt;<a href="{% url tteditor/keys_on_server ttname 1 %}">{{ttname}}</a>&gt;{{keyname}}</p>
+
+<p>
+{% for m in modes %}
+    {% if not forloop.first %}|{% endif %}
+    {% ifequal m mode %}
+        <strong>{{m}}</strong>
+    {% else %}
+        <a href="{% url tteditor/edit ttname keyname m %}">{{m}}</a>
+    {% endifequal %}
+{% endfor %}
+</p>
+<form action="{% url tteditor/save %}" method="POST" onSubmit="return confirm('保存してよろしいですか?');">
+<textarea style="width:100%;height:300px;" name="v" >{{ttekv.repr_value}}</textarea><br />
+<input type="submit" value="保存" style="width:100px;" />
+<input type="hidden" name="ttname" value="{{ttname}}" />
+<input type="hidden" name="keyname" value="{{keyname}}" />
+<input type="hidden" name="mode" value="{{mode}}" />
+</form>
+<form action="{% url tteditor/delete %}" method="POST" onSubmit="return confirm('削除してよろしいですか?');" style="text-align:right;">
+<input type="submit" value="削除" style="width:100px;" />
+<input type="hidden" name="ttname" value="{{ttname}}" />
+<input type="hidden" name="keyname" value="{{keyname}}" />
+<input type="hidden" name="mode" value="{{mode}}" />
+</form>
+
+
+<pre style="background:#dddddd; border:1px solid #bbbbbb; padding:0.5em;">{{ttekv.native_value}}</pre>
+{% endblock %}

@@ -1,0 +1,17 @@
+<html>
+<head><title>SwfComposer</title></head>
+<body>
+<h1>Flash 合成プログラム</h1>
+<h2>index</h2>
+
+<h3>生成するアプリ</h3>
+<ul>
+{% for app in app_list %}
+<li><a href="{{ app.name }}/">{{ app.str }}</a></li>
+{% endfor %}
+</ul>
+
+</body>
+<hr/>
+<p><i>SwfComposer - {{ date }}</i></p>
+</html>

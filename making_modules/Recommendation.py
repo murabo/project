@@ -27,6 +27,9 @@ class RecommendationShopSearch(ShopSearch):
     def __init__(self):
         pass
 
+    def get_shop(self):
+        pass
+
 class Main:
     def __init__(self):
         obj = RecommendationShop()

@@ -1,15 +1,34 @@
 #coding:utf-8
 
-class Recommendation(object):
+class Shop(object):
     def __init__(self):
         self.shop = None
 
-    def _get_shop(self):
+    def perform_get_shop(self):
         return self.shop.get_shop(self)
 
     def _set_shop(self, shop):
         self.shop = shop
 
-class RecommendationTop(Recommendation):
+class RecommendationShop(Shop):
     def __init__(self):
-        super(RecommendationTop, self).__init__(self):
+       # super(RecommendationShop, self).__init__():
+        self._set_shop(RecommendationShopSearch())
+
+class ShopSearch(object):
+    def __init__(self):
+        pass
+
+class TopShopSearch(ShopSearch):
+    def __init__(self):
+        pass
+
+class RecommendationShopSearch(ShopSearch):
+    def __init__(self):
+        pass
+
+class Main:
+    def __init__(self):
+        obj = RecommendationShop()
+        shop = obj.perform_get_shop()
+

@@ -5,9 +5,6 @@ class ShopSearch(object):
         pass
 
 class RecommendShopSearch(ShopSearch):
-    def __init__(self):
-        pass
-
     def get_shop(self):
         return 'RecommendShop'
 

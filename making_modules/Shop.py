@@ -9,7 +9,7 @@ class Shop(object):
         return self.shop_search.get_shop()
 
     def set_shop(self, shop_search):
-        self.shop_serach = shop_search
+        self.shop_search = shop_search
 
 class RecommendShop(Shop):
     def __init__(self):

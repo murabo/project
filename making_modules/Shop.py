@@ -2,18 +2,18 @@
 
 class Shop(object):
     def __init__(self):
-        self.shop = None
+        self.shop_search = None
 
     def perform_get_shop(self):
         return self.shop.get_shop(self)
 
-    def _set_shop(self, shop):
-        self.shop = shop
+    def _set_shop(self, shop_search):
+        self.shop_serach = shop_search
 
-class RecommendationShop(Shop):
+class RecommendShop(Shop):
     def __init__(self):
        # super(RecommendationShop, self).__init__():
-        self._set_shop(RecommendationShopSearch())
+        self._set_shop(RecommendShopSearch())
 
 class ShopSearch(object):
     def __init__(self):
@@ -23,7 +23,7 @@ class TopShopSearch(ShopSearch):
     def __init__(self):
         pass
 
-class RecommendationShopSearch(ShopSearch):
+class RecommendShopSearch(ShopSearch):
     def __init__(self):
         pass
 

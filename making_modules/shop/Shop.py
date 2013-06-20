@@ -1,5 +1,7 @@
 #coding:utf-8
 
+from ShopSearch import RecommendShopSearch 
+
 class Shop(object):
     def __init__(self):
         self.shop_search = None
@@ -15,17 +17,6 @@ class RecommendShop(Shop):
         #super(RecocomendShop, self).__init__()
         Shop.__init__(self) 
         self.set_shop(RecommendShopSearch())
-
-class ShopSearch(object):
-    def __init__(self):
-        pass
-
-class RecommendShopSearch(ShopSearch):
-    def __init__(self):
-        pass
-
-    def get_shop(self):
-        return 'RecommendShop'
 
 class Main:
     def __init__(self):

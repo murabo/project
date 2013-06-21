@@ -9,11 +9,11 @@ class Observer(object):
          raise NotImplementedError
 
 class SendMailObserver(Observer):
-        def __init__(self, *args):
-            Observer.__init__(self, *args)
+    def __init__(self, *args):
+        Observer.__init__(self, *args)
         
-        def update(self):
-            print 'SendMail'
+    def update(self):
+        print 'SendMail'
 
 
 

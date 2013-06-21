@@ -1,13 +1,12 @@
 #coding:utf8
 
-from Subject.Subject import Subject
-from Observer.Observer import Observer
+from Subject.Subject import SendMailSubject
+from Observer.Observer import SendMailObserver
 
 class Main:
     def __init__(self):
-        category = None
-        subject = Subject(category)
-        observerA = Observer(profile.pk, subject)
+        subject = SendMailSubject()
+        observerA = SendMailObserver(16894, subject)
         subject.notify_observers()
 
 

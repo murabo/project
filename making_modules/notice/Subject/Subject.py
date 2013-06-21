@@ -1,27 +1,21 @@
 #coding:utf-8
 
 class Subject(object):
-    def __init__(self, category):
-        self.observers = self.get_observers(category)
+    def __init__(self):
+        self.observers = []
 
-    def register(self, listener):
-        self.observers.append(listener)
+    def register(self, observer):
+        self.observers.append(observer)
    
-    def unregister(self, listener):
-        self.remove(listener)
+    def unregister(self, observer):
+        self.remove(observer)
    
     def notify_observers(self):
         for observer in self.observers:
             observer.update()
 
-    def get_observers(self, category):
-        observers = []
-       # observers = cache.get()
-       # if observers == None:
-       #     filter
-        return observers
+class SendMailSubject(Subject):
+    def __init__(self):
+        Subject.__init__(self)
 
-    def set_observers(self, category):
-       # cache.set
-       # insert
-       pass
+

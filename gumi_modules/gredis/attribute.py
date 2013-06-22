@@ -119,4 +119,4 @@ class AttributeRedis(object):
         """
         for k,v in self._attributes.iteritems():
             self.__dict__['_attributes'][k] = v
-            
+

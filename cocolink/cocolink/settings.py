@@ -1,8 +1,12 @@
 # encoding:utf-8
 # Django settings for maplus project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+# Userモデルを上書き
+AUTH_USER_MODEL = 'myuser.MyUser'
 
 ADMINS = (
      (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
@@ -52,7 +56,8 @@ USE_TZ = True
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 # �A�b�v���[�h��z�肵���G���A�炵���B
-MEDIA_ROOT = ''
+MEDIA_ROOT = ""#os.path.join(os.path.dirname(__file__), 'static')
+print MEDIA_ROOT
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -64,11 +69,14 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
 # �A�b�v���[�h��z�肵�Ȃ��G���A�@���S���I�G���A
-STATIC_ROOT = ''
+SITE_DOMAIN = os.environ.get('', '127.0.0.1:8080')
+
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
+print STATIC_ROOT
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = 'http://'+ SITE_DOMAIN +'/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -128,6 +136,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'south',
+    'southut',
+    'cocolink.myuser',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

@@ -20,27 +20,31 @@
 <header class="tbl">
 	<div class="tbl-cell w60 left_bx"></div>
 	<div class="tbl-cell canter_bx">ココリンク</div>
-	<div class="tbl-cell w60 right_bx js-submit">signin</div>
+	<div class="tbl-cell w60"></div>
 </header>	
 
 <section class="contents_top">
 	<form id = "form1" method="POST" action="feed.html" class="mt20">
-		<span class="error" id="js-form-error">※ユーザー名とパスワードが一致しません</span>
-		<div class="mt10">
-			<div class="text12 fw_bld">
-				ユーザー名
-				<span class="error js-error" id="js-user-name-error"></span>
-			</div> 
-			<input type="text" name="user_name" id="js-user-name" maxlength="16" value="">
+		<p class="error fw_bld" id="js-form-error">※メールアドレスとパスワードが一致しません</p>
+		<div class="mt10 fw_bld">
+			<p class="text12 fw_bld">メールアドレス</p> 
+			<p class="error js-error" id="js-email-error"></p>
+			<input type="email" name="email" id="js-email"  maxlength="100" value="" class="w100p">
 		</div>
-		<div class="mt10">
-			<div class="text12 fw_bld">
-				パスワード
-				<span class="error js-error" id="js-password-error"></span>
-			</div> 
-			<input type="text" name="password" id="js-password"  maxlength="16" value="">
+		<div class="mt10 fw_bld">
+			<p class="text12">パスワード</p>
+			<p class="error js-error" id="js-password-error"></p> 
+			<input type="password" name="password" id="js-password"  maxlength="16" value="" class="w100p">
 		</div>
+		<button type="botton"class="js-submit btn bg_col_999 mt20">ログイン</button>
+
 	</form>
+	<div class="taRight mt10">
+		<a href="sign_up.html" class="mt10 tx_underline">新規での会員登録はこちら→</a>
+	</div>
+	<div class="taRight mt10">
+		<a href="mailto:user@dammy.com?body=このまま送信してください。" class="mt10 tx_underline">パスワードをお忘れの方はこちら→</a>
+	</div>
 <section>
 
 

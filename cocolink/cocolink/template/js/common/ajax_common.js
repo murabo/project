@@ -119,7 +119,8 @@ Super.prototype = {
 var err_txt = {
 	txt1 : "6〜16文字で入力してください。",
 	txt2 : "1〜10文字で入力してください。",
-	txt3 : "パスワードが一致していません。"
+	txt3 : "パスワードが一致していません。",
+	txt4 : "メールアドレスを入力してくだい"
 } 
 
 
@@ -142,9 +143,8 @@ Validate.prototype.count = function (obj,minnum,maxnum,error) {
 
 	return false;
 }
-//文字数チェック
+//文字列一致チェック
 Validate.prototype.matchStr = function (obj,obj2,error) {
-
 
 	var val1 = obj.val();
 	var val2 = obj2.val();
@@ -153,6 +153,18 @@ Validate.prototype.matchStr = function (obj,obj2,error) {
 		return true;
 	}
 
+	return false;
+}
+//メールアドレスチェック
+Validate.prototype.email = function (obj,error) {
+
+	var len = obj.val().length;//6文字以上
+	if(len < 6 || !obj.val().match(/.+@.+\..+/)){
+		this.error(obj,error);
+		return true;
+	}else{
+
+	}
 	return false;
 }
 

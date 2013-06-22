@@ -157,12 +157,14 @@ Validate.prototype.matchStr = function (obj,obj2,error) {
 }
 //メールアドレスチェック
 Validate.prototype.email = function (obj,error) {
-	
-	if(!obj.val().match(/.+@.+\..+/)){
+
+	var len = obj.val().length;//6文字以上
+	if(len < 6 || !obj.val().match(/.+@.+\..+/)){
 		this.error(obj,error);
 		return true;
-	}
+	}else{
 
+	}
 	return false;
 }
 

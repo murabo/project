@@ -2,8 +2,8 @@ $(function() {
 
 	var vali = new Validate(),
 	$error = $(".js-error"),
+	$nick_name = $("#js-nick-name"),
 	$email = $("#js-email"),
-	$password = $("#js-password"),
 	$form1 = $("#form1");
 
 
@@ -13,16 +13,12 @@ $(function() {
 		e.preventDefault();
 		var chk_cnt = 2;
 		$error.html("");
-		
-		if(!vali.email($email,err_txt['txt4'])) chk_cnt--;
-		if(!vali.count($password,6,16,err_txt['txt1'])) chk_cnt--;
 
+		if(!vali.count($nick_name,1,10,err_txt['txt2'])) chk_cnt--;
+		if(!vali.email($email,err_txt['txt4'])) chk_cnt--;
  		if(chk_cnt == 0) $form1.submit();
 
 	});
 
 
 });
-
-
-

@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'cocolink.views.index_view', name='index_view'),
     url(r'^sign_in/$', 'cocolink.views.sign_in_view', name='sign_in_view'),
+    url(r'^post/$', 'cocolink.views.post_view', name='post_view'),
     url(r'^sign_up/$', 'cocolink.myuser.views.sign_up_view', name='sign_up_view'),
     url(r'^sign_up_execute/$', 'cocolink.myuser.views.sign_up_execute', name='sign_up_execute'),
     # url(r'^cocolink/', include('cocolink.foo.urls')),

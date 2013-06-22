@@ -8,3 +8,6 @@ def index_view(request):
 
 def sign_in_view(request):
     return render_to_response("html/sign_in.html",)
+
+def post_view(request):
+    return render_to_response("html/post.html",)

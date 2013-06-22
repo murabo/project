@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from myuser.models import MyUser
 
 def sign_up_view(request):
     """
@@ -32,5 +33,6 @@ def sign_up_execute(request):
     if 既にDBにあったなら:
         エラー
     """ 
+    MyUser.objects.get_all()
     user = User.objects.create_user()
     

@@ -18,24 +18,11 @@ class AbstractRedis(object):
     def leftpush(self, key, *values):
         self.redis.lpush(ley, *values)
 
-    def get_list(self, key):
-        return self.redis.lrange(key, 0, -1)
-
-    def get_list_limit(self, key, limit):
-        return self.redis.lrange(key, 0, limit)
+    def get_list(self, key, index=0, limit=-1):
+        return self.redis.lrange(key, index, limit)
 
     def delete(self, key):
         self.redis.delete(key)
-
-    def delete_all(self):
-        self.redis.flushall()
-
-    def set_transaction(self):
-        self.pipe = self.redis.pipeline()
-        return self.pipe
-
-    def execute_transaction(self):
-        self.pipe.execute()
 
     def setadd(self, key, *values):
         self.redis.sadd(key, *values)

@@ -4,106 +4,106 @@ import redis
 
 class AbstractRedis(object):
     def __init__(self):
-       self.cli = redis.Redis()
+       self.redis = redis.Redis()
 
     def set(self, key, value):
-        self.cli.set(key, value)
+        self.redis.set(key, value)
 
     def get(self, key):
-        return self.cli.get(key)
+        return self.redis.get(key)
 
     def rightpush(self, key, *values):
-        self.cli.rpush(key, *values)
+        self.redis.rpush(key, *values)
 
     def leftpush(self, key, *values):
-        self.cli.lpush(ley, *values)
+        self.redis.lpush(ley, *values)
 
     def get_list(self, key):
-        return self.cli.lrange(key, 0, -1)
+        return self.redis.lrange(key, 0, -1)
 
     def get_list_limit(self, key, limit):
-        return self.cli.lrange(key, 0, limit)
+        return self.redis.lrange(key, 0, limit)
 
     def delete(self, key):
-        self.cli.delete(key)
+        self.redis.delete(key)
 
     def delete_all(self):
-        self.cli.flushall()
+        self.redis.flushall()
 
     def set_transaction(self):
-        self.pipe = self.cli.pipeline()
+        self.pipe = self.redis.pipeline()
         return self.pipe
 
     def execute_transaction(self):
         self.pipe.execute()
 
     def setadd(self, key, *values):
-        self.cli.sadd(key, *values)
+        self.redis.sadd(key, *values)
 
     def setrem(self, key):
-        self.cli.srem(key)
+        self.redis.srem(key)
 
     def get_set(self, key):
-        return self.cli.smembers(key)
+        return self.redis.smembers(key)
 
     def sunion(self, *keys):
-        return self.cli.sunionstore(*keys)
+        return self.redis.sunionstore(*keys)
 
     def sinter(self, *keys):
-        return self.cli.sinterstore(*keys)
+        return self.redis.sinterstore(*keys)
 
     def sdiff(self, *keys):
-        return self.cli.sdifstoref(*keys)
+        return self.redis.sdifstoref(*keys)
 
     def hmset(self, key, dict):
-        self.cli.hmset(key, dict)
+        self.redis.hmset(key, dict)
 
     def hlen(self, key):
-        return self.cli.hlen(key)
+        return self.redis.hlen(key)
 
     def get_keys(self, key):
-        return self.cli.hkeys(key)
+        return self.redis.hkeys(key)
 
     def get_values(self, key):
-        return self.cli.hvals(key)
+        return self.redis.hvals(key)
 
     def get_dict(self, key):
-        return self.cli.hgetall(key)
+        return self.redis.hgetall(key)
 
     def get_type(self, key):
-        return self.cli.type(key)
+        return self.redis.type(key)
 
     def sort_list_desc(self, key):
-        return self.cli.sort(key, 'desc')
+        return self.redis.sort(key, 'desc')
 
-    def sort_list_ask(self, key):
-        return self.cli.sort(key)
+    def sort_list_asc(self, key):
+        return self.redis.sort(key)
 
-    def sort_stringlist_ask(self, key):
-        return self.cli.sort(key, 'alpha')
+    def sort_stringlist_asc(self, key):
+        return self.redis.sort(key, 'alpha')
 
-    def sort_stringlist_ask(self, key):
-        return self.cli.sort(key, 'alpha', 'desc')
+    def sort_stringlist_desc(self, key):
+        return self.redis.sort(key, 'alpha', 'desc')
 
 class RankingRedis(AbstractRedis):
     def __init__(self):
         super(RankingRedis, self).__init__()
 
     def add(self, key, point, name):
-        self.cli.zadd(key, point, name)
+        self.redis.zadd(key, point, name)
 
     def rem(self, key):
-        self.cli.zrem(key)
+        self.redis.zrem(key)
 
     def get_ranking_desc(self, key):
-        return self.cli.zrevrange(key, 0, -1)
+        return self.redis.zrevrange(key, 0, -1)
 
-    def get_ranking_ask(self, key):
-        return self.cli.zrange(key, 0, -1)
+    def get_ranking_asc(self, key):
+        return self.redis.zrange(key, 0, -1)
 
     def get_ranking_by_name(self, key, name):
-        return self.zrank(key, name)
+        return self.redis.zrank(key, name)
 
     def get_ranking_by_name_reverse(self, key, name):
-        return self.zrevrank(key, name)
+        return self.redis.zrevrank(key, name)
 

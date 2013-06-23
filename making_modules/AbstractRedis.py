@@ -27,6 +27,9 @@ class AbstractRedis(object):
     def delete(self, key):
         self.cli.delete(key)
 
+    def delete_all(self):
+        self.cli.flushall()
+
     def set_transaction(self):
         self.pipe = self.cli.pipeline()
         return self.pipe
@@ -52,35 +55,20 @@ class AbstractRedis(object):
     def sdiff(self, *keys):
         return self.cli.sdifstoref(*keys)
 
-    def hset(self, key, *kwargs):
-        pass
-
-    def hget(self):
-        pass
-
-    def hmset(self, key, *kwargs):
-        pass
-
-    def hmget(self):
-        pass
+    def hmset(self, key, dict):
+        self.cli.hmset(key, dict)
 
     def hlen(self, key):
-        self.cli.hlen(key)
+        return self.cli.hlen(key)
 
     def get_keys(self, key):
         return self.cli.hkeys(key)
+
     def get_values(self, key):
         return self.cli.hvals(key)
-    def get_keyvalues_by_dict(self, key):
-        dict = {}
-        for index, kv in enumerate(hgetall(key)):
-            if index % 2 == 0:
-                #keyに入れる
-                pass
-            else:
-                #valueに入れる
-                pass
-        return dict
+
+    def get_dict(self, key):
+        return self.cli.hgetall(key)
 
     def get_type(self, key):
         return self.cli.type(key)

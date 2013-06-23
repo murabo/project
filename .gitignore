@@ -1,4 +1,5 @@
 *.py[cod]
+*.rdb
 
 # C extensions
 *.so

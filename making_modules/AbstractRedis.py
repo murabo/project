@@ -1,91 +1,93 @@
 #coding:utf-8
 
-import redis
+from __future__ import with_statement
+import gredis
 
+
+'''
+redisを仕様するための基本的なメソッドを搭載
+'''
 class AbstractRedis(object):
     def __init__(self):
-       self.redis = redis.Redis()
-
+       self.redis = gredis.get()
+    
+    '''
+    文字列型
+    '''
     def set(self, key, value):
         self.redis.set(key, value)
 
     def get(self, key):
         return self.redis.get(key)
+  
+    '''
+    list型
+    ''' 
+    def append(self, key, values):
+        if isinstance(values, list):
+            with self.redis.pipeline() as pipe:
+                pipe.multi()
+                for value in values:
+                    pipe.rpush(key, value)
+                pipe.execute()
+        else:
+            self.redis.rpush(key, values)
 
-    def rightpush(self, key, *values):
-        self.redis.rpush(key, *values)
-
-    def leftpush(self, key, *values):
-        self.redis.lpush(ley, *values)
-
+    def leftappend(self, key, values):
+        if isinstance(values, list):
+            with self.redis.pipeline() as pipe:
+                pipe.multi()
+                for value in values:
+                    pipe.lpush(key, value)
+                pipe.execute()
+         else:  
+            self.redis.lpush(key, values)
+            
     def get_list(self, key, index=0, limit=-1):
         return self.redis.lrange(key, index, limit)
+    
+    def get_list_asc(self, key):
+        return self.redis.sort(key, alpha=True)
 
-    def delete(self, key):
-        self.redis.delete(key)
+    def get_list_desc(self, key):
+        return self.redis.sort(key, alpha=True, desc=True)
 
-    def setadd(self, key, *values):
-        self.redis.sadd(key, *values)
-
-    def setrem(self, key):
-        self.redis.srem(key)
-
-    def get_set(self, key):
-        return self.redis.smembers(key)
-
-    def sunion(self, *keys):
-        return self.redis.sunionstore(*keys)
-
-    def sinter(self, *keys):
-        return self.redis.sinterstore(*keys)
-
-    def sdiff(self, *keys):
-        return self.redis.sdifstoref(*keys)
-
-    def hmset(self, key, dict):
+    '''
+    dict型
+    '''
+    def set_dict(self, key, dict):
         self.redis.hmset(key, dict)
 
-    def hlen(self, key):
-        return self.redis.hlen(key)
+    def get_dict(self, key):
+        return self.redis.hgetall(key)
 
     def get_keys(self, key):
         return self.redis.hkeys(key)
 
     def get_values(self, key):
         return self.redis.hvals(key)
+    
+    '''
+    その他
+    '''
+    def delete(self, key):
+        self.redis.delete(key)
 
-    def get_dict(self, key):
-        return self.redis.hgetall(key)
-
-    def get_type(self, key):
-        return self.redis.type(key)
-
-    def sort_list_desc(self, key):
-        return self.redis.sort(key, 'desc')
-
-    def sort_list_asc(self, key):
-        return self.redis.sort(key)
-
-    def sort_stringlist_asc(self, key):
-        return self.redis.sort(key, 'alpha')
-
-    def sort_stringlist_desc(self, key):
-        return self.redis.sort(key, 'alpha', 'desc')
 
 class RankingRedis(AbstractRedis):
     def __init__(self):
         super(RankingRedis, self).__init__()
 
-    def add(self, key, point, name):
+    def register(self, key, point, name):
         self.redis.zadd(key, point, name)
 
-    def rem(self, key):
+    def unregister(self, key):
         self.redis.zrem(key)
 
-    def get_ranking_desc(self, key):
+    def get_ranking(self, key):
         return self.redis.zrevrange(key, 0, -1)
 
-    def get_ranking_asc(self, key):
+    def get_ranking_reverse(self, key):
         return self.redis.zrange(key, 0, -1)
 
     def get_ranking_by_name(self, key, name):

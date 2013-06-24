@@ -99,20 +99,6 @@ class AttributeRedis(object):
                     e()
         return result
 
-    @classmethod
-    def delete_all(cls, db_name='default'):
-        """
-        継承したクラスの全キーを消す
-        params: db_name <string> settingsに書いている名前
-        """
-        key = ':'.join([cls.__name__, '*'])
-        r = gredis.get(db_name)
-        keys = r.keys(key)
-        with r.pipeline(transaction=False) as pipe:
-            for key in keys:
-                pipe.delete(key)
-            pipe.execute()
-
     def init_values(self):
         """
         値の初期化

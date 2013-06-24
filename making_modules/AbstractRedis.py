@@ -40,7 +40,7 @@ class AbstractRedis(object):
                 for value in values:
                     pipe.lpush(key, value)
                 pipe.execute()
-         else:  
+        else:  
             self.redis.lpush(key, values)
             
     def get_list(self, key, index=0, limit=-1):

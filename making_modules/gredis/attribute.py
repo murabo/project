@@ -23,15 +23,31 @@ class AttributeRedis(object):
         def __init__(self, key):
             self.key = key
 
+    # with文を使うと下記の順番で処理が行われる
+    #「_init__() → __enter__() → 処理 → __exit__() → __del__()」の順で処理が行われる
     def __init__(self, **kwargs):
         self.db_name = kwargs.get('db_name', None) or self.db_name
-        self.r = gredis.get(self.db_name)
+        self.redis = gredis.get(self.db_name)
 
         self.key = ':'.join([self._key_prefix(), self.get_kvs_key(**kwargs)])
 
-        data = self.r.get(self.key)
+        data = self.redis.get(self.key)
         self._attributes = msgpack.unpackb(data) if data else copy.copy(self.attributes)
+    
+    def __enter__(self):
+        return self
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            return False
+        self.save()
+        return True
+    
+    def __del__(self):
+        pass
+
+    # オブジェクトクラスにあるフックメソッド。
+    # オーバーライドする事で、フィールドアクセスが全てこのメソッドになる。オブジェクトコンポジション。
     def __getattr__(self, name):
         if name in self.attributes:
             return self.__dict__['_attributes'][name]
@@ -44,25 +60,12 @@ class AttributeRedis(object):
         else:
             self.__dict__[name] = value
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type:
-            return False
-        self.save()
-        return True
 
     def _key_prefix(self):
         return self.__class__.__name__
 
     def get_kvs_key(self, **kwargs):
         return ''
-
-    def delete(self):
-        if not self.r:
-            self.r = gredis.get(self.db_name)
-        self.r.delete(self.key)
 
     def save(self):
         def f():
@@ -74,7 +77,7 @@ class AttributeRedis(object):
         return self._transaction_loop(self.try_count, f, e)
 
     def _save(self):
-        with self.r.pipeline() as pipe:
+        with self.redis.pipeline() as pipe:
             pipe.watch(self.key)
 
             save_data = pipe.get(self.key)
@@ -99,10 +102,17 @@ class AttributeRedis(object):
                     e()
         return result
 
+    def delete(self):
+        """
+        キーごと削除
+        """
+        if not self.redis:
+            self.redis = gredis.get(self.db_name)
+        self.redis.delete(self.key)
+
     def init_values(self):
         """
         値の初期化
         """
         for k,v in self._attributes.iteritems():
             self.__dict__['_attributes'][k] = v
-

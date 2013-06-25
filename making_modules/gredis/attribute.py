@@ -33,7 +33,7 @@ class AttributeRedis(object):
 
         data = self.redis.get(self.key)
         self._attributes = msgpack.unpackb(data) if data else copy.copy(self.attributes)
-    
+
     def __enter__(self):
         return self
 
@@ -42,7 +42,7 @@ class AttributeRedis(object):
             return False
         self.save()
         return True
-    
+
     def __del__(self):
         pass
 
@@ -59,7 +59,6 @@ class AttributeRedis(object):
             self.__dict__['_attributes'][name] = value
         else:
             self.__dict__[name] = value
-
 
     def _key_prefix(self):
         return self.__class__.__name__
@@ -104,11 +103,25 @@ class AttributeRedis(object):
 
     def delete(self):
         """
-        キーごと削除
+        任意のキーをひとつ削除
         """
         if not self.redis:
             self.redis = gredis.get(self.db_name)
         self.redis.delete(self.key)
+
+    @classmethod
+    def delete_all(cls, db_name='default'):
+        """
+        任意の子クラスが所持している全キーと値を消す
+        params: db_name <string> settingsに書いている名前
+        """
+        key = ':'.join([cls.__name__, '*'])
+        r = gredis.get(db_name)
+        keys = r.keys(key)
+        with r.pipeline(transaction=False) as pipe:
+            for key in keys:
+                pipe.delete(key)
+            pipe.execute()
 
     def init_values(self):
         """

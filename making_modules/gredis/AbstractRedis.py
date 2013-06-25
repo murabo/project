@@ -13,7 +13,7 @@ import redis
 import gredis
 
 
-class AttributeRedis(object):
+class AbstractRedis(object):
 
     db_name = 'default'
     try_count = 1000
@@ -23,8 +23,6 @@ class AttributeRedis(object):
         def __init__(self, key):
             self.key = key
 
-    # with文を使うと下記の順番で処理が行われる
-    #「_init__() → __enter__() → 処理 → __exit__() → __del__()」の順で処理が行われる
     def __init__(self, **kwargs):
         self.db_name = kwargs.get('db_name', None) or self.db_name
         self.redis = gredis.get(self.db_name)
@@ -46,8 +44,6 @@ class AttributeRedis(object):
     def __del__(self):
         pass
 
-    # オブジェクトクラスにあるフックメソッド。
-    # オーバーライドする事で、フィールドアクセスが全てこのメソッドになる。オブジェクトコンポジション。
     def __getattr__(self, name):
         if name in self.attributes:
             return self.__dict__['_attributes'][name]

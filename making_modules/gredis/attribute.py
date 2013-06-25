@@ -114,5 +114,5 @@ class AttributeRedis(object):
         """
         値の初期化
         """
-        for k,v in self._attributes.iteritems():
-            self.__dict__['_attributes'][k] = v
+        for key,value in self._attributes.iteritems():
+            self.__dict__['_attributes'][key] = value

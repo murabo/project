@@ -74,13 +74,15 @@ def get(name='default'):
     Redis client は Thread 毎に持つが, Redis connection pool は Process 毎に持つ.
     """
     global _CLIENT
-
+    print 1
     client = getattr(_CLIENT, name, None)
     if client is not None:
+        print 'e1'
         return client
-
+    print 2
     client = redis.StrictRedis(connection_pool=get_pool(name))
     setattr(_CLIENT, name, client)
+    print 3
     return client
 
 def get_pool(name='default'):
@@ -90,20 +92,27 @@ def get_pool(name='default'):
     get() の中で使用されている.
     """
     global _POOL
-
+    print 4
+    print _POOL
     if _POOL.get(name):
-        return _POOL[name]
-
+         print 'e4'
+         return _POOL[name]
+    print 5
     return _set_and_get_pool(name)
 
 def _set_and_get_pool(name):
     global _LOCK
     global _POOL
-
+    print 6
     with _LOCK:
         if _POOL.get(name):
+            print 'e6'
             return _POOL[name]
-
+        print 7
         kwargs = RedisSettings(name).kwargs()
+        print 8
+        print kwargs
         _POOL[name] = ConnectionPool(**kwargs)
+        print 9
+        print _POOL[name]
         return _POOL[name]

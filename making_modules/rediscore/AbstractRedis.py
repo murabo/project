@@ -5,9 +5,9 @@ AttributeKVSはsetした時点で保存されるが、
 AttributeRedisはsaveを読んだ時にredisに保存される。
 使い方は、tests/test_attribute.pyを参照
 """
+
 from __future__ import with_statement
 import copy
-
 import msgpack
 from RedisAPI import RedisAPI
 
@@ -25,7 +25,7 @@ class AbstractRedis(object):
         self.db_name = kwargs.get('db_name', None) or self.db_name
         self.redisapi= RedisAPI(self.db_name)
 
-        self.key = ':'.join([self._key_prefix(), self.get_kvs_key(**kwargs)])
+        self.key = ':'.join([self._key_prefix(), self.get_kvs_key()])
 
         data = self.redisapi.get(self.key)
         self._attributes = msgpack.unpackb(data) if data else copy.copy(self.attributes)
@@ -57,7 +57,7 @@ class AbstractRedis(object):
     def _key_prefix(self):
         return self.__class__.__name__
 
-    def get_kvs_key(self, **kwargs):
+    def get_kvs_key(self):
         return ''
 
     def save(self):

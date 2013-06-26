@@ -52,7 +52,7 @@ class Settings(object):
             try:
                 print 'a04'
                 return getattr(self._settings, name)
-            except ImportAError:
+            except ImportError:
                 print 'ae4'
                 # Django Settings は遅延ロードであるため,
                 # ここで ImportError になるパターンもある.

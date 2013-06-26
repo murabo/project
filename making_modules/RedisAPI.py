@@ -9,8 +9,8 @@ redisを仕様するための基本的なメソッドを搭載
 '''
 
 class RedisAPI(object):
-    def __init__(self):
-       self.redis = gredis.get()
+    def __init__(self, db_name='default'):
+       self.redis = gredis.get(db_name)
 
     '''
     文字列型

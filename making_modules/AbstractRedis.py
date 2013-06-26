@@ -11,7 +11,7 @@ import copy
 import msgpack
 import redis
 import gredis
-
+from RedisAPI import RedisAPI
 
 class AbstractRedis(object):
 
@@ -25,12 +25,11 @@ class AbstractRedis(object):
 
     def __init__(self, **kwargs):
         self.db_name = kwargs.get('db_name', None) or self.db_name
-       # self.redis = gredis.get()
-        self.redis = gredis.get(self.db_name)
+        self.redisapi= RedisAPI(self.db_name)
 
         self.key = ':'.join([self._key_prefix(), self.get_kvs_key(**kwargs)])
 
-        data = self.redis.get(self.key)
+        data = self.redisapi.get(self.key)
         self._attributes = msgpack.unpackb(data) if data else copy.copy(self.attributes)
 
     def __enter__(self):
@@ -73,7 +72,7 @@ class AbstractRedis(object):
         return self._transaction_loop(self.try_count, f, e)
 
     def _save(self):
-        with self.redis.pipeline() as pipe:
+        with self.redisapi.redis.pipeline() as pipe:
             pipe.watch(self.key)
 
             save_data = pipe.get(self.key)
@@ -102,9 +101,9 @@ class AbstractRedis(object):
         """
         任意のキーをひとつ削除
         """
-        if not self.redis:
-            self.redis = gredis.get(self.db_name)
-        self.redis.delete(self.key)
+        if not self.redisapi:
+            self.redisapi = gredis.get(self.db_name)
+        self.redisapi.delete(self.key)
 
     @classmethod
     def delete_all(cls, db_name='default'):

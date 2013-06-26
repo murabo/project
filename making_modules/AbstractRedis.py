@@ -9,8 +9,6 @@ from __future__ import with_statement
 import copy
 
 import msgpack
-import redis
-import gredis
 from RedisAPI import RedisAPI
 
 class AbstractRedis(object):
@@ -74,14 +72,9 @@ class AbstractRedis(object):
     def _save(self):
         with self.redisapi.redis.pipeline() as pipe:
             pipe.watch(self.key)
-
-            save_data = pipe.get(self.key)
             save_data = self._attributes
-
             pipe.multi()
-
             pipe.set(self.key, msgpack.packb(save_data))
-
             pipe.execute()
         return True
 
@@ -92,32 +85,11 @@ class AbstractRedis(object):
                 try_count += 1
                 result = f()
                 break
-            except redis.exceptions.WatchError:
+            except self.redisapi.redis.exceptions.WatchError:
                 if count < try_count:
                     e()
         return result
 
-    def delete(self):
-        """
-        任意のキーをひとつ削除
-        """
-        if not self.redisapi:
-            self.redisapi = gredis.get(self.db_name)
-        self.redisapi.delete(self.key)
-
-    @classmethod
-    def delete_all(cls, db_name='default'):
-        """
-        任意の子クラスが所持している全キーと値を消す
-        params: db_name <string> settingsに書いている名前
-        """
-        key = ':'.join([cls.__name__, '*'])
-        r = gredis.get(db_name)
-        keys = r.keys(key)
-        with r.pipeline(transaction=False) as pipe:
-            for key in keys:
-                pipe.delete(key)
-            pipe.execute()
 
     def init_values(self):
         """
@@ -125,3 +97,21 @@ class AbstractRedis(object):
         """
         for key,value in self._attributes.iteritems():
             self.__dict__['_attributes'][key] = value
+
+    def delete(self):
+        """
+        任意のキー１つのキーと値を削除
+        """
+        self.redisapi.delete(self.key)
+
+    def delete_all(self, db_name='default'):
+        """
+        任意の子クラスが所持している全キーと値を削除
+        params: db_name <string> settingsに書いている名前
+        """
+        key = ':'.join([self.cls.__name__, '*'])
+        keys = self.redisapi.redis.keys(key)
+        with self.redisapi.redis.pipeline(transaction=False) as pipe:
+            for key in keys:
+                pipe.delete(key)
+            pipe.execute()

@@ -10,7 +10,7 @@ redisを仕様するための基本的なメソッドを搭載
 
 class RedisAPI(object):
     def __init__(self, db_name='default'):
-       self.redis = gredis.get(db_name)
+        self.redis = gredis.get(db_name)
 
     '''
     文字列型
@@ -73,4 +73,3 @@ class RedisAPI(object):
     '''
     def delete(self, key):
         self.redis.delete(key)
-

@@ -13,6 +13,7 @@ from RedisAPI import RedisAPI
 
 class AbstractRedis(object):
 
+    _instance = None
     db_name = 'default'
     try_count = 1000
     attributes = {}
@@ -20,6 +21,11 @@ class AbstractRedis(object):
     class SaveError(Exception):
         def __init__(self, key):
             self.key = key
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance=object.__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def __init__(self, **kwargs):
         self.db_name = kwargs.get('db_name', None) or self.db_name

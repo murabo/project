@@ -41,8 +41,11 @@ class Settings(object):
             print 'a1'
             from django.conf import settings
             print 'a02'
-            self._settings = settings
+            #djangoのsettingsを読みにくと落ちるのでコメントアウト
+            #self._settings = settings
+            self._settings = None
             print 'a03'
+            print 'settings:%s' % self._settings
         except ImportError:
             print 'ae03'
             self._settings = None

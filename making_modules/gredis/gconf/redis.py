@@ -62,29 +62,36 @@ kwargs() メソッドで, StrictRedis や ConnectionPool に渡す引数を取�
 from dict import DictSettings
 
 class RedisSettings(DictSettings):
+    print 'b1'
     _default_redis_settings = {
         'HOST': 'localhost',
         'PORT': '6379',
         'DB': '0',
         'MAX_CONNECTIONS': '1',
     }
-
+    print 'b2'
     settings_name = 'REDIS_DATABASES'
     default_settings = {
         'default': _default_redis_settings,
     }
-
+    print 'b3'
     def __init__(self, name='default'):
+        print 'b4'
         super(RedisSettings, self).__init__()
+        print 'b5'
         self._redis_settings = getattr(self, name)
+        print 'b6'
+        print self._redis_settings
 
     def kwargs(self):
+        print 'b7'
         return {'host': self.host,
                 'port': self.port,
                 'db': self.db,
                 'max_connections': self.max_connections}
 
     def _get(self, name):
+        print 'b8'
         return self._redis_settings.get(name, self._default_redis_settings[name])
 
     @property

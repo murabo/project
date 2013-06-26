@@ -45,18 +45,24 @@ from gredis.gconf import Settings
 
 class DictSettings(object):
     default_settings = {}
-
+    print 'c1'
     def __init__(self):
+        print 'c2'
         self._dict = getattr(Settings(),
                              self.settings_name,
                              self.default_settings)
+        print 'c3'
+        print self._dict
 
     @property
     def settings_name(self):
+        print 'ce3'
         raise NotImplementedError
 
     def __getattr__(self, name):
         try:
+            print 'c4'
             return self._dict[name]
         except KeyError:
+            print 'ce4'
             return self.default_settings[name]

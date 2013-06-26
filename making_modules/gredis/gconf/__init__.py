@@ -38,23 +38,32 @@ class Settings(object):
 
     def __init__(self, **kwargs):
         try:
+            print 'a1'
             from django.conf import settings
+            print 'a02'
             self._settings = settings
+            print 'a03'
         except ImportError:
+            print 'ae03'
             self._settings = None
 
     def __getattr__(self, name):
         if self._settings:
             try:
+                print 'a04'
                 return getattr(self._settings, name)
-            except ImportError:
+            except ImportAError:
+                print 'ae4'
                 # Django Settings は遅延ロードであるため,
                 # ここで ImportError になるパターンもある.
                 self._settings = None
             except AttributeError:
+                print 'ae4'
                 pass
 
         try:
+            print 'a05'
             return self.default_settings[name]
         except KeyError:
+            print 'ae5'
             raise AttributeError, name

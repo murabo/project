@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+
 """
-AttributeKVSのredis versionのようなもの
-AttributeKVSはsetした時点で保存されるが、
-AttributeRedisはsaveを読んだ時にredisに保存される。
-使い方は、tests/test_attribute.pyを参照
+redisを使用するための抽象クラス。
+Singletonパターンで実装されている。
+基本非同期であり、saveを読んだ時にredisに保存される。
+redis使用時は原則として、このクラスを継承すること。
 """
 
 from __future__ import with_statement
@@ -66,6 +67,15 @@ class AbstractRedis(object):
     def get_kvs_key(self):
         return ''
 
+    def create_subkey(self, id=1):
+        subkey = '%s:sub:%s' % (self.key, id)
+        while self.redisapi.redis.exists(subkey):
+            id += 1
+            subkey = '%s:sub:%s' % (self.key, id)   
+            if id > 10:
+                raise
+        return '%s:sub:%s' % (self.key, id)
+
     def save(self):
         def f():
             return self._save()
@@ -104,7 +114,7 @@ class AbstractRedis(object):
         for key,value in self._attributes.iteritems():
             self.__dict__['_attributes'][key] = value
 
-    def delete(self):
+    def delete_self(self):
         """
         任意のキー１つのキーと値を削除
         """

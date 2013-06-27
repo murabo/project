@@ -67,13 +67,10 @@ class AbstractRedis(object):
     def get_kvs_key(self):
         return ''
 
-    def create_subkey(self, id=1):
-        subkey = '%s:sub:%s' % (self.key, id)
-        while self.redisapi.redis.exists(subkey):
-            id += 1
-            subkey = '%s:sub:%s' % (self.key, id)   
-            if id > 10:
-                raise
+    def create_subkey(self, subkey_prefix=1):
+        subkey = '%s:sub:%s' % (self.key, subkey_prefix)
+        if self.redisapi.redis.exists(subkey):
+            raise
         return '%s:sub:%s' % (self.key, id)
 
     def save(self):

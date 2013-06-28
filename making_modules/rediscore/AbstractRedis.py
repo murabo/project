@@ -32,7 +32,7 @@ class AbstractRedis(object):
         self.db_name = kwargs.get('db_name', None) or self.db_name
         self.redisapi= RedisAPI(self.db_name)
 
-        self.key = ':'.join([self._key_prefix(), self.get_kvs_key()])
+        self.key = ':'.join([self._key_prefix(), self.get_key()])
 
         data = self.redisapi.get(self.key)
         self._attributes = msgpack.unpackb(data) if data else copy.copy(self.attributes)
@@ -64,14 +64,14 @@ class AbstractRedis(object):
     def _key_prefix(self):
         return self.__class__.__name__
 
-    def get_kvs_key(self):
+    def get_key(self):
         return ''
 
-    def create_subkey(self, subkey_prefix=1):
+    def create_subkey(self, subkey_prefix):
         subkey = '%s:sub:%s' % (self.key, subkey_prefix)
         if self.redisapi.redis.exists(subkey):
             raise
-        return '%s:sub:%s' % (self.key, id)
+        return subkey
 
     def save(self):
         def f():

@@ -70,7 +70,7 @@ class AbstractRedis(object):
     def create_subkey(self, subkey_prefix):
         subkey = '%s:sub:%s' % (self.key, subkey_prefix)
         if self.redisapi.redis.exists(subkey):
-            raise
+            raise Exception
         return subkey
 
     def save(self):
@@ -122,7 +122,7 @@ class AbstractRedis(object):
         任意の子クラスが所持している全キーと値を削除
         params: db_name <string> settingsに書いている名前
         """
-        key = ':'.join([self.cls.__name__, '*'])
+        key = ':'.join([self._key_prefix(), '*'])
         keys = self.redisapi.redis.keys(key)
         with self.redisapi.redis.pipeline(transaction=False) as pipe:
             for key in keys:

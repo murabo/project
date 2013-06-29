@@ -10,9 +10,14 @@ class SampleRedis(AbstractRedis):
 
     def __init__(self):
         super(SampleRedis, self).__init__()
+        self.get_and_create_subkey()
 
-    def get_kvs_key(self):
+    def get_key(self):
         return '%s' % 'dummy'
 
-    def get_new_key(self, id):
-        return self.get_kvs_subkey(id)
+    def get_and_create_subkey(self):
+        subkey_prefix = 'dummy-sub1'
+        self.subkey1 = self.create_subkey(subkey_prefix)
+        subkey_prefix = 'dummy-sub2'
+        self.subkey2 = self.create_subkey(subkey_prefix)
+

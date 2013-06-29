@@ -69,8 +69,6 @@ class AbstractRedis(object):
 
     def create_subkey(self, subkey_prefix):
         subkey = '%s:sub:%s' % (self.key, subkey_prefix)
-        if self.redisapi.redis.exists(subkey):
-            raise Exception
         return subkey
 
     def save(self):

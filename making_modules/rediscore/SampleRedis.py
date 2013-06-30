@@ -8,16 +8,22 @@ class SampleRedis(AbstractRedis):
         'sample':'sample',
     }
 
+    key_prefix = 'dummy'
+    subkey_prefixes = {
+        1 :'dummy-sub1',
+        2 :'dummy-sub2',
+    }
+
     def __init__(self):
         super(SampleRedis, self).__init__()
         self.get_and_create_subkey()
 
     def get_key(self):
-        return '%s' % 'dummy'
+        return '%s' % self.__class__.key_prefix
 
     def get_and_create_subkey(self):
-        subkey_prefix = 'dummy-sub1'
-        self.subkey1 = self.create_subkey(subkey_prefix)
-        subkey_prefix = 'dummy-sub2'
-        self.subkey2 = self.create_subkey(subkey_prefix)
+        subkey_prefix1 = self.__class__.subkey_prefix[1]
+        subkey_prefix2 = self.__class__.subkey_prefix[2]
+        self.subkey1 = self.create_subkey(subkey_prefix1)
+        self.subkey2 = self.create_subkey(subkey_prefix2)
 

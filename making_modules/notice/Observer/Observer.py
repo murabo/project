@@ -13,7 +13,8 @@ class SendMailObserver(Observer):
         Observer.__init__(self, *args)
         
     def update(self):
-        print 'SendMail'
+        user = User.get(user_id)
+        user.sendmail()
 
 
 

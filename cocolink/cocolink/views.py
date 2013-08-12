@@ -11,3 +11,6 @@ def sign_in_view(request):
 
 def post_view(request):
     return render_to_response("html/post.html",)
+
+def test_view(request):
+    return render_to_response("html/test.html",)

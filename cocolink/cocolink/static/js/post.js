@@ -1,7 +1,7 @@
 $(function() {
 
-	var Post1 = function() {};
-	Post1.prototype = $.extend({}, GetListUtil.prototype, {
+	var Post = function() {};
+	Post.prototype = $.extend({}, GetListUtil.prototype, {
 
 		self: function() { },
 		init: function() {
@@ -55,8 +55,8 @@ $(function() {
 
 	});
 
-	var post1 = new Post1();
-	post1.init();
+	var post = new Post();
+	post.init();
 
 
 });

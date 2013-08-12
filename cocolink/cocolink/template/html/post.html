@@ -10,78 +10,90 @@
 <link rel="stylesheet" href="/static/css/general.css"/>
 <link rel="stylesheet" href="/static/css/layout.css"/>
 <link rel="stylesheet" href="/static/css/module.css"/>
-<title>maplus</title>
+<title></title>
 </head>
 <body>
 
 <header class="tbl">
     <div class="tbl-cell w60 left_bx"></div>
     <div class="tbl-cell canter_bx">投稿する</div>
-    <div class="tbl-cell w60 right_bx">
-         <a href="post.html">投稿</a>
-    </div>
+    <div class="tbl-cell w60"></div>
 </header>   
 
+<article class="contents_top">
 
-<div class="contents map_page disp_block">
-    <div id="map_canvas" style="width:100%; height:120px"></div>
-    <ul id="js-result-list" class="dsp_txt_page ullist mt10"></ul>
-</div>
+    <h1>カテゴリー</h1>
+    <select name="category">
+        <option value="99">全て</option>
+        <option value="1">ファッション</option>
+        <option value="2">ラーメン</option>
+        <option value="3">スイーツ</option>
+        <option value="4">散歩</option>
+        <option value="5">イタリアン</option>
+    </select>
 
-<div class="contents txt_page disp_none">
+    <h1 class="mt10">場所の検索方法</h1>
+    <input type="email" name="email" id="js-email"  maxlength="100" value="" class="w100p">
+    <button type="botton"class="js-submit btn bg_col_999 mt10">検索</button>
 
-    <div class="dsp_map_page">戻る</div>
+    <div class="contents map_page disp_block">
+        <div id="map_canvas" style="width:100%; height:120px"></div>
+    </div>
 
-	<form action="xxx" method="post">
-	    <section class="m10">
-	        <textarea id="js-textarea" name="message" class="p10 minH125" maxlength="140" placeholder="書き込み..."></textarea>
-	        <div id="js-comment_counter" class="counter">140</div>
-	    </section>
+    <div class="contents txt_page disp_none">
+        <div class="dsp_map_page">戻る</div>
+    	<form action="xxx" method="post">
+    	    <section class="m10">
+    	        <textarea id="js-textarea" name="message" class="p10 minH125" maxlength="140" placeholder="書き込み..."></textarea>
+    	        <div id="js-comment_counter" class="counter">140</div>
+    	    </section>
 
-        <div class="dsp_place">
-            <p class="place"></p>
-            <input type="hidden" name="lat" value="" id="lat">
-            <input type="hidden" name="lng" value="" id="lng">
-            <input type="hidden" name="zip3" value="" class="">
-			<input type="hidden" name="zip4" value="" class="">
-			<input type="hidden" name="city" value="" class="">
-            <input type="hidden" name="place_name" value="" class="">
+            <div class="dsp_place">
+                <p class="place"></p>
+                <input type="hidden" name="lat" value="" id="lat">
+                <input type="hidden" name="lng" value="" id="lng">
+                <input type="hidden" name="zip3" value="" class="">
+    			<input type="hidden" name="zip4" value="" class="">
+    			<input type="hidden" name="city" value="" class="">
+                <input type="hidden" name="place_name" value="" class="">
 
-		</div>
+    		</div>
 
-        <input type="checkbox" name="public_flg" value="1">公開する<br>
-        <input type="checkbox" name="review_flg" value="1">評価する
+            <input type="checkbox" name="public_flg" value="1">公開する<br>
+            <input type="checkbox" name="review_flg" value="1">評価する
 
-        <div class="star_review">
-            <div class="starlevel5 star00"></div>
-            <ul>
-                <li class="js_star" id="star_10"></li>
-                <li class="js_star" id="star_20"></li>
-                <li class="js_star" id="star_30"></li>
-                <li class="js_star" id="star_40"></li>
-                <li class="js_star" id="star_50"></li>
-            </ul>
-        </div>
+            <div class="star_review">
+                <div class="starlevel5 star00"></div>
+                <ul>
+                    <li class="js_star" id="star_10"></li>
+                    <li class="js_star" id="star_20"></li>
+                    <li class="js_star" id="star_30"></li>
+                    <li class="js_star" id="star_40"></li>
+                    <li class="js_star" id="star_50"></li>
+                </ul>
+            </div>
 
-	    <!--start  data url -->
-	    <div class="m10 mt20">
-	       <input type="file" id="files" name="files[]" multiple class="disp_none"/>
-	       <output id="list" class=""></output>
-	       <img class="js-disp-img disp_img">
-	       <input type="hidden" name="data_url" value="" class="js-post-data-url">
-	    </div>
-	    <!--end  data url -->
+    	    <!--start  data url -->
+    	    <div class="m10 mt20">
+    	       <input type="file" id="files" name="files[]" multiple class="disp_none"/>
+    	       <output id="list" class=""></output>
+    	       <img class="js-disp-img disp_img">
+    	       <input type="hidden" name="data_url" value="" class="js-post-data-url">
+    	    </div>
+    	    <!--end  data url -->
 
-	</form>
+    	</form>
 
-</div>
-
-
+    </div>
+    <h1>検索結果</h1>
+     <ul id="js-result-list" class="dsp_txt_page ullist mt10"></ul>
+</article>
 
 
 
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=ja"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=true"></script>
+
 
 <script type="text/javascript" src="/static/js/common/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/static/js/common/general.js"></script>
@@ -96,14 +108,13 @@
 
 <script type="text/template" id="template">
 <li class="p5">
-<img src="{{icon}}" class="icon">{{name}}
-<p class="text10 text_col_gray">{{vicinity}}</p>
-<input type="hidden" name="lng" value="{{lat}}" class="js-lat">
-<input type="hidden" name="lat" value="{{lng}}" class="js-lng">
+<img src="{icon}" class="icon">{name}
+<p class="text10 text_col_gray">{vicinity}</p>
+<input type="hidden" name="lng" value="{location}" class="js-location">
+<input type="hidden" name="lng" value="{lat}" class="js-lat">
+<input type="hidden" name="lat" value="{lng}" class="js-lng">
 </li>
 </script>
-
-
 
 
 </body>

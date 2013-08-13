@@ -11,3 +11,5 @@ class MyUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     # USERNAME_FIELDのフィールドは、必須フィールドに記載してはいけない
     #REQUIRED_FIELDS = ['email']
+
+    

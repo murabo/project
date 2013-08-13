@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^test/$', 'cocolink.views.test_view', name='test_view'),
     url(r'^sign_up/$', 'cocolink.myuser.views.sign_up_view', name='sign_up_view'),
     url(r'^sign_up_execute/$', 'cocolink.myuser.views.sign_up_execute', name='sign_up_execute'),
+    url(r'^gu/$', 'gu.views.gu_index', name="gu_index"),
     # url(r'^cocolink/', include('cocolink.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

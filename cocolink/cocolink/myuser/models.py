@@ -17,8 +17,8 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password):
-        u = self.create_user(email, password=password)
+    def create_superuser(self, username, email, password):
+        u = self.create_user(username, email, password=password)
         u.is_admin = True
         u.save(using=self._db)
         return u
@@ -29,9 +29,9 @@ class MyUser(AbstractBaseUser):
     date_of_birth = models.DateField()
 
     objects = MyUserManager()
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     # USERNAME_FIELDのフィールドは、必須フィールドに記載してはいけない
-    REQUIRED_FIELDS = ['email', 'password']
+    REQUIRED_FIELDS = ['username']
 
     def email_user(self, subject, message, from_email=None):
         """

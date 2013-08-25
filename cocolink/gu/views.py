@@ -1,8 +1,9 @@
 # coding:utf-8
 
 from django.shortcuts import render_to_response
-
 from gu.ajax import ajax_api
+from django.template import RequestContext
+
 
 def gu_index(request):
 

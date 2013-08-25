@@ -12,4 +12,5 @@ been sent.
 {% block registration %}
 <h1>{% trans "User registration successful" %}</h1>
 <p>{% trans "We've e-mailed you instructions for activating your account to the e-mail address you submitted. You should be receiving it shortly." %}</p>
+<a href="{%url "auth_login" %}" > log in</a>
 {% endblock %}

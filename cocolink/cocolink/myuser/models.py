@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 import datetime
+from django.core.mail import send_mail
 
 class MyUserManager(BaseUserManager):
 
@@ -32,3 +33,8 @@ class MyUser(AbstractBaseUser):
     # USERNAME_FIELDのフィールドは、必須フィールドに記載してはいけない
     REQUIRED_FIELDS = []
 
+    def email_user(self, subject, message, from_email=None):
+        """
+        Sends an email to this User.
+        """
+        send_mail(subject, message, from_email, [self.email])

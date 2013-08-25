@@ -29,12 +29,16 @@ class MyUser(AbstractBaseUser):
     date_of_birth = models.DateField()
 
     objects = MyUserManager()
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     # USERNAME_FIELDのフィールドは、必須フィールドに記載してはいけない
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['email', 'password']
 
     def email_user(self, subject, message, from_email=None):
         """
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
+
+    class Meta:
+        db_table = 'myuser'
+        swappable = 'AUTH_USER_MODEL'

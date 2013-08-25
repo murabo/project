@@ -1,15 +1,34 @@
 # coding:utf-8
 
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
-# Create your models here.
+import datetime
+
+class MyUserManager(BaseUserManager):
+
+    def create_user(self, username, email, password=None):
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(email=BaseUserManager.normalize_email(email), username=username, date_of_birth=datetime.date(1981,12,29))
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        u = self.create_user(email, password=password)
+        u.is_admin = True
+        u.save(using=self._db)
+        return u
+
 class MyUser(AbstractBaseUser):
-    email = models.EmailField(_('email address'), unique=True, blank=True)
+    username      = models.CharField(verbose_name=u"ユーザ名", max_length=255)
+    email         = models.EmailField(_('email address'), unique=True, blank=True)
     date_of_birth = models.DateField()
 
+    objects = MyUserManager()
     USERNAME_FIELD = 'email'
     # USERNAME_FIELDのフィールドは、必須フィールドに記載してはいけない
-    #REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = []
 
-    

@@ -13,6 +13,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('password', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('last_login', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('username', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('email', self.gf('django.db.models.fields.EmailField')(unique=True, max_length=75, blank=True)),
             ('date_of_birth', self.gf('django.db.models.fields.DateField')()),
         ))
@@ -31,7 +32,8 @@ class Migration(SchemaMigration):
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '75', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'username': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         }
     }
 

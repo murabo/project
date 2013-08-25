@@ -24,7 +24,8 @@
 </header>	
 
 <section class="contents_top">
-	<form id = "form1" method="POST" action="feed.html" class="mt20">
+	<form id = "form1" method="POST" action="{% url "sign_up_execute" %}" class="mt20">
+		{% csrf_token %}
 		<div class="mt10 fw_bld">
 			<p class="text12 ">ニックネーム(1〜10文字)</p> 
 			<p class="error js-error" id="js-nick-name-error"></p>
@@ -45,7 +46,7 @@
 			<p class="error js-error" id="js-con-password-error"></p>
 			<input type="password" name="con_password" id="js-con-password"  maxlength="16" value="" class="w100p">
 		</div>
-		<button type="botton"class="js-submit btn bg_col_999 mt20">登録</button>
+		<button type="botton" class="js-submit btn bg_col_999 mt20">登録</button>
 	</form>
 <section>
 <a href="sign_in.html" class="mt10 floRight tx_underline">ログイン</a>

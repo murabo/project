@@ -1,9 +1,9 @@
-# coding:utf-8
+# encoding:utf-8
 
 from django.shortcuts import render_to_response
 
 def index_view(request):
-    del request.session["login"] 
+#    del request.session["login"] 
     return render_to_response("dummy.html",)
 
 def sign_in_view(request):

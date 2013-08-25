@@ -139,6 +139,8 @@ INSTALLED_APPS = (
     'south',
     'southut',
     'cocolink.myuser',
+    'gu',
+    'registration',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -173,3 +175,15 @@ LOGGING = {
         },
     }
 }
+
+
+# django-registration 用
+ACCOUNT_ACTIVATION_DAYS = 7
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'murakami.shinya@gmail.com'  # 使用するgmailアカウント
+EMAIL_HOST_PASSWORD = 'murabo408'     # 使用するgmailアカウントのパスワード
+EMAIL_PORT = 587
+
+LOGIN_REDIRECT_URL = '/'

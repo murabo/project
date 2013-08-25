@@ -1,29 +1,46 @@
 # coding:utf-8
+from cocolink.myuser.models import MyUser
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from myuser.models import MyUser
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
-def sign_up_view(request):
+
+def login_execute(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            # Redirect to a success page.
+            return HttpResponseRedirect(reverse("login_success"),)
+        else:
+            # Return a 'disabled account' error message
+            return HttpResponseRedirect(reverse("login_error"),)
+    else:
+        # Return an 'invalid login' error message.
+        return HttpResponseRedirect(reverse("login_error"),)
+
+@login_required
+def login_success(request):
     """
-    会員登録画面表示処理
+    ログイン完了画面表示用
     """
-    # TODO tryしておかないと、セッションが無い場合こける。違う方法もありそう。
-    try:
-        login = request.session["login"]
-    except:
-        login = None
+    print request.user.username
+    ctxt = RequestContext(request, 
+                          {"username":request.user.username,
+                                    })
+    return render_to_response("html/login_success.html",ctxt)
 
-    # loginしていた場合、どこに飛ばす？
-    if login:
-        # TODO log
-        return HttpResponseRedirect(reverse("index_view"),)
-
-#    request.session["login"] = True
-#    print request.session["login"]
-    # TODO log
-    return render_to_response("html/sign_up.html",)
+def login_error(request):
+    """
+    ログイン完了画面表示用
+    """
+    return render_to_response("html/login_error.html",)
 
 def sign_up_execute(request):
     """
@@ -33,6 +50,8 @@ def sign_up_execute(request):
     if 既にDBにあったなら:
         エラー
     """ 
-    MyUser.objects.get_all()
+    ctxt = RequestContext(request, {})
+    print "AAAAA", ctxt
+    MyUser.objects.all()
     user = User.objects.create_user()
     

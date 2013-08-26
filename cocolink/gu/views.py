@@ -3,8 +3,9 @@
 from django.shortcuts import render_to_response
 from gu.ajax import ajax_api
 from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def gu_index(request):
 
     ctxt = RequestContext(request, 

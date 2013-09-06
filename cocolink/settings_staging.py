@@ -117,7 +117,7 @@ ROOT_URLCONF = 'cocolink.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'cocolink.wsgi.application'
-
+print "test"
 from os.path import dirname
 ROOT_PATH = dirname(__file__)
 

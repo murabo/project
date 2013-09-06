@@ -69,7 +69,7 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
 # �A�b�v���[�h��z�肵�Ȃ��G���A�@���S���I�G���A
-SITE_DOMAIN = os.environ.get('', '127.0.0.1:8080')
+SITE_DOMAIN = os.environ.get('', '157.7.129.122:8080')
 
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
 print STATIC_ROOT

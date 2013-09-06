@@ -121,7 +121,7 @@ print "test"
 from os.path import dirname
 ROOT_PATH = dirname(__file__)
 
-
+print "test"
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -146,7 +146,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
-
+print "test"
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -176,14 +176,14 @@ LOGGING = {
     }
 }
 
-
+print "test"
 # django-registration 用
 ACCOUNT_ACTIVATION_DAYS = 7
-
+print "test1"
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'murakami.shinya@gmail.com'  # 使用するgmailアカウント
 EMAIL_HOST_PASSWORD = 'murabo408'     # 使用するgmailアカウントのパスワード
 EMAIL_PORT = 587
-
+print "test2"
 LOGIN_REDIRECT_URL = '/'

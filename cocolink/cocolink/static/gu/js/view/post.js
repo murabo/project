@@ -34,7 +34,8 @@ var PostView = Backbone.View.extend({
                     
         $.ajax({
             type: "POST",
-            url: "http://127.0.0.1:3000/",
+            //url: "http://127.0.0.1:3000/",
+            url: "http://157.7.129.122:3000/",     
             data: data,
             success: function(msg){
                 alert( "Data Saved: " + msg );

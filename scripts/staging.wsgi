@@ -13,7 +13,7 @@ path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../cocolink'))
 if path not in sys.path:
    sys.path.insert(0, path)
 
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_gree_staging'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_staging'
 
 from devtool import monitor
 monitor.start()

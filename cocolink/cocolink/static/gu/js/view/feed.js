@@ -9,7 +9,8 @@ var FeedView = Backbone.View.extend({
         _.bindAll(this, "render");
         
         this.collection = new Get({
-                                url: 'http://127.0.0.1:3000/',
+                                //url: 'http://127.0.0.1:3000/',
+                                url: 'http://157.7.129.122:3000/',
                                 model:this.model
                             });
         this.render();

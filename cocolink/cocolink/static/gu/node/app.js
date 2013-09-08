@@ -13,7 +13,7 @@ var TABLE = 'gu_gupost';
 //mysqlクライアント作成
 var client = mysql.createConnection({
   user: 'root',
-  //password: '',
+  password: 'mrk31229',
   database: 'cocolink'
 });
  

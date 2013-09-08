@@ -8,7 +8,7 @@
 			</a>
 		</div>
 		<div class="bd">
-			<p><a href="http://girlsup.me/web/diary?user_id=84439" class="name"><%= user_id %></a></p>
+			<p><a href="http://girlsup.me/web/diary?user_id=84439" class="name"><%= username %></a></p>
 			<p class="text9 text_col_gray"><span class="mr5">20歳</span><span>会社員</span></p>			<p class="text9 text_col_gray"><%= created_at %></p>
 		</div>
 			</div>

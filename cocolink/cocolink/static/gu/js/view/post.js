@@ -42,9 +42,8 @@ var PostView = Backbone.View.extend({
             }
         });
 
-        $("#list").html("");
-        $(".js_btn_more").click();
-        this.close();
+        //this.close();
+        window.location.reload();
 
         // this.model.set({'message': $(".js_post_textarea").val()});
         // this.model.save(null, {

@@ -26,8 +26,8 @@ class MyUserManager(BaseUserManager):
 class MyUser(AbstractBaseUser):
     username      = models.CharField(verbose_name=u"ユーザ名", max_length=255)
     email         = models.EmailField(_('email address'), unique=True, blank=True)
-    date_of_birth = models.DateField(verbose_name=u'管理者フラグ',default=False)
-    is_staff      = models.BooleanField()
+    date_of_birth = models.DateField(verbose_name=u'生年月日',default=False)
+    is_staff      = models.BooleanField(verbose_name=u'管理者フラグ',default=False)
 
     objects = MyUserManager()
     USERNAME_FIELD = 'email'

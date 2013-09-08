@@ -2,6 +2,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
+from django.contrib import admin
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -23,6 +24,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
 )
 
 # ���O�C��
@@ -33,6 +35,8 @@ urlpatterns += patterns('cocolink.myuser.views',
 #    url(r'^sign_up/$', 'sign_up_view', name='sign_up_view'),
 #    url(r'^sign_up_execute/$', 'sign_up_execute', name='sign_up_execute'),
 )
+
+
 
 urlpatterns += patterns('',
                             (r'^static/(?P<path>.*)$', 'django.views.static.serve',{'document_root':settings.STATIC_ROOT}),

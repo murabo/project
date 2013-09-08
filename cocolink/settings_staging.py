@@ -20,7 +20,7 @@ DATABASES = {
         'NAME': 'cocolink',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'mrk31229',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -69,7 +69,7 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
 # �A�b�v���[�h��z�肵�Ȃ��G���A�@���S���I�G���A
-SITE_DOMAIN = os.environ.get('', '127.0.0.1:8080')
+SITE_DOMAIN = os.environ.get('', '157.7.129.122:8080')
 
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
 print STATIC_ROOT
@@ -117,16 +117,16 @@ ROOT_URLCONF = 'cocolink.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'cocolink.wsgi.application'
-
+print "test"
 from os.path import dirname
 ROOT_PATH = dirname(__file__)
 
-
+print "test"
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'cocolink/template',
+    ROOT_PATH + '/cocolink/template',
 )
 
 INSTALLED_APPS = (
@@ -146,7 +146,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
-
+print "test"
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -176,14 +176,14 @@ LOGGING = {
     }
 }
 
-
+print "test"
 # django-registration 用
 ACCOUNT_ACTIVATION_DAYS = 7
-
+print "test1"
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'murakami.shinya@gmail.com'  # 使用するgmailアカウント
 EMAIL_HOST_PASSWORD = 'murabo408'     # 使用するgmailアカウントのパスワード
 EMAIL_PORT = 587
-
+print "test2"
 LOGIN_REDIRECT_URL = '/'

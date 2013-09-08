@@ -15,8 +15,6 @@ if path not in sys.path:
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_staging'
 
-from devtool import monitor
-monitor.start()
 
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()

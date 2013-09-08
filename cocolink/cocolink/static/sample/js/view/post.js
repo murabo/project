@@ -14,7 +14,7 @@ var PostView = Backbone.View.extend({
         'click　.js_submit' : 'save'
     },
     open : function() {
-
+alert();
         $(".js-post_page").css('display','block');
 		$(".js-main_page,.js-app_header,.js-tab").css('display','none');
 		$(".js-wrapper").addClass('H100p');
@@ -22,16 +22,17 @@ var PostView = Backbone.View.extend({
     },
     save : function(e) {
 
-        this.model.set({'message': $(".js_post_textarea").val()});
-        this.model.save(null, {
-            success : function(model, resp) {
-               location.reload();
-            },
-            error : function(model, resp) {
-                alert('エラー：送信に失敗しました。');
-                return false;
-            }
-        });
+alert($(".js_post_textarea").val());
+       // this.model.set({'message': $(".js_post_textarea").val()});
+        // this.model.save(null, {
+        //     success : function(model, resp) {
+        //        location.reload();
+        //     },
+        //     error : function(model, resp) {
+        //         alert('エラー：送信に失敗しました。');
+        //         return false;
+        //     }
+        // });
     }
     
 });

@@ -38,14 +38,11 @@
 	<!-- タブメニュー -->
 	<nav id="tab" class="js-tab">
         <ul id="ga-tab" class="dis_box">
+        	<li class="pos_rel current  w33">
+            	<div><a href="./女子力アップツイートサービス GIRLS UP_files/女子力アップツイートサービス GIRLS UP.html" class="js-analytics" data-page="tab/みんな" data-action="Click"><span class="sprite_tab tab_icon_current_02 tab_logo"></span><span class="tab_title">みんなのツイート</span></a></div>
+            </li>
             <li id="tab_diary" class="pos_rel w33">
             	<div><a href="http://girlsup.me/web/diary/" class="js-analytics" data-page="tab/ダイアリー" data-action="Click"><span class="sprite_tab tab_icon_01 tab_logo"></span><span class="tab_title">マイダイアリー</span></a></div>
-            </li>
-        	<li class="pos_rel current  w33">
-            	<div><a href="http://girlsup.me/web/top/" class="js-analytics" data-page="tab/みんな" data-action="Click"><span class="sprite_tab tab_icon_current_02 tab_logo"></span><span class="tab_title">みんなのツイート</span></a></div>
-            </li>
-        	<li class="pos_rel w33">
-            	<div><a href="http://girlsup.me/web/user_ranking/ranking_top" class="js-analytics" data-page="tab/ランキング" data-action="Click"><span class="sprite_tab tab_icon_05 tab_logo_rank"></span><span class="tab_title">ランキング</span><span class="sprite_image icon_new03"></span></a></div>
             </li>
         	<li class="pos_rel w33">
             	<div><a href="http://girlsup.me/web/category/" class="js-analytics" data-page="tab/おしゃべり" data-action="Click"><span class="sprite_tab tab_icon_04 tab_logo"></span><span class="tab_title">おしゃべり</span></a></div>
@@ -56,25 +53,34 @@
 		
 <div class="js-main_page pos_rel">
 
-				
-	<div class="post_btn_bx renewal mt10">
-      <div class="post_btn renewal text13 clrF"> <span>
-      	<img data-defer-src="http://stat.amebame.com/pub/content/136890615/prof_default.png?width=96&amp;height=96&amp;option=crop" class="load_anime img_size_48 defer js-post_img pointer" alt="" src="http://stat.amebame.com/pub/content/136890615/prof_default.png?width=96&amp;height=96&amp;option=crop" style="display: inline;"></span>
-        <button class="js_open js-analytics" type="button" data-page="hot" data-action="" data-noint="true">
-        	<div class="pl5">いまのワタシをツイートしよう！</div>
-        </button>
-      </div>
-    </div>
+	
+	<ul class="tweet_tab_bx bd tbl taCenter">
+		<li class="tbl-cell w33p select"><a href="http://girlsup.me/web/top" class="tweet_tab disp_block js-analytics" data-page="top" data-action="Click" data-label="新着"><span class="sprite_image icon_image57 mr5 vam"></span>新着</a></li>
+		<li class="tbl-cell w34p unselect"><a href="http://girlsup.me/web/contribute/hot" class="tweet_tab disp_block js-analytics" data-page="top" data-action="Click" data-label="話題"><span class="sprite_image icon_image52 mr5 vam"></span>話題</a></li>
+		<li class="tbl-cell w33p unselect"><a href="http://girlsup.me/web/contribute/theme?disp_type=random" class="tweet_tab pr0 disp_block js-analytics" data-page="top" data-action="Click" data-label="女子ネタ"><span class="sprite_image icon_image54_01 mr5 vam"></span>女子ネタ<span class="sprite_image icon_image54_02 vam mt5"></span></a></li>
+	</ul>
+
+			
+	<section class="ph11">
+		<div class="post_btn hello-button js_open pos_rel text13 clrF mt10">
+			<button class="js_opne　hello-button" id="js_opne">
+				<div class="pl25"><span class="sprite_image icon_image25 vam mr5"></span>いまのワタシをツイートしよう！</div>
+			</button>
+		</div>
+	</section>
 
 	<section class="content" id="tweet">
-		<ul class="ullist  feed renewal" id="list">
+		<ul class="ullist follow_list" id="list">
 		</ul>
 	<div class="mt10">
 		<button type="button" id="js_btn_more" class="btn2 btn_all js_btn_more btn_more">もっと見る<span class="sprite_image icon_image34 ml5"></span></button>
 	</div>
-	</section>
+
+			</section>
 
 	<input type="hidden" value="0" id="js_regist_weight">	<input type="hidden" value="https://s.amebame.com" id="js-deca_base_url">	<input type="hidden" value="1" id="js-mytimeline">	<input type="hidden" value="1" id="next_offset">	<input type="hidden" id="screen_id" value="top_index">	<input type="hidden" value="1224" id="toppic_id">	<input type="hidden" value="" id="theme_id">	<input type="hidden" value="0" id="js-go_review">	<input type="hidden" value="1" id="js-implements_theme_tweet">	<input type="hidden" value="49" id="js-my_tweet_count">	<input type="hidden" value="50" id="js-tutori_stus"></div>
+
+
 
 
 <div class="js-post_page modal js-modal disp_none post">
@@ -82,7 +88,7 @@
 	<header>
 		<nav class="app_header">
 			<ul>
-				<li class="left js_close"><div class="clrF"><a href="#" class="nav_btn text12 cancel fw_bld">キャンセル</a></div></li>
+				<li class="left js-close"><div class="clrF"><a href="#" class="nav_btn text12 cancel fw_bld">キャンセル</a></div></li>
 				<li class="center">
 					<div class="div01"><em class="text17">ツイートする</em></div>
                 </li>
@@ -93,7 +99,8 @@
 
 	<div class=" white_area">
 		<div class="clrF">
-			<div class="js-theme_txt js-pt pointer reader theme_post_bx"></div>
+			<div class="js-theme_txt js-pt pointer reader theme_post_bx">
+							</div>
 		</div>
 		<p class="js-disp_target_time"></p>
 		<p id="js-contribute_select_error" class="error js-error"></p>
@@ -135,9 +142,9 @@
 		<div class="p5">
 			<h4 class="taCenter"><span class="sprite_post post_icon_07"></span></h4>
 			<ul class="clrF floLli">
-				<li class="js-theme_btn m2_5" data-theme-id="71"><button class="theme_btn text15 event"><span class="sprite_stamp_mini stamp_mini_1"></span><span class="sprite_image icon_image77"></span>夏の女子力調査</button></li>
-				<li class="js-theme_btn m2_5" data-theme-id="39"><button class="theme_btn text15 "><span class="sprite_stamp_mini stamp_mini_27"></span>デート</button></li>
-			</ul>
+									<li class="js-theme_btn m2_5" data-theme-id="71"><button class="theme_btn text15 event"><span class="sprite_stamp_mini stamp_mini_1"></span><span class="sprite_image icon_image77"></span>夏の女子力調査</button></li>
+									<li class="js-theme_btn m2_5" data-theme-id="39"><button class="theme_btn text15 "><span class="sprite_stamp_mini stamp_mini_27"></span>デート</button></li>
+							</ul>
 		</div>
 		<input type="hidden" id="js_theme_id" value="">
 		<input type="hidden" id="js_target_time" value="">
@@ -148,67 +155,57 @@
 
 
 <script type="text/template" id="user_row_template">
-
-
-<li class="bg_color_white pos_rel js-contribute" data-post-id="<%= id %>">
-	<input type="hidden" value="775748" class="js-contribute_id">
-		<div class="media p10">
+<li class="p10 bg_color_white pos_rel js-contribute" data-post-id="635952">
+<input type="hidden" value="635952" class="js-contribute_id">
+	<div class="media">
 		<div class="img">
-			<a href="http://girlsup.me/web/diary?user_id=95824" class="frame">
-				<img data-defer-src="http://stat.amebame.com/pub/content/136890615/prof_95824_1377840461.jpg?width=96&amp;height=96&amp;option=crop" class="img_size_40 load_anime" alt="" src="http://stat.amebame.com/pub/content/136890615/prof_95824_1377840461.jpg?width=96&amp;height=96&amp;option=crop" style="display: inline;"><span class="official_edge_0"></span>
+			<a href="http://girlsup.me/web/diary?user_id=84439" class="frame">
+				<img data-defer-src="/static/gu/image/prof_default.png" class="img_size_35 load_anime" alt="" src="/static/gu/image/prof_default.png">
 			</a>
 		</div>
 		<div class="bd">
-			<p class="disp_inlineblock"><a href="http://girlsup.me/web/diary?user_id=95824" class="name"><%= user_id %></a></p>
-			<p class="text9 text_col_gray disp_inlineblock floRight"><%= created_at %></p>
-			</div>
-	</div>
-
-	
-
-		
-				<div class="text15 p10">
-<%= body_text %>
-	</div>
-<div class="praises_bx js-prai_bx clrF pos_rel bdr5 pl10 pt5 pb5 ml5 mr5">
-			<p class="com_bx floLeft">
-			<a href="http://girlsup.me/web/contribute/index?topic_contribute_id=775748">
-				<span class="comment_tx disp_block mt8">
-				<span class="sprite_image icon_image91 vam"></span>
-											<i>コメントする..</i>
-									</span>
-			</a>
-		</p>
-		<div class="clrF prai_bx js-prai_bx  mb3    off js-off  " data-post-id="775748">
-		<div class="praises_btn js-push"><span class="sprite_image icon_somebody"></span><span class="sprite_image icon_image90"></span></div>
-		<div class="blowoff floRight"><span class="sprite_image praise_icon"></span>
-			<p class="count js-count">1</p>
+			<p><a href="http://girlsup.me/web/diary?user_id=84439" class="name"><%= name %></a></p>
+			<p class="text9 text_col_gray"><span class="mr5">20歳</span><span>会社員</span></p>			<p class="text9 text_col_gray"><%= create_datetime %></p>
 		</div>
+			</div>
+	<div class="follow_bx list pr10">
+			<button type="button" class="follow_btn off js-follow" data-user-id="84439"></button>
+		</div>
+<div class="clrF mt5">
+			<div class="text15 mt5"><%= message %></div>
+</div>
+	<div class="praises_bx mt15 clrF">
+		<p class="com_bx floLeft mt5">
+	<a href="http://girlsup.me/web/contribute/index?topic_contribute_id=635952">
+	<span class="comment_tx disp_block text11"><span class="sprite_image icon_image74 vam"></span><i class="ml5">コメントする..</i></span>
+	</a>
+	</p>
+		<div class="clrF prai_bx js-prai_bx   off js-off   " data-post-id="635952">
+	<div class="praises_btn js-push"><span class="sprite_image icon_image31"></span></div>
+	<div class="blowoff floRight"><span class="icon_sprite praise_icon"></span><p class="count js-count">0</p></div>
+	<div class="floRight disp_block "><span class="sprite_image icon_image32  js-prai_pop mt-2"></span></div>
 	</div>
-
-</li>
-
-
-
+	</div>
+</li>	
 </script>
 
 
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="../js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="../js/underscore-min.js"></script>
+<script type="text/javascript" src="../js/backbone-min.js"></script>
 
-<script type="text/javascript" src="/static/gu/js/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" src="/static/gu/js/underscore-min.js"></script>
-<script type="text/javascript" src="/static/gu/js/backbone-min.js"></script>
+<script type="text/javascript" src="../js/app.js"></script>
 
-<script type="text/javascript" src="/static/gu/js/app.js"></script>
+<script type="text/javascript" src="../js/model/feed.js"></script>
+<script type="text/javascript" src="../js/model/post.js"></script>
 
-<script type="text/javascript" src="/static/gu/js/model/feed.js"></script>
-<script type="text/javascript" src="/static/gu/js/model/post.js"></script>
+<script type="text/javascript" src="../js/collection/get.js"></script>
+<script type="text/javascript" src="../js/collection/set.js"></script>
 
-<script type="text/javascript" src="/static/gu/js/collection/get.js"></script>
-<script type="text/javascript" src="/static/gu/js/collection/set.js"></script>
+<script type="text/javascript" src="../js/view/feed.js"></script>
+<script type="text/javascript" src="../js/view/post.js"></script>
 
-<script type="text/javascript" src="/static/gu/js/view/feed.js"></script>
-<script type="text/javascript" src="/static/gu/js/view/post.js"></script>
-
-<script type="text/javascript" src="/static/gu/js/main.js"></script>
+<script type="text/javascript" src="../js/main.js"></script>
 
 </body></html>

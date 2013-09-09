@@ -1,7 +1,7 @@
 # -*- mode: Python; -*-
 import site
 #site.addsitedir('/var/webapps/gokudo/shared/lib/python2.5/site-packages')
-site.addsitedir('/usr/local/lib/python2.7/site-packages')
+envpath = '/usr/local/lib/python2.7/site-packages'
 import os
 import sys
 

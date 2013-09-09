@@ -1,17 +1,17 @@
 # -*- mode: Python; -*-
-import site
+#import site
 #site.addsitedir('/var/webapps/gokudo/shared/lib/python2.5/site-packages')
-site.addsitedir('/usr/local/python2.7/lib/python2.7/site-packages')
+#site.addsitedir('/usr/local/python2.7/lib/python2.7/site-packages')
 import os
 import sys
 
-path2 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if path2 not in sys.path:
-   sys.path.insert(0, path2)
+#path2 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+#if path2 not in sys.path:
+#   sys.path.insert(0, path2)
 
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../cocolink'))
-if path not in sys.path:
-   sys.path.insert(0, path)
+#path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../cocolink'))
+#if path not in sys.path:
+#   sys.path.insert(0, path)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_staging'
 

@@ -30,7 +30,7 @@ def login_success(request):
     """
     ログイン完了画面表示用
     """
-    print request.user.username
+    
     ctxt = RequestContext(request, 
                           {"username":request.user.username,
                                     })

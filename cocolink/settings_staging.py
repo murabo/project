@@ -8,11 +8,11 @@ TEMPLATE_DEBUG = DEBUG
 # Userモデルを上書き
 AUTH_USER_MODEL = 'myuser.MyUser'
 
-#ADMINS = (
-#     (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
-#)
+ADMINS = (
+     (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
+)
 
-#MANAGERS = ADMINS
+MANAGERS = ADMINS
 
 DATABASES = {
     'default': {

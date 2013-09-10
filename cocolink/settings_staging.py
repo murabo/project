@@ -8,11 +8,11 @@ TEMPLATE_DEBUG = DEBUG
 # Userモデルを上書き
 AUTH_USER_MODEL = 'myuser.MyUser'
 
-ADMINS = (
-     (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
-)
+#ADMINS = (
+#     (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
+#)
 
-MANAGERS = ADMINS
+#MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -122,6 +122,7 @@ from os.path import dirname
 ROOT_PATH = dirname(__file__)
 
 print "test"
+print ROOT_PATH
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -180,7 +181,7 @@ print "test"
 # django-registration 用
 ACCOUNT_ACTIVATION_DAYS = 7
 print "test1"
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'murakami.shinya@gmail.com'  # 使用するgmailアカウント
 EMAIL_HOST_PASSWORD = 'murabo408'     # 使用するgmailアカウントのパスワード

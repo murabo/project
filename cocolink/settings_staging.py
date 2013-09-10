@@ -9,7 +9,7 @@ TEMPLATE_DEBUG = DEBUG
 AUTH_USER_MODEL = 'myuser.MyUser'
 
 ADMINS = (
-     (u'Settings_localnodayo', u'murakami.shinya@gmail.com'),
+     (u'test', u'306.mrk3@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -183,8 +183,8 @@ ACCOUNT_ACTIVATION_DAYS = 7
 print "test1"
 EMAIL_USE_TLS = False
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'murakami.shinya@gmail.com'  # 使用するgmailアカウント
-EMAIL_HOST_PASSWORD = 'murabo408'     # 使用するgmailアカウントのパスワード
+EMAIL_HOST_USER = '306.mrk3@gmail.com'  # 使用するgmailアカウント
+EMAIL_HOST_PASSWORD = 'murakami'     # 使用するgmailアカウントのパスワード
 EMAIL_PORT = 587
 print "test2"
 LOGIN_REDIRECT_URL = '/'

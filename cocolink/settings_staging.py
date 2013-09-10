@@ -181,7 +181,7 @@ print "test"
 # django-registration 用
 ACCOUNT_ACTIVATION_DAYS = 7
 print "test1"
-EMAIL_USE_TLS = False
+EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = '306.mrk3@gmail.com'  # 使用するgmailアカウント
 EMAIL_HOST_PASSWORD = 'murakami'     # 使用するgmailアカウントのパスワード

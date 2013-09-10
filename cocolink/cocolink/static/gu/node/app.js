@@ -51,7 +51,7 @@ var server = http.createServer(function(req, res) {
 
         //データの検索
         client.query(
-         'select '+TABLE2 +'.username,'+ TABLE +'.body_text,'+ TABLE +'.created_at from ' + TABLE +' LEFT JOIN '+  TABLE2 + where +' ORDER BY ID DESC LIMIT 3 ;',
+         'select '+TABLE2 +'.username,'+ TABLE +'.body_text,'+ TABLE +'.created_at from ' + TABLE +' LEFT JOIN '+  TABLE2 + where +' ORDER BY '+ TABLE +'.ID DESC LIMIT 3 ;',
    
           function (err, result, field) {
             if (err) {

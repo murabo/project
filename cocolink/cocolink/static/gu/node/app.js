@@ -9,8 +9,7 @@ qs = require('querystring');
 
 // mysql接続
 var mysql = require('mysql');
-var TABLE = 'gu_gupost',
-	TABLE2 = 'myuser';
+var TABLE = 'gu_gupost';
 //mysqlクライアント作成
 var client = mysql.createConnection({
   user: 'root',
@@ -47,11 +46,11 @@ var server = http.createServer(function(req, res) {
         var prm = url.parse(req.url,true);
         console.log(prm.query.offset);
         var where = "";
-        if(undefined != prm.query.offset) where = ' WHERE '+ TABLE +'.ID < '+ prm.query.offset;
-        console.log(prm.message);
+        if(undefined != prm.query.offset) where = ' WHERE ID < '+ prm.query.offset;
+
         //データの検索
         client.query(
-         'select '+TABLE2 +'.username,'+ TABLE +'.body_text,'+ TABLE +'.created_at from ' + TABLE +' LEFT JOIN '+  TABLE2 + where +' ORDER BY '+ TABLE +'.ID DESC LIMIT 3 ;',
+         'select * from ' + TABLE + where +' ORDER BY ID DESC LIMIT 3;',
    
           function (err, result, field) {
             if (err) {

@@ -9,7 +9,8 @@ qs = require('querystring');
 
 // mysql接続
 var mysql = require('mysql');
-var TABLE = 'gu_gupost';
+var TABLE = 'gu_gupost',
+	TABLE2 = 'myuser';
 //mysqlクライアント作成
 var client = mysql.createConnection({
   user: 'root',
@@ -50,7 +51,7 @@ var server = http.createServer(function(req, res) {
 
         //データの検索
         client.query(
-         'select * from ' + TABLE + where +' ORDER BY ID DESC LIMIT 3;',
+         'select '+TABLE2 +'.username,'+ TABLE +'.body_text,'+ TABLE +'.created_at from ' + TABLE +' LEFT JOIN '+  TABLE2 + where +' ORDER BY ID DESC LIMIT 3 ;',
    
           function (err, result, field) {
             if (err) {

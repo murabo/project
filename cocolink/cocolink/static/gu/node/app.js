@@ -47,7 +47,7 @@ var server = http.createServer(function(req, res) {
         var prm = url.parse(req.url,true);
         console.log(prm.query.offset);
         var where = "";
-        if(undefined != prm.query.offset) where = ' WHERE '+ TABLE +.'ID < '+ prm.query.offset;
+        if(undefined != prm.query.offset) where = ' WHERE '+ TABLE +'.ID < '+ prm.query.offset;
         console.log(prm.message);
         //データの検索
         client.query(

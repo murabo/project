@@ -10,19 +10,17 @@ class ajax_api(object):
         if request.user:
             user_id = request.user.id
 
-            try:
-                message = request.POST.message
-    
-                if message:
-                    try:
-                        Post(user_id = user_id, body_text = message, )
-                    except:
-                        result_code = 2
-                        
-                    Post.save()
-                    result_code = 1
-            except:
-                return
+
+            message = request.POST.message
+
+            if message:
+                try:
+                    Post(user_id = user_id, body_text = message, )
+                except:
+                    result_code = 2
+                    
+                Post.save()
+                result_code = 1
         else:
             result_code = 2
 

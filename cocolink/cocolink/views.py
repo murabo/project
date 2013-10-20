@@ -12,7 +12,8 @@ def sign_in_view(request):
 
 @csrf_protect
 def post_view(request):
-    return render_to_response("html/post.html",)
+    ctxt = RequestContext(request, {})
+    return render_to_response("html/post.html",ctxt)
 
 def test_view(request):
     return render_to_response("html/test.html",)

@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     url(r'^test/$', 'cocolink.views.test_view', name='test_view'),
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^gu/$', 'gu.views.gu_index', name="gu_index"),
-    url(r'^gu/post/$', 'gu.views.gu_post', name="gu_post"),
+    url(r'^ajax_post/$', 'cocolink.post.views.post', name="post"),
     # url(r'^cocolink/', include('cocolink.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

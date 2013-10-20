@@ -20,7 +20,7 @@ DATABASES = {
         'NAME': 'cocolink',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
-        'PASSWORD': 'mrk31229',
+        'PASSWORD': '',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -139,6 +139,9 @@ INSTALLED_APPS = (
     'south',
     'southut',
     'cocolink.myuser',
+    'cocolink.category',
+    'cocolink.common',
+    'cocolink.post',
     'gu',
     'registration',
     # Uncomment the next line to enable the admin:

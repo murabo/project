@@ -1,20 +1,13 @@
 # coding:utf-8
 
 from django.shortcuts import render_to_response
-from gu.ajax import ajax_api
+from cocolink.post.api import ajax_api
 from django.template import RequestContext
+from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
-@login_required
-def gu_index(request):
-
-    ctxt = RequestContext(request, 
-                          {"username":request.user.username,
-                                    })
-    return render_to_response("html/gu/index.html", ctxt)
-
-
-def gu_post(request):
+def post(request):
     ctxt = ajax_api.insert_post(request)
 
     result = simplejson.dumps(ctxt, ensure_ascii=False)

@@ -11,7 +11,7 @@ class ajax_api(object):
             user_id = request.user.id
 
 
-            message = request.POST.message
+            message = request.POST['message']
 
             if message:
                 try:

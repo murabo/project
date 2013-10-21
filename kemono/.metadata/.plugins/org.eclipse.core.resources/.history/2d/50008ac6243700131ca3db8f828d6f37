@@ -1,0 +1,28 @@
+# -*- coding:utf-8 -*-
+
+from module.invitation import get_current_invitation_campaign, get_invitation_campaign
+from .models.i001.campaign import InvitationCampaignFacade as InvitationCampaignFacade001
+from .models.i002.campaign import InvitationCampaignFacade as InvitationCampaignFacade002
+from .models.i003.campaign import InvitationCampaignFacade as InvitationCampaignFacade003
+from .models.i004.campaign import InvitationCampaignFacade as InvitationCampaignFacade004
+
+CAMPAIGN_TABLE = {
+    1: InvitationCampaignFacade001,
+    2: InvitationCampaignFacade002,
+    3: InvitationCampaignFacade003,
+    4: InvitationCampaignFacade004,
+}
+
+def get_campaign(player, campaign_id=None):
+    if campaign_id:
+        current_campaign = get_invitation_campaign(campaign_id)
+    else:
+        current_campaign = get_current_invitation_campaign()
+
+    if not current_campaign:
+        return None
+
+    if current_campaign.id not in CAMPAIGN_TABLE:
+        return None
+
+    return CAMPAIGN_TABLE[current_campaign.id](player, current_campaign)

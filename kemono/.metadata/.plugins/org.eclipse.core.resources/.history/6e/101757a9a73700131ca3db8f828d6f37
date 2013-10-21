@@ -1,0 +1,186 @@
+# -*- coding: utf-8 -*-
+# 幻獣道 Sandbox4 用の設定
+
+APP_NAME = 'kemono-feature4'
+NAME_PREFIX = 'kemono4'
+
+# GREE
+APP_ID = '17635'
+CONSUMER_KEY = '254b577d5980'
+CONSUMER_SECRET = '3ab7a88ba5dc73ff6a3990267337c1ad'
+
+# 申請
+IS_SUBMIT = False
+
+# Web用のホスト
+SITE_DOMAIN = '{}-gree.dev2.gu3.jp'.format(NAME_PREFIX)
+SITE_DOMAIN_FP = '{}-gree.dev2.gu3.jp'.format(NAME_PREFIX)
+SITE_DOMAIN_SP = '{}-gree.dev2.gu3.jp'.format(NAME_PREFIX)
+
+# 静的ファイルのホスト
+MEDIA_URL = ''
+STATIC_URL = 'http://{}/static/'.format(SITE_DOMAIN)
+
+# OPENSOCIAL
+OPENSOCIAL_DEBUG = False
+OPENSOCIAL_SANDBOX = True
+OPENSOCIAL_CONTAINER = 'sb.gree'
+
+# ERROR
+ERROR_PAGE_MODE = False
+ERROR_PAGE_MAIL = True
+ADMINS = (
+    ('errors_kemono', 'errors_kemono@gu3.co.jp'),
+)
+
+#==================================================
+# DB
+#==================================================
+DB_USER = 'root'
+DB_PASS = ''
+DB_HOST = 'kemono.dev2.gu3.jp'
+DB_PORT = ''
+
+DATABASES = {
+    # Masterデータ用
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_gree'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    # ゲームログ用
+    'gsc_gamelog': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_gamelog'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    # ギルド用垂直分割
+    'gsc_guild': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_guild'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    # イベント用
+    'gsc_event': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_event'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    # Snapshot DB
+    'gsc_analytics': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_analytics'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+}
+# 水平分割用設定
+HORIZONTAL_PARTITIONING_PARTITION_NUMBER = 2
+DATABASES.update({
+    'gsc_shard0': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_shard0'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    'gsc_shard1': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_shard1'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+})
+
+# ギルドバトル水平分割数
+HORIZONTAL_PARTITIONING_GUILDBATTLE_PARTITION_NUMBER = 2
+DATABASES.update({
+    'gsc_guildbattle_shard0': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_guildbattle_shard0'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+    'gsc_guildbattle_shard1': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{}_guildbattle_shard1'.format(NAME_PREFIX),
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+    },
+})
+
+
+REDIS_HOST = DB_HOST
+REDIS_PORT = '6409'
+
+REDIS_DATABASES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': '0',
+    },
+    'raid': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': '1',
+    },
+}
+
+CACHE_DBS = [
+    (DB_HOST, '11511'),
+]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': ['{}:{}'.format(host, port) for host, port in CACHE_DBS],
+        'TIMEOUT': 3600,
+    },
+}
+
+#=================================================
+# log
+#=================================================
+import logging
+import settings.logger
+LOGGING = settings.logger.gen_fluentd_config(logging.INFO,
+                                             prefix=APP_NAME)
+
+GTOOLKIT_ANIMATION_FP_ERROR_DUMP_FILE = \
+    '/mnt/tmp/log/{}/gtoolkit-animation-error-dump.swf'.format(APP_NAME)
+
+
+GUILDBATTLE_ALL_SKILL_ASSIGN = True
+GUILDBATTLE_FIXED_LOTTERY_SPECIAL_SKILL = True
+
+
+# デバッグ日時
+from datetime import datetime, timedelta
+#DATETIME_NOW_FOR_DEBUG = timedelta(days=2)
+#DATETIME_NOW_FOR_DEBUG = datetime(2013, 9, 25, 17, 0, 0)
+
+# デバッグ日時
+from datetime import datetime, timedelta
+#DATETIME_NOW_FOR_DEBUG = datetime.now() + timedelta(days=9)
+DATETIME_NOW_FOR_DEBUG = datetime(2013, 10, 11, 18, 0, 1)

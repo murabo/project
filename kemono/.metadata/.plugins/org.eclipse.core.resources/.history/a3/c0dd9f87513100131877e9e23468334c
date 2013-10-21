@@ -1,0 +1,88 @@
+# -*- coding:utf-8 -*-
+from django.conf.urls import patterns, url
+from views.root import RankingIndexView
+from views.raid import (RankingRaidIndexView,
+                        RankingRaidRareIndexView,
+                        RankingRaidOldIndexView,
+                        RankingRaidListView,
+                        RankingRaidOldRewardView,
+                        RankingRaidResultView,
+                        RankingRaidHowtoView,
+                        RankingRaidRewardView,
+                        RankingRaidRewardExecuteView,
+                        RankingRaidAnnouncementAnimationView)
+
+urlpatterns = patterns(
+    '',
+    url(r'^$', RankingIndexView.as_view(), name='ranking_index'),
+)
+
+urlpatterns += patterns(
+    '',
+    url(r'^raid/$',
+        RankingRaidIndexView.as_view(),
+        name='ranking_raid_index'),
+    url(r'^raid/(?P<boss_id>\d+)/$',
+        RankingRaidIndexView.as_view(),
+        name='ranking_raid_index'),
+    url(r'^raid/(?P<boss_id>\d+)/(?P<view_class>\d+)/$',
+        RankingRaidIndexView.as_view(),
+        name='ranking_raid_index'),
+    url(r'^raid/(?P<boss_id>\d+)/(?P<view_class>\d+)/(?P<page>\d+)/$',
+        RankingRaidIndexView.as_view(),
+        name='ranking_raid_index'),
+    url(r'^raid/rare/$',
+        RankingRaidRareIndexView.as_view(),
+        name='ranking_raid_rare_index'),
+
+    
+    url(r'^raid/list/(?P<rarity_flg>\d+)/$',
+        RankingRaidListView.as_view(),
+        name='ranking_raid_list'),
+    url(r'^raid/list/(?P<rarity_flg>\d+)/(?P<ranking_status_id>\d+)/$',
+        RankingRaidListView.as_view(),
+        name='ranking_raid_list'),
+    url(r'^raid/old/$',
+        RankingRaidOldIndexView.as_view(),
+        name='ranking_raid_old_index'),
+    url(r'^raid/old/(?P<boss_id>\d+)/$',
+        RankingRaidOldIndexView.as_view(),
+        name='ranking_raid_old_index'),
+    url(r'^raid/old/(?P<boss_id>\d+)/(?P<view_class>\d+)/$',
+        RankingRaidOldIndexView.as_view(),
+        name='ranking_raid_old_index'),
+    url(r'^raid/old/(?P<boss_id>\d+)/(?P<view_class>\d+)/(?P<page>\d+)/$',
+        RankingRaidOldIndexView.as_view(),
+        name='ranking_raid_old_index'),
+    url(r'^reward/(?P<boss_id>\d+)/$', 
+        RankingRaidOldRewardView.as_view(), 
+        name='ranking_raid__old_reward'),
+
+
+
+    url(r'^raid/result/$',
+        RankingRaidResultView.as_view(),
+        name='ranking_raid_result'),
+    url(r'^raid/result/(?P<ranking_id>\d+)/$',
+        RankingRaidResultView.as_view(),
+        name='ranking_raid_result'),
+
+    url(r'^raid/howto/$',
+        RankingRaidHowtoView.as_view(),
+        name='ranking_raid_howto'),
+
+    url(r'^raid/reward/$',
+        RankingRaidRewardView.as_view(),
+        name='ranking_raid_reward'),
+    url(r'^raid/reward/(?P<boss_id>\d+)/(?P<view_class>\d+)/$',
+        RankingRaidRewardView.as_view(),
+        name='ranking_raid_reward'),
+    url(r'^raid/reward/execute/(?P<rarity_flg>\d+)/(?P<ranking_statut_id>\d+)/$',
+        RankingRaidRewardExecuteView.as_view(),
+        name='ranking_raid_reward_execute'),
+
+
+    url(r'^raid/announcement/$',
+        RankingRaidAnnouncementAnimationView.as_view(),
+        name='ranking_raid_announcement'),
+)

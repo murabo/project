@@ -1,0 +1,163 @@
+{% extends "common/base.html" %}
+{% load common_tags gtoolkit_image osmobile %}
+{% block page_title %}
+{% endblock %}
+{% block content %}
+
+
+  <header class="mb-2">
+    <img src="{% image_url %}/scenes/invitation/i003/header_image.jpg" class="max-image">
+  </header>
+
+
+  {# 見出し1 #}
+  <g:subtitle class="decorated">
+    <span>第3弾招待メール送信ごとに</span>
+  </g:subtitle>
+  <g:hbox>
+    <img src="{% image_url campaign.friend_ticket_item.image.icon %}" width="75" height="75">
+    <p class="box-flex">レアが出やすい<br>
+      <strong>{{ campaign.friend_ticket_item.name }}</strong>!!<br>メールを送信した分だけもらえる!
+    </p>
+  </g:hbox>
+  <p class="text-large-yellow">10人に招待メールを送信するだけで</p>
+  <img src="{% image_url %}/scenes/invitation/contents_image01.png" class="max-image">
+
+
+  {# 招待ボタン #}
+  <g:button class="decorated-l mb-14">
+    <a href="invite:friends?callbackurl={% opensocial_url invitation_campaign_callback campaign.pk %}&body={{ campaign.campaign.message_text }}">友だちを招待する</a>
+  </g:button>
+
+
+  {# 招待送信人数 #}
+  <p class="invite-sent">現在の招待送信人数 {{ campaign.invite_send_count }} 人</p>
+  {% if DEBUG %}
+  ﾃﾞﾊﾞｯｸﾞ表示-集計期間<br />
+  ({{campaign.campaign_sub_term}})<br />
+  {% endif %}
+
+  <p class="invite-font">特殊ジョブ<strong>【ナースメイド】</strong>
+    {% if campaign.invite_send_count >= 10 %}
+      獲得済み!
+    {% else %}
+      獲得まであと{{ next_send_reward_count }}人!
+    {% endif %}
+  </p>
+
+
+  {# 招待達成人数 #}
+  <p class="invite-success">現在の招待成立人数 {{ campaign.invitation_campaign_count.count }} 人</p>
+  {% if next_invite_reward %}
+    <p class="invite-font">{{ next_invite_reward.reward.rarity.name }}<strong>【{{ next_invite_reward.reward.name }}】</strong>獲得まであと{{ next_invite_reward_count }}人!</p>
+  {% else %}
+    <p class="invite-font">全て獲得済みです</p>
+  {% endif %}
+
+<g:hbox><p>既に【ナースメイド】獲得済みの場合は獲得されません。</p></g:hbox>
+
+  {# 見出し2 #}
+  <g:subtitle class="decorated flexible-horizontal mt-10 mb-4">
+    <span>NEW招待キャンペーン開始後<br>1人招待成立ごとに</span>
+  </g:subtitle>
+  <g:hbox class="mt-10 mb-10">
+    <img src="{% image_url campaign.ticket_item.image.icon %}" width="75" height="75">
+    <p class="box-flex">レア以上確定!!<br><strong>{{ campaign.ticket_item.name }}</strong>GET!!
+    </p>
+  </g:hbox>
+
+
+  {# 見出し3 #}
+  <g:subtitle class="decorated">
+    <span>1、3、5、10、15人招待成立で…</span>
+  </g:subtitle>
+  <img src="{% image_url %}/scenes/invitation/i003/contents_image02.jpg" class="max-image">
+
+
+  {# SRステータス #}
+  <g:frame class="mandala header-decorate">
+    <section class="card-detail">
+      <table>
+        <tr class="status-header">
+          <td colspan="2">
+            <span class="card-rarity" data-rarity-category-detail="{{ campaign.sr_card.rarity.name }}-{{ campaign.sr_card.category.code_name }}">{{ campaign.sr_card.rarity.name }}{{ campaign.sr_card.category.code_name }}</span>{{ campaign.sr_card.name }}<span data-growth-type-id="{{ campaign.sr_card.grow_type.id }}">[{{ campaign.sr_card.grow_type.name }}]</span><span class="para-title">COST</span><span>{{ campaign.sr_card.cost }}</span>
+          </td>
+        </tr>
+        {% for skill in campaign.sr_card.card_skills %}
+          <tr>
+            <th>{{ skill.position.name }}</th>
+            <td>
+              <img class="skill-icon" src="{% image_url skill.skill.icon.image.small %}">
+              <em class="category {{ skill.skill.element.code_name }}">[{{ skill.skill.element.name }}]</em><em>{{ skill.skill.name }}</em></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  </g:frame>
+  <img src="{% image_url %}/scenes/invitation/i003/contents_image03.jpg" class="max-image">
+
+
+  {# 見出し4 #}
+  <g:subtitle class="decorated">
+    <span>20人招待成立で</span>
+  </g:subtitle>
+  <img src="{% image_url %}/scenes/invitation/i003/contents_image04.jpg" class="max-image">
+
+
+  {# URステータス #}
+  <g:frame class="mandala header-decorate">
+    <section class="card-detail">
+      <table>
+        <tr class="status-header">
+          <td colspan="2">
+            <span class="card-rarity" data-rarity-category-detail="{{ campaign.ur_card.rarity.name }}-{{ campaign.ur_card.category.code_name }}">{{ campaign.ur_card.rarity.name }}{{ campaign.ur_card.category.code_name }}</span>{{ campaign.ur_card.name }}<span data-growth-type-id="{{ campaign.ur_card.grow_type.id }}">[{{ campaign.ur_card.grow_type.name }}]</span><span class="para-title">COST</span><span>{{ campaign.ur_card.cost }}</span>
+          </td>
+        </tr>
+        {% for skill in campaign.ur_card.card_skills %}
+          <tr>
+            <th>{{ skill.position.name }}</th>
+            <td><img class="skill-icon" src="{% image_url skill.skill.icon.image.small %}">
+              <em class="category {{ skill.skill.element.code_name }}">[{{ skill.skill.element.name }}]</em><em>{{ skill.skill.name }}</em></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  </g:frame>
+
+
+  {# 招待ボタン #}
+  <g:button class="decorated-l">
+    <a href="invite:friends?callbackurl={% opensocial_url invitation_campaign_callback %}&body={{ campaign.campaign.message_text }}">友だちを招待する</a>
+  </g:button>
+
+
+  {# 注意事項 #}
+  <g:frame class="rounded  indent-justify mt-0">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert">8/20 12:00以降に招待成立した場合のみカウントをいたします。</span></p>
+    <p><span class="icon alert">招待ガチャチケットが貰えるのは招待メールを受けたGREEの友だち1人につき、1回までとなっています。</span></p>
+    <p><span class="icon alert">FacebookやTwitterやメールやカカオトークやLINEやQRコード経由で友だちを招待した場合は､招待キャンペーンの対象外となります。</span></p>
+    <p><span class="icon alert">招待したGREEの友だちが初回の登録時のみ有効です。</span></p>
+    <p><span class="icon alert">招待成立の条件は、招待メールを受け取ったユーザー様がドラゴンジェネシスのチュートリアルをクリアーすることとなります。</span></p>
+    <p><span class="icon alert">招待報酬は招待された友だちが携帯電話認証済みユーザー様の場合のみ付与されます。 非携帯電話認証ユーザー様がゲームを始めた後に携帯電話認証を行った場合は､携帯電話認証が確認され次第､報酬をお送りします。</span></p>
+    <p><span class="icon alert">本キャンペーンの報酬を受取れる期間は、次回の招待キャンペーン開始時までとなります。</span></p>
+    <p><span class="icon alert">各報酬は条件達成後、プレゼントBOXへ付与されます。その際、お時間がかかる場合がございますのでご了承ください。</span></p>
+    <p><span class="icon alert">招待送信時と招待成立時で異なるキャンペーンが行われていた場合、付与されるのは成立時のキャンペーン報酬となります。</span></p>
+    <p><span class="icon alert">招待報酬は次回以降のキャンペーンの際にも報酬として出すことがございます。</span></p>
+    <p><span class="icon alert">今回の招待キャンペーンは次回キャンペーン開始をもって終了とさせて頂きますのでご了承ください。</span></p>
+    <p><span class="icon alert">フッター部分の「GREEの友だちを誘う」から友だちを誘った場合、招待カウントがされませんのでご注意ください。</span></p>
+  </g:frame>
+
+
+  {# ヘルプ #}
+  <g:navigator>
+    <ul>
+      <li>
+        <a class="help" href="{% help_link_url 'usergrade' %}">携帯電話認証とは</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+
+{% endblock %}

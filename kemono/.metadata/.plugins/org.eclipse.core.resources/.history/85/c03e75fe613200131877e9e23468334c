@@ -1,0 +1,134 @@
+{% load mypage_image_tags officialinfo_tags shop_tags player_tags quest_tags datetime_tags linktag_tags current_links gacha_tags lesson_tags campaign_tags afterbefore_tags event_tags e026_tags %}
+
+{% if whatsnews %}
+  <g:button class="whatsnew">
+    <a href="javascript:void(0)" data-action-start="ui.popup.dialog.show">whatsnew</a>
+    <var class="badge" >{{ whatsnews|length }}</var>
+  </g:button>
+{% endif %}
+  {# TODO_note 振分ptがある場合は表示 （ギルド盟主、ギルド指揮官以外には表示されない）#}
+{% if 0 %}
+  <g:button class="simple-l">
+    <a href="">
+      精霊アビリティptがあります
+    </a>
+  </g:button>
+{% endif %}
+{% comment %}
+<g:button class="compose">
+  <a href="{% opensocial_url compose_index %}">compose</a>
+</g:button>
+<g:button class="job">
+  <a href="{% opensocial_url job_index %}">job</a>
+</g:button>
+<g:button class="gacha">
+  <a href="{% opensocial_url gacha_index %}">gacha</a>
+</g:button>
+{% endcomment %}
+{% if player|job_exp_bonus %}
+{# EXP2倍 #}
+<g:button class="raid-exp">
+{% else %}
+{# 通常ボタン #}
+<g:button class="raid">
+{% endif %}
+  <a href="{% opensocial_url raid_index %}">raid</a>
+  <g:gauge class="red">
+    <em class="value" style="width:{{ player.soul_rate }}%"></em>
+  </g:gauge>
+</g:button>
+<g:hbox class="raid">
+
+  {# 救援依頼あり #}
+  {% if player.raid.helps %}
+    <g:button class="raid-relief-list">
+      {% if player.raid.unjoined_helps or player.raid.can_combo %}
+        <span class="raid-help">
+      {% if player.raid.unjoined_helps %}
+        <span class="blink-iter icon-new">NEW</span>
+      {% endif %}
+
+          {% if player.raid.can_combo %}
+            <span class="blink-iter icon-combo">COMBO</span>
+          {% endif %}
+    </span>
+      {% endif %}
+
+      <a href="{% opensocial_url raid_relief_list %}">raid-relief-list</a>
+    </g:button>
+  {% endif %}
+
+  {# レイドボス出現中 #}
+  {% if player.raid.active_boss %}
+    <g:button class="raid-encount">
+      {% if player.raid.has_new or player.raid.can_my_combo %}
+        <span class="raid-new">
+        {% if player.raid.has_new %}
+          <span class="blink-iter icon-new">NEW</span>
+        {% endif %}
+
+        {% if player.raid.can_my_combo %}
+          <span class="blink-iter icon-combo">COMBO</span>
+        {% endif %}
+      </span>
+      {% endif %}
+      <a href="{% opensocial_url raid_battle_index %}">raid-encount</a>
+    </g:button>
+  {% endif %}
+</g:hbox>
+<g:button class="quest">
+  <a href="{% opensocial_url quest_index %}" class="{% if player.quest_exp_twice %}{% if player.quest_energy_is_not_necessary %}less20{% else %}less70{% endif %}{% else %}{% ifbefore '2013-08-31 00:00:00' %}quest_badge{% endifbefore %}{% endif %}">quest</a>
+  <g:gauge>
+    <em class="value" style="width:{{ player.energy_rate }}%"></em>
+  </g:gauge>
+</g:button>
+{% if player.guild.is_battle_open %}
+  <g:button class="guild-battle open{% if event009.is_open %} e009{% endif %}">
+  {% ifbefore '2013-07-22 00:00:00' %}
+    <div class="guild-battle--storymode"></div>
+  {% endifbefore %}
+    <a href="{% opensocial_url guildbattle_index %}">
+      <div class="effect blink-half-iter">&nbsp;</div>
+    </a>
+  </g:button>
+{% else %}
+  <g:button class="guild-battle{% if event009.is_open %} e009{% endif %}">
+  {% ifbefore '2013-07-22 00:00:00' %}
+    <div class="guild-battle--storymode"></div>
+  {% endifbefore %}
+    <a href="{% opensocial_url guildbattle_index %}">guild-battle</a>
+  </g:button>
+{% endif %}
+
+<g:button class="button-guildpet"><a href="{% opensocial_url guild_pet_index %}">guild_pet</a></g:button>
+
+{# e026開催中 #}
+{% if 26|is_event_open %}
+{# e026_レイドボタン #}
+{% if player.e026_raid.helps or player.e026_raid.active_boss %}
+<div class="event-raid-encount open-2nd">
+  {% if player.e026_raid.helps %}
+    <g:button class="btn-rescue">
+      {% if player.e026_raid.unjoined_helps %}
+        <span class="blink-iter icon-new">NEW</span>
+      {% endif %}
+      {% if player.e026_raid.can_combo %}
+        <span class="blink-iter icon-combo">COMBO</span>
+      {% endif %}
+      <a href="{% opensocial_url e026_towerraid_raid_relief_list %}">raid-rescue</a>
+    </g:button>
+  {% endif %}
+  {% if player.e026_raid.active_boss %}
+    <g:button class="btn-raid">
+      {% if player.e026_raid.has_new %}
+        <span class="blink-iter icon-new">NEW</span>
+      {% endif %}
+      {% if player.e026_raid.can_my_combo %}
+        <span class="blink-iter icon-combo">COMBO</span>
+      {% endif %}
+      <a href="{% opensocial_event_url raid_battle_index %}">raid-encount</a>
+    </g:button>
+  {% endif %}
+</div>
+{% endif %}
+{% endif %}

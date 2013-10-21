@@ -1,0 +1,15 @@
+# -*- coding:utf-8 -*-
+from django.views.generic import TemplateView
+from module.player import PlayerView
+from module.raid.raid_player.models.ranking import PlayerRankingManager
+
+
+class RankingIndexView(PlayerView, TemplateView):
+    template_name = 'ranking/index.html'
+
+    def get_context_data(self, **kwargs):
+        print 3
+        manager = PlayerRankingManager(self.player)
+        return {
+            'manager': manager
+        }

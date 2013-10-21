@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+import datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+        # Deleting model 'RaidBattleSkill'
+        db.delete_table(u'raid_raidbattleskill')
+
+        # Adding model 'RankingStatus'
+        db.create_table(u'raid_rankingstatus', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('finished_at', self.gf('django.db.models.fields.DateTimeField')()),
+        ))
+        db.send_create_signal(u'raid', ['RankingStatus'])
+
+
+    def backwards(self, orm):
+        # Adding model 'RaidBattleSkill'
+        db.create_table(u'raid_raidbattleskill', (
+            ('skill_category', self.gf('django.db.models.fields.IntegerField')()),
+            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('target_id', self.gf('django.db.models.fields.IntegerField')()),
+            ('cost', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('job_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=32)),
+            ('odds', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('command_effect', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('support_effect', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('value', self.gf('django.db.models.fields.IntegerField')()),
+            ('element_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('category_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('parameter', self.gf('django.db.models.fields.IntegerField')(null=True)),
+        ))
+        db.send_create_signal(u'raid', ['RaidBattleSkill'])
+
+        # Deleting model 'RankingStatus'
+        db.delete_table(u'raid_rankingstatus')
+
+
+    models = {
+        u'raid.rankingstatus': {
+            'Meta': {'object_name': 'RankingStatus'},
+            'finished_at': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        }
+    }
+
+    complete_apps = ['raid']

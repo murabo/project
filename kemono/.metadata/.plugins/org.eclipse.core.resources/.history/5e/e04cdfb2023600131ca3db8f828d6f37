@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+u"""
+デプロイに使用するブランチはここに書いてください
+
+このファイルをコピーして、branches_local.py を作れば、そちらを優先して使います
+"""
+BRANCHES = {
+    'release': 'release/0917a',
+    'feature1': 'develop',
+    'feature2': 'develop',
+    'feature3': 'develop',
+    'feature4': 'hotfix/hashimoto/quest06',
+    'feature5': 'develop',
+    'feature6': 'develop',
+    'feature7': 'develop',
+    'feature8': 'develop',
+    'feature9': 'develop',
+    'feature10': 'develop',
+    'feature11': 'develop',
+    'feature12': 'develop',
+    'feature13': 'develop',
+}

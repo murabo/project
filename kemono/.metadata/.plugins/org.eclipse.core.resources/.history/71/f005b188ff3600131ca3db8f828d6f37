@@ -1,0 +1,10 @@
+{% load common_tags afterbefore_tags %}
+
+{% ifbefore '2013-06-27 19:30:00' %}
+  {% include 'invitation/i001/current_banner.html' %}
+  {% ifbefore '2013-08-20 00:00:00' %}
+    {% include 'invitation/i002/current_banner.html' %}
+  {% else %}
+    {% include 'invitation/i003/current_banner.html' %}
+  {% endifbefore %}
+{% endifbefore %}

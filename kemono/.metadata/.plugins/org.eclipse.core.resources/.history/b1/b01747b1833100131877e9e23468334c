@@ -1,0 +1,80 @@
+{% extends "common/base.html" %}
+{% load osmobile common_tags player_tags g_tags mobile datetime_tags %}
+{% block content %}
+
+
+  {# ヘッダ画像 #}
+  {% g_subtitle 'title' %}raid_ranking{% endg_subtitle %}
+
+
+  {% g_tab rarity_flg %}
+    {% key 0 %}{% opensocial_url 'ranking_raid_list' 0 %}{% value %}ﾚｲﾄﾞﾎﾞｽ{% endkey %}
+    {% key 1 %}{% opensocial_url 'ranking_raid_list' 1 %}{% value %}ﾌﾟﾗﾁﾅﾎﾞｽ{% endkey %}
+  {% endg_tab %}
+
+  {% if 1 in list %}
+  aaa
+  {% endif %}
+
+  {% for ranking_status,ranking_entry in ranking_entries %}
+    {# 見出し #}
+    {% g_subtitle 0 %}VS&nbsp;{{ ranking_status.boss.name|z2h }}{% endg_subtitle %}
+    {# ボックス1 #}
+    <table>
+      <tr>
+        <td>
+          <img src="{% image_url ranking_status.boss.image.ranking_banner %}" />
+        </td>
+        <td align="left" style="text-align:left;">
+          <div style="font-size:font-size:MOBILE-FONT-SIZE-NORMAL;">
+          {% g_parameter %}
+            {% key %}討伐期間{% value %}{% convert_datetime ranking_status.boss.start_at 'date_only' %}～{% convert_datetime ranking_status.boss.end_at 'date_only' %}{% endkey %}
+            {% key %}{{ ranking_status.boss.name|z2h }}Lv{% value %}{{ ranking_entry.last_level }}{% endkey %}
+            {% key %}階級{% value %}{{ ranking_entry.ranking_class.name|z2h }}{% endkey %}
+            {% key %}ﾗﾝｷﾝｸﾞ{% value %}{{ ranking_entry.rank }}位{% endkey %}
+          {% endg_parameter %}
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    {% g_button 'deco' %}
+      {% key %}{% opensocial_url 'ranking_raid_old_index' ranking_status.boss.id %}{% value %}ﾗﾝｷﾝｸﾞを確認{% endkey %}
+    {% endg_button %}
+
+    {% if ranking_entry.rank %}
+        {% if not ranking_entry.received_at %}
+          {% g_button 'deco' %}
+            {% key %}{% opensocial_url 'ranking_raid_reward_execute' rarity_flg ranking_status.boss.id %}{% value %}報酬を受け取る{% endkey %}
+          {% endg_button %}
+        {% elif reward_recieved_ranking_status_id == ranking_status.boss.id %}
+          <span style="color:{% color 'STRONG_FG' %};">※ﾌﾟﾚｾﾞﾝﾄBOXに送られました</span>
+        {% endif %}
+    {% endif %}
+  {% endfor %}
+
+
+  {# 戻るリンク #}
+  {% g_list 'backpage' %}
+    {% item %}<a href="{% opensocial_url ranking_index %}">ﾚｲﾄﾞﾗﾝｷﾝｸﾞTOP</a>{% enditem %}
+  {% endg_list %}
+
+
+  {# BGN 注意事項 #}
+  {% g_list 'notice' %}
+    {% item %}報酬の受け取には時間がかかる場合がございます｡{% enditem %}
+  {% endg_list %}
+
+
+{% endblock %}
+
+
+{% comment %}
+  {% for boss in bosses %}
+    boss:{{boss}}
+    id:{{boss.id}}
+    <g:button class="simple-l">
+      <a href="{% opensocial_url 'ranking_raid_index' boss.id %}">ﾚｲﾄﾞﾗﾝｷﾝｸﾞ</a>
+    </g:button>
+  {% endfor %}
+{% endcomment %}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="1 個のリソースを &apos;notice&apos; に移動" description="1 個のリソースを &apos;notice&apos; に移動" destination="application/static/movies/html/invitation/notice" element1="application/static/movies/html/invitation/4" flags="7" id="org.eclipse.ltk.core.refactoring.move.resources" resources="1" stamp="1382147393618" updateReferences="true"/>
+</session>

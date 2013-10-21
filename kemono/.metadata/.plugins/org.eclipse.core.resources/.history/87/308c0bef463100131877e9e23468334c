@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+import datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+
+        # Changing field 'RankingStatus.finished_at'
+        db.alter_column(u'raid_rankingstatus', 'finished_at', self.gf('django.db.models.fields.DateTimeField')(null=True))
+
+    def backwards(self, orm):
+
+        # User chose to not deal with backwards NULL issues for 'RankingStatus.finished_at'
+        raise RuntimeError("Cannot reverse this migration. 'RankingStatus.finished_at' and its values cannot be restored.")
+
+    models = {
+        u'raid.rankinghistory': {
+            'Meta': {'object_name': 'RankingHistory'},
+            'last_level': ('django.db.models.fields.IntegerField', [], {}),
+            'player_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_class_id': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        },
+        u'raid.rankingstatus': {
+            'Meta': {'object_name': 'RankingStatus'},
+            'finished_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        }
+    }
+
+    complete_apps = ['raid']

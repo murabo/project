@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""
+レイドボス期間終了時のランキング集計・データ作成
+"""
+import os
+#from optparse import make_option
+from django.core.management.base import BaseCommand
+from django.conf import settings
+
+from ...models.ranking import RankingStatus, RankingHistory, RankingClass
+from module.raid import Boss, BossRanking, PlayerRankingEntry
+from horizontalpartitioning.transaction import commit_on_success
+import datetime
+
+class Command(BaseCommand):
+    def handle(self, *args, **options):
+            print 'start : %s' % datetime.datetime.now()
+            # ランキング集計対象のボスを取得
+            bosses = self.get_target_bosses()
+            for boss in bosses:
+                # ランキング集計処理
+                # ランキングクラス種別毎のボスランキングを取得
+                ranking_id = boss.id
+                ranking_classes = RankingClass.get_all()
+                for ranking_class in ranking_classes:
+                    ranking_entities = self.get_ranking_entities(ranking_id, ranking_class.id)
+                    self.make_ranking_history(ranking_entities)
+                    for ranking_entity in ranking_entities:
+                        #　player_ranking_entryにrankとlast_levelを入れる
+                        with commit_on_success([ranking_entity.player.id]):
+                            finish_ranking_result = PlayerRankingEntry.finish_ranking(ranking_entity.player.id, ranking_id)
+                            if finish_ranking_result:
+                                # ranking_historyにgrankingの情報を移す
+                                RankingHistory.make_ranking_history(ranking_id, ranking_class.id, ranking_entity.player.id, ranking_entity.rank, ranking_entity.last_level)
+                        # ranking_statusにboss_idとfinished_atを入れる
+                        RankingStatus.finish(ranking_id) 
+            print 'end : %s' % datetime.datetime.now()
+
+
+    def get_target_bosses(self):
+        """
+        ランキング集計対象のボス一覧を返す
+        """
+        target_bosses = []
+        bosses = Boss.get_all()
+        for boss in bosses: 
+            if boss.is_ranking() and boss.is_finish() and not self.check_ranking_aggregate_finished(boss):
+                target_bosses.append(boss)
+        return target_bosses
+
+
+    def check_ranking_aggregate_finished(self, boss):
+        """
+        対象のボスが既にランキング集計を終えているか判定
+        ランキング集計済み：True
+        ランキング集計前:False
+        """
+        ranking_id = boss.id
+        ranking_status = RankingStatus.get(ranking_id)
+
+        if not ranking_status:
+            return False
+        if not ranking_status.finished_at:
+            return False
+        return True
+    
+    def get_ranking_entities(self, ranking_id, ranking_class_id):
+        """
+        granking(redis)より、対象クラスのランキング情報を取得
+        """
+        boss_ranking = BossRanking.get_bossranking_by(ranking_id, ranking_class_id)
+        ranking_entities = boss_ranking.get_ranking()
+        return ranking_entities
+    
+    def make_ranking_history(self):
+

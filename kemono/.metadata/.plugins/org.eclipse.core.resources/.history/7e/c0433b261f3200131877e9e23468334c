@@ -1,0 +1,431 @@
+# -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+import os
+from django.utils.functional import cached_property
+import gdio
+from gtoolkit import datetime
+from gtoolkit.image2 import ImageMixin, image_manager, image, label
+from jsonmastermodel import models, fields
+from module.skill import Element
+from .reward import BossReward, BossCountReward, BossRewardDeck
+
+
+class Boss(models.JsonMasterModel, ImageMixin):
+    """
+    ボスマスター
+    """
+    MASTER_DATA_JSON_PATH = 'raid', 'boss.json'
+
+    name = fields.JsonMasterCharField()
+    description = fields.JsonMasterTextField(default='')
+
+    start_at = fields.JsonMasterDateTimeField(default=None)
+    end_at = fields.JsonMasterDateTimeField(default=None)
+
+    category_id = fields.JsonMasterIntegerField('種族')
+    element_id = fields.JsonMasterIntegerField('属性')
+
+    escape_minute = fields.JsonMasterIntegerField('逃走するまでの時間(分)')
+
+    encounter_quest_id = fields.JsonMasterIntegerField('遭遇するクエストID',
+                                                       default=0)
+
+    _is_rare = fields.JsonMasterBooleanField('レアボスか', default=False)
+
+    _ranking_enable = fields.JsonMasterBooleanField('ランキング有効',
+                                                    default=False)
+    _ranking_id = fields.JsonMasterIntegerField('ランキングID', default=None)
+
+    image_path_format = os.path.join('raid', 'raidboss', '{id}',
+                                     '{filename}.{ext}')
+    _image_manager = image_manager(
+        image('fp-swf', ext='png', width=150, height=150),
+        image('sp-swf', ext='png', width=320, height=320),
+        image('rewardbaner', ext='png', width=612, height=232),
+        image('sp-header', ext='jpg', width=640, height=426),
+        image('fp-header', ext='jpg', width=240, height=75),
+        image('sp-winheader', ext='jpg', width=640, height=426),
+        image('fp-winheader', ext='jpg', width=240, height=75),
+        image('sp-encount', ext='png', width=350, height=350),
+        image('fp-encount', ext='png', width=260, height=260),
+        image('encount_text-sp', ext='png', width=320, height=310),
+        image('encount_text-fp', ext='png', width=240, height=233),
+        image('appearance-sp', ext='png', width=320, height=320),
+        image('appearance-fp', ext='png', width=240, height=240),
+        image('fp-96x75', ext='jpg', width=96, height=75),
+        featurephone=(
+            label('movie', alias='fp-swf'),
+            label('rewardbaner', alias='rewardbaner'),
+            label('header', alias='fp-header'),
+            label('winheader', alias='fp-winheader'),
+            label('encount', alias='fp-encount'),
+            label('encount_text', alias='encount_text-fp'),
+            label('appearance', alias='appearance-fp'),
+            label('ranking_banner', alias='fp-96x75')
+        ),
+        smartphone=(
+            label('movie', alias='sp-swf'),
+            label('rewardbaner', alias='rewardbaner'),
+            label('header', alias='sp-header'),
+            label('winheader', alias='sp-winheader'),
+            label('encount', alias='sp-encount'),
+            label('encount_text', alias='encount_text-sp'),
+            label('appearance', alias='appearance-sp'),
+        ),
+    )
+
+    def get_base_name(self):
+        return 'raid'
+
+    @classmethod
+    def get_active(cls):
+        bosses = cls.get_all()
+        result = []
+
+        for boss in bosses:
+            if (not boss.start_at or boss.start_at < datetime.now()) and\
+                    (not boss.end_at or boss.end_at >= datetime.now()):
+                result.append(boss)
+        return result
+
+    @classmethod
+    def get_bosses_by(cls, quest_id=None):
+        """
+        該当条件のボスを返す
+
+        :param quest_id: クエストIDから検索
+        :type quest_id: int
+
+        :return:
+        """
+        if quest_id:
+            return cls.objects.filter(quest_id=quest_id)
+
+        return cls.get_active()
+
+    @classmethod
+    def get_free_bosses(cls):
+        """
+        解放の必要のないボスを返す
+        """
+        return [boss for boss in cls.get_active() if not boss.require_unlock()]
+
+    @classmethod
+    def get_require_unlock_bosses(cls):
+        """
+        解放必要なボスを返す
+        """
+        return [boss for boss in cls.get_active() if boss.require_unlock()]
+
+    @classmethod
+    def get_active_free_bosses(cls):
+        return [boss for boss in cls.get_active() if not boss._is_rare and boss.encounter_quest_id == 0]
+        #return cls.objects.filter(_is_rare=False, encounter_quest_id=0)
+
+    @classmethod
+    def get_active_rare_bosses(cls):
+        return [boss for boss in cls.get_active() if boss._is_rare and boss.encounter_quest_id == 0]
+        #return cls.objects.filter(_is_rare=False, encounter_quest_id=0)
+
+    @classmethod
+    def get_finished_ranking_rare_boss(cls):
+        finished_ranking_bosses = [boss for boss in cls.get_all() if boss._is_rare and boss.is_ranking() and boss.is_finish()]
+        boss = None
+        if finished_ranking_bosses:
+            boss = finished_ranking_bosses[-1]
+        return boss
+
+    @classmethod
+    def get_finished_ranking_free_boss(cls):
+        return [boss for boss in cls.get_all() if not boss._is_rare and boss.is_ranking() and boss.is_finish()][-1]
+
+    @classmethod
+    def get_current_ranking_free_boss(cls):
+        """
+        現在の通常ランキングボスを返す
+        :rtype: Boss
+        """
+        return cls.get_active_free_bosses()[0]
+
+    @classmethod
+    def get_current_ranking_rare_boss(cls):
+        """
+        現在のプラチナランキングボスを返す
+        :rtype: Boss
+        """
+        return cls.get_active_rare_bosses()[0]
+    
+    @classmethod
+    def get_by_ranking_id(cls, ranking_id):
+        """
+        ランキングIDを元に現在のボスのオブジェクトを返す
+        :rtype: Boss
+        """
+        return cls.get(ranking_id)
+
+    @cached_property
+    def escape_second(self):
+        """ 遭遇してから逃走までの秒数
+        """
+        return self.escape_minute * 60
+
+    @cached_property
+    def category(self):
+        return self.category_id
+
+    @cached_property
+    def element(self):
+        return Element.get(self.element_id)
+
+    @cached_property
+    def condition(self):
+        return BossUnlockCondition.get_condition_by(self.id)
+
+    @cached_property
+    def status(self):
+        return BossStatus.get_by(self.id)
+
+    @cached_property
+    def is_rare(self):
+        return self._is_rare
+
+    @cached_property
+    def owner_reward_id(self):
+        return self.status.owner_reward_deck
+
+    @cached_property
+    def owner_rewards(self):
+        return BossReward.get_rewards_by(self.owner_reward_id)
+
+    def get_owner_reward_deck_by(self, level):
+        return BossRewardDeck(self, self.owner_reward_id, level)
+
+    @cached_property
+    def normal_reward_id(self):
+        return self.status.normal_reward_deck
+
+    @cached_property
+    def normal_rewards(self):
+        return BossReward.get_rewards_by(self.normal_reward_id)
+
+    def get_normal_reward_deck_by(self, level):
+        return BossRewardDeck(self, self.normal_reward_id, level)
+
+    @cached_property
+    def mvp_reward_id(self):
+        return self.status.mvp_reward_deck
+
+    @cached_property
+    def mvp_rewards(self):
+        return BossReward.get_rewards_by(self.mvp_reward_id)
+
+    def get_mvp_reward_deck_by(self, level):
+        return BossRewardDeck(self, self.mvp_reward_id, level)
+
+    @cached_property
+    def count_rewards(self):
+        return BossCountReward.get_count_rewards_by(self.id)
+
+    @cached_property
+    def count_rewards_by_reward_id(self):
+        result = []
+        temp_rewards = sorted(self.count_rewards, key=lambda x: x.reward_id)
+        for count_reward in temp_rewards:
+            if len(result) == 0 or not result[-1][-1].reward_id == count_reward.reward_id:
+                result.append([])
+            result[-1].append(count_reward)
+        return result
+
+    def get_next_count_reward(self, count):
+        return BossCountReward.get_next_count_reward(self.id, count)
+
+    def require_unlock(self):
+        """
+        解放しないと遭遇できない
+        :rtype: bool
+        """
+        return True if self.condition else False
+
+    def get_escape_date(self):
+        """ 逃走予定gDio秒
+        """
+        return gdio.get() + self.escape_second
+
+    def get_status_by(self, level=1):
+        return self.status.get_status_by(level)
+
+    def is_ranking(self):
+        """
+        ランキング対象ボスか
+        :rtype: bool
+        """
+        return self._ranking_enable
+    
+    def is_finish(self):
+        """
+        ランキングが終了したか
+        """
+        if not self.end_at:
+            return False
+        if datetime.now() <= self.end_at:
+            return False
+        return True
+
+    @property
+    def ranking_id(self):
+        """
+        ランキングID
+        :rtype: bool
+        """
+        if self.is_ranking():
+            return self._ranking_id if self._ranking_id else self.id
+
+        return None
+
+    @classmethod
+    def get_ranking_bosses(cls):
+        """
+        ランキング対象のボスを返す
+        """
+        bosses = cls.get_all()
+        result = []
+
+        for boss in bosses:
+            if boss.is_ranking() and not boss._is_rare:
+                result.append(boss)
+        return result
+
+    @classmethod
+    def get_ranking_rare_bosses(cls):
+        """
+        ランキング対象のプラチナボスを返す
+        """
+        bosses = cls.get_all()
+        result = []
+
+        for boss in bosses:
+            if boss.is_ranking() and boss._is_rare:
+                result.append(boss)
+        return result
+
+
+class BossStatus(models.JsonMasterModel):
+    """
+    ボスステータス
+
+    IDがBossと同じ
+    """
+    MASTER_DATA_JSON_PATH = 'raid', 'boss_status.json'
+
+    max_level = fields.JsonMasterIntegerField()
+
+    min_physical_attack = fields.JsonMasterIntegerField('最小値')
+    max_physical_attack = fields.JsonMasterIntegerField('最大値')
+    limit_physical_attack = fields.JsonMasterIntegerField('制限', default=None)
+
+    min_physical_defense = fields.JsonMasterIntegerField()
+    max_physical_defense = fields.JsonMasterIntegerField()
+    limit_physical_defense = fields.JsonMasterIntegerField()
+
+    min_magic_attack = fields.JsonMasterIntegerField()
+    max_magic_attack = fields.JsonMasterIntegerField()
+    limit_magic_attack = fields.JsonMasterIntegerField()
+
+    min_magic_defense = fields.JsonMasterIntegerField()
+    max_magic_defense = fields.JsonMasterIntegerField()
+    limit_magic_defense = fields.JsonMasterIntegerField()
+
+    min_hp = fields.JsonMasterIntegerField()
+    max_hp = fields.JsonMasterIntegerField()
+    limit_hp = fields.JsonMasterIntegerField()
+
+    owner_reward_deck = fields.JsonMasterIntegerField()
+    normal_reward_deck = fields.JsonMasterIntegerField()
+    mvp_reward_deck = fields.JsonMasterIntegerField()
+
+    class Meta(object):
+        app_label = 'raid'
+
+    @classmethod
+    def get_by(cls, boss_id):
+        return cls.get(boss_id)
+
+    class _Status(object):
+        def __init__(self, level,
+                     physical_attack, physical_defense,
+                     magic_attack, magic_defense, hp):
+            self.level = level
+            self.physical_attack = physical_attack
+            self.physical_defense = physical_defense
+            self.magic_attack = magic_attack
+            self.magic_defense = magic_defense
+            self.hp = hp
+
+    def get_status_by(self, level):
+        return self._Status(
+            level,
+            self._calc_status(level, 'physical_attack'),
+            self._calc_status(level, 'physical_defense'),
+            self._calc_status(level, 'magic_attack'),
+            self._calc_status(level, 'magic_defense'),
+            self._calc_status(level, 'hp'))
+
+    def _calc_status(self, level, status):
+        """
+        該当レベルの指定ステータスの値を返す
+
+        :param level: 取得したいレベル
+        :type level: int
+
+        :param status: 取得したいステータス名
+        :type status: string
+
+        :return: ステータス値
+        :rtype: int
+        """
+        minimum = getattr(self, 'min_' + status)
+        maximum = getattr(self, 'max_' + status)
+        limit_num = getattr(self, 'limit_' + status, None)
+        if not limit_num:
+            limit_num = maximum
+
+        if level == 1:
+            # Lv1なら最小値
+            return int(minimum)
+
+        if level == self.max_level:
+            # 最大Lvなら最大値
+            param = int(maximum)
+        else:
+            # それ以外は線形補完
+            param = int(minimum +
+                        (maximum - minimum) * (level - 1)
+                        / (self.max_level - 1))
+
+        # 制限値を超えない
+        return min(param, limit_num)
+
+
+class BossUnlockCondition(models.JsonMasterModel):
+    """
+    ボスの解放条件
+    """
+    MASTER_DATA_JSON_PATH = 'raid', 'boss_unlock_condition.json'
+
+    boss_id = fields.JsonMasterIntegerField()
+    base_boss_id = fields.JsonMasterIntegerField()
+    level = fields.JsonMasterIntegerField()
+
+    @classmethod
+    def get_condition_by(cls, boss_id):
+        try:
+            return cls.objects.get(boss_id=boss_id)
+        except cls.DoesNotExist:
+            return None
+
+    def can_unlock(self, last_level):
+        """
+        :param last_level: BaseBossの最終討伐レベル
+        :return:
+        """
+        return self.level <= last_level

@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+"""
+レイドボス期間終了時のランキング集計・データ作成
+"""
+import os
+#from optparse import make_option
+from django.core.management.base import BaseCommand
+from django.conf import settings
+
+from ...models.ranking import RankingStatus, RankingHistory, RankingClass
+from module.raid import Boss, BossRanking, PlayerRankingEntry
+from horizontalpartitioning.transaction import commit_on_success
+
+
+class Command(BaseCommand):
+    def handle(self, *args, **options):
+            bosses = Boss.get_all()
+            for boss in bosses: 
+                # ランキング対象のボスであれば
+                if boss.is_ranking() and boss.is_finish():
+                    ranking_id = boss.id
+                    # ranking_statusにboss_idとfinished_atを入れる
+                    RankingStatus.finish(ranking_id) 
+                    # ランキングクラス種別毎のボスランキングを取得
+                    ranking_classes = RankingClass.get_all()
+                    for ranking_class in ranking_classes:
+                        print 1 
+                        boss_ranking = BossRanking.get_bossranking_by(boss.id, ranking_class.id)
+                        ranking_entities = boss_ranking.get_ranking()
+                        print 'boss_ranking:%s' % len(ranking_entities)
+                        for ranking_entity in ranking_entities:
+                            print 2
+                            #　player_ranking_entryにrankとlast_levelを入れる
+                            with commit_on_success([ranking_entity.player.id]):
+                                finish_ranking_result = PlayerRankingEntry.finish_ranking(ranking_entity.player.id, ranking_id)
+                                if finish_ranking_result:
+                                    print 3
+                                    # ranking_historyにgrankingの情報を移す
+                                    RankingHistory.make_ranking_history(ranking_id, 
+                                                                        ranking_class.id, 
+                                                                        ranking_entity.player.id, 
+                                                                        ranking_entity.rank, 
+                                                                        ranking_entity.last_level)
+
+
+
+from module.player import get_player
+from module.raid.raid_player.models import (PlayerBossEncounter,
+                                            PlayerBossAttackRights,
+                                            PlayerBossEncounterAttackHistory,
+                                            PlayerBoss,
+                                            PlayerBossCountReward)
+
+def make_data():
+    import random
+    from module.player import get_player
+    from module.raid.raid_player.models import PlayerBoss
+    from module.raid import PlayerRankingEntry
+    from horizontalpartitioning.transaction import commit_on_success
+    boss_id=10005
+    for player_id in range(1,101):
+        with commit_on_success([player_id]):
+            player= get_player(player_id)
+            player_boss = PlayerBoss.get_by(player_id, boss_id, for_update=True)
+            player_boss.last_level = random.randint(1,200)
+            player_boss.update_ranking()
+            PlayerRankingEntry.entry_ranking(player, boss_id)
+
+

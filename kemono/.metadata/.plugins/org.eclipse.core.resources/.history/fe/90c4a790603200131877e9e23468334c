@@ -1,0 +1,256 @@
+{% extends 'common/base.html' %}
+{% load current_links navigator_tags mypage_image_tags shop_tags officialinfo_tags quest_tags datetime_tags linktag_tags gacha_tags lesson_tags campaign_tags afterbefore_tags e026_tags %}
+
+{% block content %}
+
+  <img src="{% image_url %}/scenes/mypage/mypage_header.gif" width="240" height="18" /><br />
+
+  {% if whatsnews %}
+    <a href="#news">新着情報</a>
+  {% endif %}
+  {% g_subtitle 'mypage' 0 %}
+
+  <div style="text-align:left;">
+  <a href="{% opensocial_url guild_pet_index %}">
+    <img src="{% image_url %}/controls/button/guild_pet.jpg" width="64" height="24" style="float:right;" align="right" />
+  </a>
+  <a href="{% opensocial_url guild_index %}">{{ player.guild.name }}</a><br />
+  {% if player.guild.is_battle_open %}
+    <a href="{% opensocial_url guildbattle_battle_index %}">聖戦開催中!!</a><br />終了まで
+    {#<a href="{% opensocial_url e005_decisivebattle_secondhalf_battle %}">聖戦開催中!!</a>終了まで}#}
+    <span style="color:{% color 'STRONG_FG2' %};">{% time_past guildbattle_manager.end_at %}</span>
+    {# TODO_note KEMONO_DEBUG-901 聖戦の残り時間をお願いします。#}
+  {% else %}
+    {% if not player.guild.is_entry %}
+      <a href="{% opensocial_url guild_battle_entry_confirm %}">聖戦に参加しよう!!</a>
+    {% else %}
+      {% if player.guild.next_entry_time %}
+        次の開戦まで
+        <span style="color:{% color 'STRONG_FG2' %};">{% time_past player.guild.next_entry_time.start_datetime %}</span>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  <br clear="all" />
+  <div style="clear:both;"></div>
+  </div>
+  {% endg_subtitle %}
+
+  <img src="{% mypage_image_url_fp player %}?130731" width="240" height="146" /><br />
+
+  {# BGN お知らせマーキー #}
+  <div style="background-color:#3b2914; font-size:MOBILE-FONT-SIZE-NORMAL;">
+    {% line 'solid_s' %}
+    <div style="display:-wap-marquee;-wap-marquee-loop:infinite;">
+      <span style="color:{% color 'STRONG_FG2' %};">ﾚｲﾄﾞ総合力</span>{{ player.raid_deck_total_power }}
+      <span style="color:{% color 'STRONG_FG2' %};">聖戦総合力</span>{{ player.guild_deck_total_power }}
+    </div>
+    {% line 'solid_s' %}
+  </div>
+  {# END お知らせマーキー #}
+
+  {% navigator 'mypage' %}
+    <a href="{% opensocial_url_with_domain hint.link_url %}">{{ hint.message|z2h }}</a>
+  {% endnavigator %}
+
+{% if event003.is_open %}
+  {# 130524_e003聖戦イベント用 #}
+  {# TODO_note 5/28イベント終了後に削除 #}
+  <span style="color:{% color 'STRONG_FG4' %};">ﾛｰﾄﾞﾅｲﾂｸﾙｾｲﾄﾞ･ｺﾝﾎﾞﾊﾞﾄﾙ開催中!!</span><br>
+{% endif %}
+
+  {# e026イベント：アクションボタン レイドボタン #}
+  {# レイドボス出現中! #}
+  {% if player.e026_raid.active_boss or player.e026_raid.helps %}
+    <img src="{% image_url %}/scenes/event/e026/mypage_event_01.gif" width="240" height="11" /><br />
+    {% if player.e026_raid.active_boss %}
+
+      <a href="{% opensocial_event_url raid_battle_index %}">
+        {% if player.e026_raid.active_boss.is_first_attack and player.e026_raid.can_my_combo %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_raid_04.gif" width="113" height="23" />
+        {% elif player.e026_raid.can_my_combo %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_raid_03.gif" width="113" height="23" />
+        {% elif player.e026_raid.active_boss.is_first_attack %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_raid_02.gif" width="113" height="23" />
+        {% else %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_raid_01.gif" width="113" height="23" />
+        {% endif %}
+      </a>
+    {% else %}
+      <img src="{% image_url %}/scenes/mypage/btn_alert_raid_05.gif" width="113" height="23" />
+    {% endif %}
+
+    &nbsp;
+
+    {# 救援要請! #}
+    {% if player.e026_raid.helps %}
+      <a href="{% opensocial_event_url raid_relief_list %}">
+        {% if player.e026_raid.unjoined_helps and player.e026_raid.can_combo %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_rescue_04.gif" width="113" height="23" />
+        {% elif player.e026_raid.unjoined_helps %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_rescue_02.gif" width="113" height="23" />
+        {% elif player.e026_raid.can_combo %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_rescue_03.gif" width="113" height="23" />
+        {% else %}
+          <img src="{% image_url %}/scenes/event/e026/btn_alert_rescue_01.gif" width="113" height="23" />
+        {% endif %}
+      </a>
+    {% else %}
+      <img src="{% image_url %}/scenes/mypage/btn_alert_rescue_05.gif" width="113" height="23" />
+    {% endif %}
+    <img src="{% image_url %}/scenes/event/e026/mypage_event_02.gif" width="240" height="8" /><br />
+    {% spacer 5 %}
+  {% endif %}
+
+  {# Lv70まで{% T 'EXP' %}2倍 #}
+  {% if player.quest_exp_twice %}
+
+    {# Lv20まで消費{% T 'ENERGY' %}なし #}
+    {% if player.quest_energy_is_not_necessary %}
+      <a href="{% opensocial_url quest_index %}">{% emoji 'ribbon' %}Lv20まで{% T 'ENERGY' %}消費無し{% emoji 'ribbon' %}<br />&amp;獲得経験値2倍!</a>
+    {% else %}
+      {% emoji 'ribbon' %}<a href="{% opensocial_url quest_index %}">Lv70まで獲得経験値2倍!</a>{% emoji 'ribbon' %}
+    {% endif %}
+    {% spacer 5 %}
+  {% endif %}
+
+
+ {# アクションボタン {% T 'QUEST' %}、聖戦、レイド などの機能ボタン #}
+  {% include 'common/parts/action_buttons.html' with player=player only %}
+  {% ifafterbefore '2013-10-11 00:00:00' '2013-10-25 00:00:00' %}
+  {% margin 2 %}
+  <span style="color:#ff8000;text-decoration:blink;">{% emoji 'crown' %}</span>進撃<span style="color:{% color 'CRDG_FG_03' %};">第6章追加</span>追加!!<span style="color:#ff8000;text-decoration:blink;">{% emoji 'crown' %}</span> <br />
+  {% endifafterbefore %}
+
+  {% ifbefore '2013-07-22 00:00:00' %}
+  <span style="color:#ff8000;text-decoration:blink;">{% emoji 'crown' %}</span>聖戦<span style="color:{% color 'CRDG_FG_04' %};">ｽﾄｰﾘｰﾓｰﾄﾞ</span>追加!!<span style="color:#ff8000;text-decoration:blink;">{% emoji 'crown' %}</span> <br />
+  {% endifbefore %}
+
+  {% if player.active_simple_guildbattle_campaign %}
+    {# 131009 AP自動回復2倍 #}
+    {% include "common/parts/20131009_guerilla_guildbattle.html" only %}
+  {% endif %}
+
+  {% if not player.energy_is_max %}
+    {% spacer 2 %}
+    <span style="color:{% color 'STRONG_FG4' %};">体力回復までの残り時間<br />
+    {{ player.rest_energy_healing_minutes }}分</span><br />
+  {% endif %}
+
+  {# {% spacer 10 %} #}
+  <span style="color:{% color 'CRDG_FG_04' %};">Lv10上がる毎にﾚｱｶﾞﾁｬ券</span><br />
+  {# {% spacer 10 %} #}
+
+{# 幻獣姫ひとことCP #}
+{% if player.simple_campaign.mood_genju_cp.is_active %}
+  {% if genju_mood_campaign_status.can_send_mood %}
+    {% include 'simplecampaign/parts/mood_image.html' with tweet=player.simple_campaign.mood_genju_cp.campaign.mood only %}
+  {% endif %}
+{% endif %}
+
+  {# ---------- BGN 上部バナー ---------- #}
+  {% include "root/parts/home_banner_top.html" %}
+  {# ---------- END 上部バナー ---------- #}
+
+  {# 強化合成 #}
+  {% if player|card_compose_campaign_open %}
+  {% spacer 10 %}
+  {% card_compose_campaign_generator %}
+  {% endif %}
+
+
+  {# BGN ステータス #}
+  {% include 'common/parts/player_status.html' with player=player only %}
+  {# END ステータス #}
+
+  {% g_widelink 'right' %}<a href="#menu" accesskey="5">{% emoji 'five' %}MENU↓</a>{% endg_widelink %}
+  {% spacer 5 %}
+
+  {# ---------- BGN 下部バナー ---------- #}
+  {% include "root/parts/home_banner_bottom.html" %}
+  {# ---------- END 下部バナー ---------- #}
+
+  {% if asset_campaign %}
+    <a href="{% opensocial_url c020_assetexchange_top %}">ｼｭｰﾄ!・ﾒｼﾞｬｰ・GTOを<br />ﾌﾟﾚｲされていたお客様へ</a><br />
+    {% spacer 5 %}
+  {% endif %}
+
+
+  <a name="news" id="news"></a>
+  {% g_subtitle 'home' %}新着情報{% endg_subtitle %}
+  <div style="text-align:left;">
+    {% if whatsnews %}
+      {% for whatsnew in whatsnews %}
+        <a href="{% opensocial_url_with_domain whatsnew.url %}">{{ whatsnew.message|z2h }}</a><br />
+      {% endfor %}
+    {% else %}
+      新着情報はありません。
+    {% endif %}
+  </div>
+  {% spacer 5 %}
+
+  {# お知らせ #}
+  {% officialinfo_articles 0 2 'home' %}
+{#  {% officialinfo_home category_id=0 without_category_id=3 first_limit=1 second_limit=1 g_subtitle_style='home' %}#}
+
+  {# ギルドの動き #}
+  {% include 'guild/parts/member_history.html' with player=player html="root_home" only %}
+
+  {# 支援履歴 #}
+  {% include 'root/parts/home_contact.html' with player=player contact_histories=contact_histories only %}
+
+  <a name="menu" id="menu"></a>
+  <div style=" text-align:center;background-color:#6f190f;">
+    <img src="{% image_url %}/scenes/mypage/menu_top.gif" width="240" height="13" /><br />
+    MENU
+    <img src="{% image_url %}/scenes/mypage/menu_btm.gif" width="240" height="4" /><br />
+  </div>
+  {% spacer 5 %}
+
+  <div style="text-align:left;">
+    <a href="{% opensocial_url shop_index %}">ｼｮｯﾌﾟ</a>:ｾﾞﾆｰやｺｲﾝで買い物<br />
+    <a href="{% opensocial_url shop_index 3000 %}">ﾚｱﾒﾀﾞﾙ</a>:ﾒﾀﾞﾙと貴重品を交換<br />
+    <a href="{% opensocial_url gacha_index %}">ｶﾞﾁｬ</a>:強力な幻獣と契約!<br />
+    <a href="{% opensocial_url item_list %}">ｱｲﾃﾑ</a>:所持ｱｲﾃﾑの使用はｺｺ<br />
+    <a href="{% opensocial_url card_index %}">{% T 'CARD' %}一覧</a>:契約中の幻獣を閲覧<br />
+
+{% if not request.device.is_softbank %}
+    <a href="{% opensocial_url compose_index %}">{% T 'COMPOSE' %}</a>:幻獣を成長させよう<br />
+    <a href="{% opensocial_url job_index %}">{% T 'JOB' %}</a>:ｼﾞｮﾌﾞやｱﾊﾞﾀｰを変更<br />
+    <a href="{% opensocial_url levelskilltree_index %}">ｱﾋﾞﾘﾃｨ</a>:多彩なｱﾋﾞﾘﾃｨを修得<br />
+    <a href="{% opensocial_url deck_index %}">{% T 'DECK' %}</a>:戦いに備えよう!<br />
+    <a href="{% opensocial_url guild_index %}">{% T 'GUILD' %}</a>:所属ｷﾞﾙﾄﾞを確認<br />
+    <a href="{% opensocial_url guild_info_top %}">{% T 'GUILD_INFO' %}</a>:ｷﾞﾙﾄﾞﾒﾝﾊﾞｰを探そう<br />
+{% endif %}
+    <a href="{% opensocial_url present_index %}">ﾌﾟﾚｾﾞﾝﾄ</a>:ﾌﾟﾚｾﾞﾝﾄBOXをﾁｪｯｸ!<br />
+    <a href="{% opensocial_url card_history_index %}">図鑑</a>:契約した幻獣の記録<br />
+    <a href="{% opensocial_url help_index %}">ﾍﾙﾌﾟ</a>:困った時はｺﾁﾗ!<br />
+    <a href="{% opensocial_url lesson %}">ｻｷｭﾊﾞｽ先生</a>:お役立ち情報満載!<br />
+{% comment %}
+    <a href="{% opensocial_url configuration_index %}">各種設定</a>:端末に合わせて設定<br />
+{% endcomment %}
+  {% spacer 5 %}
+  </div>
+
+  {# 自己紹介タグ #}
+  {% g_subtitle %}自己紹介ﾀｸﾞ{% endg_subtitle %}
+  <form action="">
+    <input type="text" size="17" value="{% create_a_tag_entity_reference 'ﾏｲ拠点' 'profile_index' player.pk %}" style="color:#000000;font-size:MOBILE-FONT-SIZE-NORMAL;" />
+    {# 自己紹介ﾀｸﾞ #}
+  </form>
+  {% spacer 5 %}
+
+  {# ギルド紹介タグ #}
+  {% g_subtitle %}{% T 'GUILD' %}紹介ﾀｸﾞ{% endg_subtitle %}
+  <form action="">
+    <input type="text" size="17" value="{% create_a_tag_entity_reference 'ﾏｲｷﾞﾙﾄﾞ' 'guild_information' player.guild.id %}" style="color:#000000;font-size:MOBILE-FONT-SIZE-NORMAL;" />
+  </form>
+  {% spacer 5 %}
+
+  {# 公式コミュニティ #}
+  <a href="{% official_community_url %}">
+    {% emoji 'shine' %}公式ｺﾐｭﾆﾃｨはこちら{% emoji 'shine' %}
+  </a>
+  <br />
+  {% spacer 5 %}
+
+{% endblock %}

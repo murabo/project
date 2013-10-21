@@ -1,0 +1,101 @@
+{% extends "common/base.html" %}
+{% block page_title %}
+  <g:title class="simple">
+    <img src="{% image_url %}/controls/title/raid_ranking.jpg">
+  </g:title>
+{% endblock %}
+{% block content %}
+
+
+  {# ボックス1 #}
+  <g:frame class="gframe-interval-set mt-0">
+    <h1>{{ manager.basic.boss.name }}</h1>
+    <div class="ranking-information" style="background-image:url({% image_url manager.basic.boss.image.header %} ); ">
+      <g:parameter class="ranking-information-body">
+        <dl>
+          <dt>階級 : </dt>
+          <dd class="text-yellow">{{ manager.basic.entry.ranking_class.name }}</dd>
+        </dl> 
+        <dl>
+          <dt> ランキング : </dt>
+          <dd class="text-yellow">{{ manager.basic.rank }}位</dd>
+        </dl>
+        <dl>
+          <dt>{{ manager.basic.boss.name|z2h }} : </dt>
+          <dd>Lv{{ manager.basic.player_boss.last_level }}</dd>
+        </dl>
+      </g:parameter>
+    </div>
+    <g:button class="simple-l mb-0">
+      <a href="{% opensocial_url 'ranking_raid_index' %}">レイドランキング</a>
+    </g:button>
+  </g:frame>
+
+
+  {# ボックス2 #}
+  <g:frame class="gframe-interval-set">
+    <h1>{{ manager.rare.boss.name }}</h1>
+    <div class="ranking-information" style="background-image:url({% image_url manager.rare.boss.image.header %} );">
+      <g:parameter class="ranking-information-body">
+        <dl>
+          <dt>階級 : </dt>
+          <dd class="text-yellow">{{ manager.rare.entry.ranking_class.name }}</dd>
+        </dl> 
+        <dl>
+          <dt>ランキング : </dt>
+          <dd class="text-yellow"> {{ manager.rare.rank }}位</dd>
+        </dl>
+        <dl>
+          <dt>{{ manager.rare.boss.name|z2h }} : </dt>
+          <dd>Lv{{ manager.rare.player_boss.last_level }}</dd>
+        </dl>
+      </g:parameter>
+    </div>
+    <g:button class="simple-l mb-0">
+      <a href="{% opensocial_url 'ranking_raid_rare_index' %}">プラチナランキング</a>
+    </g:button>
+  </g:frame>
+
+
+  {# ボタン #}
+  <g:button class="simple-l mt-14 mb-10">
+    <a href="{% opensocial_url 'ranking_raid_list' 0 %}">歴代のレイドランキング</a>
+  </g:button>
+  <g:button class="simple-l mt-10 mb-14">
+    <a href="{% opensocial_url ranking_raid_howto %}">ランキング説明</a>
+  </g:button>
+
+
+  {# 注意事項 #}
+  <g:frame class="rounded indent-justify">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert">{{ manager.basic.boss.name }}及び{{ manager.rare.boss.name }}がそれぞれランキング対象となります。</span></p>
+    <p><span class="icon alert">一度に戦闘できるレイドボスは自分が発見したものを含めて7体までです。</span></p>
+    <p><span class="icon alert">ランキング集計には時間がかかる場合があります。</span></p>
+    <p><span class="icon alert">一度決まった階級はランキング集計まで別階級に移動することはありません</span></p>
+    <p><span class="icon alert">ランキング対象のレイドボスLv1に遭遇した時点でのユーザーLvに応じて所属階級が決まります。</span></p>
+  </g:frame>
+
+
+  <p>
+    <a href="{% opensocial_url 'ranking_index' %}">ranking_index</a>
+  </p>
+  <p>
+    <a href="{% opensocial_url 'ranking_raid_index' %}">ranking_raid_index</a>
+  </p>
+
+  <p>
+    <a href="{% opensocial_url 'ranking_raid_rare_index' %}">ranking_raid_rare_index</a>
+  </p>
+
+  <p>
+    <a href="{% opensocial_url 'ranking_raid_howto' %}">ranking_raid_howto</a>
+  </p>
+
+  <p>
+    <a href="{% opensocial_url 'ranking_raid_result' manager.ranking_id %}">ranking_raid_result</a>
+  </p>
+
+
+{% endblock %}

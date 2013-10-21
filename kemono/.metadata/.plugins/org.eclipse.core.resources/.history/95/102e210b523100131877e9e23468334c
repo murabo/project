@@ -1,0 +1,115 @@
+{% extends 'common/base.html' %}
+
+
+
+
+{% block content %}
+
+  <section id="raid-index">
+    <g:frame class="mandala raid-rescue-list reward-list-popup g-frame-setting">
+      <h1>現在の成績</h1>
+        {% for boss in boss %}
+        {#      {{ boss.name }}#}
+        <g:list class="raid-rescue" id="boss_{{ forloop.counter }}">
+          <ul>
+            <li class="rescue-fighting">
+              <ul>
+                <li class="raid-img"><img src="{% image_url boss.image.rewardbaner %}" width="306" height="94"></li>
+                <li>
+                  <ul class="rescue-text-wrap">
+                    <li>
+                      <g:frame-gradation class="pattern03">
+                        <p class="shadow">{{ boss.name }}</p>
+                      </g:frame-gradation>
+                    </li>
+                    <li>討伐回数<span class="category fire">{{ kill_count }}回</span></li>
+                    <li>次の報酬まであと<span class="category fire">{{ remain_kill_count_next_reward }}体討伐!!</span></li>
+                    <li class="mt-10">
+                      {% if next_count_reward.reward %}
+                        {# カードか #}
+                        {% if next_count_reward.reward.rarity.name == 'R' %}
+                          {# レアリティが R か #}
+                          <span style="color: #84c1d3;">{{ next_count_reward.name }}</span>
+                        {% elif next_count_reward.reward.rarity.name == 'SR' %}
+                          {# レアリティが SR か #}
+                          <span style="color: #fff000;">{{ next_count_reward.name }}</span>
+                        {% endif %}
+                      {% else %}
+                        {# カードじゃない #}
+                        報酬：{{ next_count_reward.name }}
+                      {% endif %}
+                        報酬：{{ next_count_reward.name }}
+                    </li>
+                    <li>
+                      弱点 :&nbsp;
+                      {% for element in  boss.element.weakness_elements %}
+                        <em data-skill-attribute="{{ element.code_name }}">{{ element.name }}</em>
+                      {% endfor %}
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <img src="{% image_url next_count_reward.image %}" width="70" height="70">
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </g:list>
+
+        <g:subtitle class="semi-decorated">
+          報酬一覧
+        </g:subtitle>
+        <g:frame-gradation class="pattern01">
+
+
+          {# TODO_note ここから20130502新報酬デザイン #}
+
+          <g:list class="item reward-list">
+            <ul>
+              {% for count_rewards in boss.count_rewards_by_reward_id %}
+                <li class="reward-list-item">
+                  <dl>
+                    <dt>
+                      <img src="{% image_url count_rewards.0.image %}" width="70" height="70"/>
+                    </dt>
+                    <dd>
+                      <h2>{{ count_rewards.0.name }}</h2>
+                      <section class="reward-list-body">
+                        <h3> 討伐回数 </h3>
+                        {% for count_reward in count_rewards %}
+                          <dl class="reward-item">
+                            <dt>{{ count_reward.count }}回</dt>
+                            <dd>
+                              {% if count_reward.count <= kill_count %}
+                                <g:pictogram class="reward-received"></g:pictogram>
+                              {% endif %}
+                            </dd>
+                          </dl>
+                        {% endfor %}
+                      </section>
+                    </dd>
+                  </dl>
+                </li>
+              {% endfor %}
+            </ul>
+          </g:list>
+          {# 新報酬デザインここまで #}
+          <ul>
+            <li style="text-align: center;">以降 <span class="attention01">50回討伐</span> ごとに10000ゼニー</li>
+          </ul>
+        </g:frame-gradation>
+
+        <hr class="spear">
+
+        {% endfor %}
+
+      <g:hbox>
+        <p class="attention01"> ※レイドボスの討伐回数（救援含む）が一定値到達ごとに専用の幻獣を獲得できます。 </p>
+      </g:hbox>
+      <g:button class="decorated-s">
+        <a href="{% opensocial_url raid_index %}">戻る</a>
+      </g:button>
+    </g:frame>
+
+  </section>
+{% endblock %}

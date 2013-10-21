@@ -1,0 +1,181 @@
+{% extends 'common/base.html' %}
+{% comment %}
+中クエスト詳細 SP
+担当E: 岡田 / 四柳
+{% endcomment %}
+{% load raid_tags %}
+
+{% block page_title %}
+  <g:title class="page" style="margin-bottom:-35px">
+    <img src="{% image_url player_quest_m.quest_m.quest_l.image.title %}">
+  </g:title>
+{% endblock %}
+
+{% block content %}
+
+  <section class="area-info" style="background-image: url('{% image_url player_quest_s.quest_s.background.image.quest_detail_bg %}');">
+    <h1 title="inner-text">
+      {{ quest_m.name }}
+    </h1>
+    <ul>
+      <li>進撃度&nbsp;<span>{{ player_quest_m.quest_s_progress|add:1 }}</span>
+        /{{ player_quest_m.quest_s_count }}</li>
+      <br />
+      <li>消費体力&nbsp;<span>{{ quest_m.lost_energy }}</span></li>
+      <li>クリア回数&nbsp;<span>{{ player_quest_m.loop_count }}</span></li>
+    </ul>
+    <g:button class="decorated-l">
+      <a href="{% opensocial_url quest_step_flash quest_m.id %}">
+        このステージを{% T 'QUEST' %}
+      </a>
+    </g:button>
+  </section>
+
+  <section class="boss-info">
+    <g:frame>
+      <h1 class="prune">エリアボス情報</h1>
+      <figure class="boss-img">
+        <img src="{% image_url questboss.image.detail %}" width="306" height="106">
+
+        <div>{{ questboss.boss_name }}</div>
+      </figure>
+
+      <section class="reward-details">
+        <g:subtitle class="semi-decorated">
+          <span>ボスドロップ</span>
+        </g:subtitle>
+        <ul class="type01">
+          {% for reward in questboss.rewards %}
+            {% if not reward.rare_drop %}
+              {# 非レア #}
+              <li>
+                <img src="{% image_url reward.image %}" width="55" height="55" />
+
+                <p>{{ reward.reward.name }}</p>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        <ul class="type01">
+          {% for reward in questboss.rewards %}
+            {% if reward.rare_drop %}
+              {# レアドロップ #}
+              <li>
+                <img src="{% image_url reward.image %}" width="55" height="55" />
+
+                <p>{{ reward.reward.name }}<br />
+                  (レア)</p>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="reward-details">
+        <g:subtitle class="semi-decorated">
+          <span>{{ reward_gacha.name }}で手に入る！！</span>
+        </g:subtitle>
+        <ul>
+        {{reward_gacha_deck.entities}}
+          {% for entity in reward_gacha_deck.entities %}
+              <li>
+              {{entity.reward}}
+                <img src="{% image_url entity.reward.image.medium %}" width="120" /><br />
+                {{ entity.reward.name }}
+              </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="reward-details">
+        <g:subtitle class="semi-decorated">
+          <span>エリアクリア報酬</span>
+        </g:subtitle>
+        <ul>
+          <li>
+            <p>初回クリア報酬</p>
+            <img src="{% image_url quest_m.first_complete_reward.reward.image.medium %}" width="120"><br />
+            {{ quest_m.first_complete_reward.reward.name }}
+          </li>
+        </ul>
+      </section>
+
+      <section class="reward-details">
+        <g:subtitle class="semi-decorated">
+          <span>エリアドロップ</span>
+        </g:subtitle>
+        <ul>
+          {% for step_reward in quest_m.step_rewards %}
+            <li>
+              <img src="{% image_url step_reward.image %}" width="60" />
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+    </g:frame>
+  </section>
+
+
+  {% if quest_m.metal_raid_boss %}
+    <section class="boss-info">
+      <g:frame>
+        <h1 class="prune">エリア限定プラチナレイドボス</h1>
+
+        <div class="boss-img raid">
+          <img src="{% image_url quest_m.metal_raid_boss.image.header %}" width="306" height="204" />
+          <div>{{ quest_m.metal_raid_boss.name }}</div>
+        </div>
+        <g:navigator>
+          <ul>
+            <li>
+              {% help_link 'metalraidboss' 'help' %}
+            </li>
+          </ul>
+        </g:navigator>
+      </g:frame>
+    </section>
+  {% endif %}
+
+  <g:vbox style="margin-bottom:15px;">
+    <g:button class="decorated-l">
+      <a href="{% opensocial_url quest_step_flash quest_m.id %}">
+        このステージを{% T 'QUEST' %}
+      </a>
+    </g:button>
+
+    {# ムービーを再度見る #}
+    {% if quest_m.sequence_number == 1 and quest_m.quest_l.has_start_movie %}
+      {# 章の1話目で、章の開始ムービーがある #}
+      <g:button class="simple-l">
+        <a href="{% opensocial_url quest_l_start_movie_replay quest_m.id %}">
+          {# {% T 'QUEST_L' %} #}開始ムービーをもう一度見る
+        </a>
+      </g:button>
+    {% endif %}
+
+    {% if quest_m.has_start_movie %}
+      {# エリアの開始ムービーがある #}
+      <g:button class="simple-l">
+        <a href="{% opensocial_url quest_m_start_movie_replay quest_m.id %}">
+          {# {% T 'QUEST_M' %} #}開始ムービーをもう一度見る
+        </a>
+      </g:button>
+    {% endif %}
+  </g:vbox>
+
+  <g:navigator>
+    <ul>
+      <li>
+        {% help_link 'quest' 'help' %}
+      </li>
+      <li>
+        {% help_link 'questboss' 'help' %}
+      </li>
+      <li>
+        <a class="prev" href="{% opensocial_url quest_select_m quest_m.quest_l.id %}">クエスト一覧</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+{% endblock %}

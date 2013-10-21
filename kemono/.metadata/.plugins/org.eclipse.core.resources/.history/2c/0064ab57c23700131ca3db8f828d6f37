@@ -1,0 +1,589 @@
+# -*- coding:utf-8 -*-
+from django.core.urlresolvers import reverse
+from django.views.generic.base import TemplateResponseMixin
+from gacha.settings import GACHA_NAMES
+from mobilejp.middleware.mobile import get_current_device
+from apps.website.v_hint.models import Hint, NewbieHint
+from apps.website.v_root.views import PromotionFlashManager
+from events.event.models import Event
+from gsocial.http import HttpResponseOpensocialRedirect
+from gamelog.api import log_daily_access
+from horizontalpartitioning.transaction import commit_on_success
+from kome.core.types import LocationType
+from module.common.kome_utils import ViewPageLogView
+from module.compensation import can_receive_compensation
+from module.guild.models import AutoKickHistory
+from module.whatsnew import WhatsNew, get_enables, PlayerWhatsNew
+from module.invitation import InvitationProgramAPI
+from apps.website.v_bonus import get_valid_bonus
+from gtoolkit import datetime
+
+# ガチャ
+from gacha.g003_rarecoin.g003_rarecoin_player import PlayerGacha
+from gacha.g003_rarecoin.constants import SINGLE_GACHA_ID
+
+# g042
+from gacha.g042_october.g042_october_player import PlayerGachaManager as G042PlayerGachaManager
+
+# 公式コミュの参加報酬
+from module.official_community import present_official_community_reward, is_join_community
+
+# 初心者ビンゴ
+from module.newbie_bingo import get_player_newbiebingo
+# 聖戦ビンゴ
+from module.seisen_bingo import get_player_seisenbingo
+
+from apps.website.v_guildbattle.views import GuildBattleMemberView
+
+# e027
+from events.e027_winpoint_guildbattle.module.e027_base import is_event_player_notice_e027
+
+# e015
+from events.e015_element_battle.module.e015_base import is_event_player_notice_e015
+
+# ギルド掲示板に書き込んだかチェックする用
+from module.promotion.promotion_player.models import GuildCommentRewardHistory
+
+# 模擬戦をクリアしたかどうかをジョブジョブチェンジ可能かで判定する（すごく気持ち悪いが、時間が・・・。。。）
+from module.job.job_player import can_change_job
+
+from campaigns.c035_gumi_crystal.module import (
+    clear_gumi_crystal_mission,
+    C035MissionIds,
+    is_campaign_open as c035_is_open
+)
+from campaigns.c035_gumi_crystal.module.base.models import LimitedCounter as C035LimitedCounter
+from campaigns.c039_thanks.module import CampaignManager as C039CampaignManager
+
+# 合成経験値UPキャンペーン
+from module.promotion.models.card_compose_cp import CardComposeBonusCampaign
+
+
+class RootHomeView(GuildBattleMemberView, ViewPageLogView, TemplateResponseMixin):
+    """
+    マイページ
+    """
+    template_name = "root/home.html"
+    analytics_action = 'Home'
+    location_type = location_type = LocationType.MYPAGE
+
+    def get(self, request, *args, **kwargs):
+        now = datetime.now()
+        # ﾏｲﾍﾟでFlashを3回流したら3分は他の告知を流さない
+        promotion_flash_manager = PromotionFlashManager(self.player)
+
+        # Gamelog
+        log_daily_access(self.player.pk, request)
+
+        if not self.player.guild:
+            return HttpResponseOpensocialRedirect(reverse('guild_index'))
+
+        gacha_notice_response = self._get_gacha_notice_response(request)
+        if gacha_notice_response:
+            promotion_flash_manager.count_up()
+            return gacha_notice_response
+
+        interput_swf, next_url, next_url_args, measure_context = self._get_view_context(request)
+        if interput_swf:
+            promotion_flash_manager.count_up()
+            if next_url_args:
+                return HttpResponseOpensocialRedirect(reverse(next_url, args=next_url_args))
+            else:
+                return HttpResponseOpensocialRedirect(reverse(next_url))
+
+        # 2013/9/4開始カムバックキャンペーン
+        # touchの後にすると、アクセス時にログインしたことになるため、必ずtouchの前に設置
+        # 期間がかぶることになったので、c025のキャンペーンを優先するためc025の下に記述
+        from campaigns.c032_comeback import check_comeback_campaign
+        from campaigns.c032_comeback.module.base.models import ComebackCampaign
+        check_comeback = check_comeback_campaign(self.player)
+        if check_comeback:
+            promotion_flash_manager.count_up()
+            return HttpResponseOpensocialRedirect(reverse(('c032_comeback_comeback_index')))
+
+        # カムバックキャンペーンの表示処理
+        c032_comeback_loginstamp = bool(check_comeback)
+        c032_comeback_campaign = ComebackCampaign.get_current()
+        c032_comeback_login_bonus_cp = ComebackCampaign.get_current(is_login_bonus_cp=True)
+        #カムバックログインボーナス期間が終了したら新着から消す
+        if not c032_comeback_login_bonus_cp:
+            self.player.read_whatsnew(whatsnew_id=WhatsNew.C032)
+
+        from campaigns.c040_comeback import check_comeback_campaign
+        from campaigns.c040_comeback.module.base.models import ComebackCampaign as C040ComebackCampaign
+        check_comeback = check_comeback_campaign(self.player)
+        if check_comeback:
+            promotion_flash_manager.count_up()
+            return HttpResponseOpensocialRedirect(reverse(('c040_comeback_comeback_index')))
+
+        # カムバックキャンペーンの表示処理
+        c040_comeback_loginstamp = bool(check_comeback)
+        c040_comeback_campaign = C040ComebackCampaign.get_current()
+        c040_comeback_login_bonus_cp = C040ComebackCampaign.get_current(is_login_bonus_cp=True)
+        #カムバックログインボーナス期間が終了したら新着から消す
+        if not c040_comeback_login_bonus_cp:
+            self.player.read_whatsnew(whatsnew_id=WhatsNew.C040)
+
+        # 初心者ログインキャンペーン
+        from campaigns.c004_rookie import check_rookie_campaign
+        from campaigns.c004_rookie.module.base.models import RookieCampaign
+        check_rookie = check_rookie_campaign(self.player)
+        if check_rookie:
+            promotion_flash_manager.count_up()
+            return HttpResponseOpensocialRedirect(reverse('c004_rookie_index', args=[1]))
+
+        # 初心者キャンペーンの表示処理
+        rookie_loginstamp = (not check_rookie is None)
+        rookie_campaign = RookieCampaign.get_current()
+
+        # 最終ログイン時間更新
+        self.player.touch()
+
+        # アクティブギルドメンバー一覧取得のためにログイン時間更新
+        self.player.touch_guild_last_login()
+
+        # 10日間未ログインでギルド強制脱退を食らっていたら説明ページにリダイレクト
+        if AutoKickHistory.guild_kicked_player_by_auto(self.player.id):
+            # フラグを折る
+            AutoKickHistory.delete_record(self.player.id)
+            return HttpResponseOpensocialRedirect(reverse('guild_force_remove_info'))
+
+        # GREE招待キャンペーンで報酬受け取り権利がある
+        if InvitationProgramAPI.has_reward_right(self.player):
+            if not get_current_device().is_featurephone:
+                return HttpResponseOpensocialRedirect(reverse('invitation_progrem_get_animation'))
+
+        ####################################################################################
+        # 告知Flash 記述部分 START
+        # 仕様: 告知Flashを3回流したら3分Sleepして必ずマイペを表示させる
+        ####################################################################################
+        if promotion_flash_manager.can_show_movie():
+            promotion_flash_manager.count_up()
+
+            # c027 告知 10/14まで
+            from campaigns.c037_gvg_newbie_reward.module.c037_notice.models import PlayerNoticeManager
+            c027_manager = PlayerNoticeManager(self.player)
+            if not c027_manager.watched_opening:
+                return HttpResponseOpensocialRedirect(reverse('c037_gvg_newbie_reward_movie_opening'))
+
+            # e024 告知
+            #from events.e024_bossbattle.module.e024_manager import PlayerEventManager
+            #e024_manager = PlayerEventManager(self.player)
+            #if e024_manager.event and e024_manager.event.is_open:
+            #    if not e024_manager.notice.watched_opening:
+            #        return HttpResponseOpensocialRedirect(reverse('e024_bossbattle_opening_animation'))
+            #    if not e024_manager.notice.watched_daily_notice:
+            #        return HttpResponseOpensocialRedirect(reverse('e024_bossbattle_world_open_animation'))
+
+            #from events.e028_guildbattle.module.e028_manager import PlayerEventManager as E028PlayerEventManager
+            #e028_manager = E028PlayerEventManager(self.player)
+            #if e028_manager.event and e028_manager.event.is_open_2nd_half:
+            #    if not e028_manager.notice.watched_opening_notice():
+            #        return HttpResponseOpensocialRedirect(reverse('e028_guildbattle_league_opening_animation'))
+            #    if not e028_manager.notice.watched_daily_notice():
+            #        return HttpResponseOpensocialRedirect(reverse('e028_guildbattle_league_daily_animation'))
+
+            # 聖戦メインデッキ拡張のお知らせ
+            #if (self.player.simple_campaign.add_main_deck.is_active() and
+            #    self.player.simple_campaign.add_main_deck.is_first_impression()):
+            #    return HttpResponseOpensocialRedirect(self.player.simple_campaign.add_main_deck.first_impression_execute_path)
+
+#             # 姫CP 8/15まで
+#             if C015Term().is_term():
+#                 if C015LimitedCounter.can_count_up(self.player.id, 'c015_hime_notice'):
+#                     return HttpResponseOpensocialRedirect(reverse('c015_hime_notice_execute'))
+
+            # 月末CP 8/26〜8/31
+            bonus = get_valid_bonus(7)
+            if bonus:
+                if bonus.get_present_bonus(self.player):
+                    return HttpResponseOpensocialRedirect(reverse(('login_bonus_execute'), args=[bonus.pk]))
+
+            # 招待切り替え
+            invitation = get_active_invitation()
+            if invaitation:
+                if InbaitationLimitedCounter.can_count_up(self.player.id, 'invitation_notice'):
+                    return HttpResponseOpensocialRedirect(reverse(('invaitation_notice_flash'), args=[bonus.pk]))
+
+
+
+            if c035_is_open():
+                if C035LimitedCounter.can_count_up(self.player.id, 'c035_gumi_crystal_notice'):
+                    return HttpResponseOpensocialRedirect(reverse('c035_gumi_crystal_notice_execute'))
+
+
+
+            # c039 60万人キャンペーン Campaign.idは今は1しかない
+            c039_manager = C039CampaignManager(1, self.player)
+            if c039_manager.is_in_term():
+                # c039 告知
+                if c039_manager.notice_kvs_counter.can_count_up():
+                    c039_manager.notice_kvs_counter.count_up()
+                    return HttpResponseOpensocialRedirect(
+                        reverse('c039_thanks_notice_animation', args=[]))
+                # c039 ルーレット
+                if c039_manager.has_right():
+                    return HttpResponseOpensocialRedirect(
+                        reverse('c039_thanks_reward_execute', args=[]))
+
+            # c039開催中は通常ログインボーナス発生させない（終わったら条件分岐外していい）
+            else:
+                # ログインボーナス
+                # 定数切りたいけど、とりあえず、これで。。
+                bonus = get_valid_bonus(1)
+                if bonus:
+                    if bonus.get_present_bonus(self.player):
+                        return HttpResponseOpensocialRedirect(reverse(('login_bonus_execute'), args=[bonus.pk]))
+
+            # グリーの招待リワードのフラッシュ
+            #if not get_current_device().is_featurephone:
+            #    if (self.player.simple_campaign.gree_reward_invitation_second.is_active() and
+            #        self.player.simple_campaign.gree_reward_invitation_second.is_first_impression()):
+            #        return HttpResponseOpensocialRedirect(self.player.simple_campaign.gree_reward_invitation_second.first_impression_execute_path)
+
+            # イベント告知フラッシュ
+            if not is_event_player_notice_e027(self.player.pk):
+                return HttpResponseOpensocialRedirect(
+                    reverse(('e027_winpoint_guildbattle_notice_execute')))
+
+            if not is_event_player_notice_e015(self.player.pk):
+                return HttpResponseOpensocialRedirect(
+                    reverse(('e015_element_battle_notice_execute')))
+
+            # イベント告知フラッシュ
+#            if not is_event_player_notice_e025(self.player.pk):
+#                return HttpResponseOpensocialRedirect(
+#                    reverse(('e025_combobattle_notice_execute')))
+
+            # 開戦フラッシュ
+#            if not is_view_battle_start_flash(self.player):
+#                return HttpResponseOpensocialRedirect(
+#                    reverse(('e025_combobattle_battle_start_execute')))
+
+            # e026 聖石の記憶5 開始告知
+            e026_event = Event.get(26)
+            if e026_event and e026_event.is_open:
+                from events.e026_towerraid.module.e026_notice import EventNoticeManager
+                event_movie_manager = EventNoticeManager(self.player.id)
+
+                # イベント 前半戦 オープニング ムービー
+                if not event_movie_manager.watched_first_half_opening_movie:
+                    return HttpResponseOpensocialRedirect(reverse('e026_towerraid_opening_movie'))
+
+                # イベント 前半戦 開催中 デイリー ムービー
+                if not event_movie_manager.watched_first_half_daily_movie:
+                    return HttpResponseOpensocialRedirect(reverse('e026_towerraid_daily_movie'))
+
+                # イベント 後半戦 オープニング ムービー
+                if not event_movie_manager.watched_second_half_opening_movie:
+                    return HttpResponseOpensocialRedirect(reverse('e026_towerraid_opening_movie_2nd'))
+
+                # イベント 後半戦 開催中 デイリー ムービー
+                if not event_movie_manager.watched_second_half_daily_movie:
+                    return HttpResponseOpensocialRedirect(reverse('e026_towerraid_daily_movie_2nd'))
+
+            #event022 = Event.get(22)
+            #if event022 and event022.is_open:
+            #    from events.e022_decisivebattle.module.e022_common import NoticeManager
+            #    notice = NoticeManager(self.player.id)
+            #    response = notice.get_response()
+            #    if response:
+            #        return response
+
+            # 一人ギルドの人には案内所を紹介 (まだリリースしない)
+            # mi = MovieInterruption(
+            #     self.player, 'promotion_guild_cp_guild_information')
+            # if not mi.is_watched():
+            #     return HttpResponseOpensocialRedirect(
+            #         reverse('promotion_guild_cp_guild_information'))
+
+            # 解放されたボスの紹介Flash
+            boss_id = self.player.raid.get_unlock_boss_movie_boss_id()
+            if boss_id:
+                return HttpResponseOpensocialRedirect(
+                    reverse('raid_boss_appearance', args=[boss_id]))
+
+            # 新規登場ボスの紹介Flash
+            boss_id = self.player.raid.get_new_added_boss_movie_boss_id()
+            if boss_id:
+                return HttpResponseOpensocialRedirect(
+                    reverse('raid_boss_appearance', args=[boss_id]))
+
+            # Cランクジョブ解放告知
+            #if (self.player.simple_campaign.add_c_rank_job_notice.is_active() and
+            #        self.player.simple_campaign.add_c_rank_job_notice.is_first_impression()):
+            #    return HttpResponseOpensocialRedirect(
+            #        self.player.simple_campaign.add_c_rank_job_notice.first_impression_execute_path)
+
+            # 聖戦ミッションの告知
+            #if (self.player.simple_campaign.mission_guild_notice.is_active() and
+            #    self.player.simple_campaign.mission_guild_notice.is_first_impression()):
+            #    return HttpResponseOpensocialRedirect(self.player.simple_campaign.mission_guild_notice.first_impression_execute_path)
+
+            # 騎士CP 8/3まで
+#             if C014Term().is_term():
+#                 if C014LimitedCounter.can_count_up(self.player.id, 'c014_knight_notice'):
+#                     return HttpResponseOpensocialRedirect(reverse('c014_knight_notice_execute'))
+
+#             if G021PlayerGachaManager(self.player).can_play_announce():
+#                 return HttpResponseOpensocialRedirect(
+#                     reverse('g021_knight_announce'))
+
+            if c035_is_open():
+                if C035LimitedCounter.can_count_up(self.player.id, 'c035_gumi_crystal_notice'):
+                    return HttpResponseOpensocialRedirect(reverse('c035_gumi_crystal_notice_execute'))
+
+            # # ギルドペット追加
+            # if self.guild.pet.can_play_notice_animation(self.player.id):
+            #     return HttpResponseOpensocialRedirect(
+            #         reverse('guild_pet_notice_animation'))
+
+
+        ####################################################################################
+        # 告知Flash 記述部分 END
+        ####################################################################################
+
+        # 20130711 一日一回ギルド掲示板に書き込んだらもらえるということを新着に出す
+        if GuildCommentRewardHistory.can_open_reward(self.player.id):
+            self.player.notify(whatsnew_id=WhatsNew.GUILD_COMMENT_BOARD, url_name='guild_comment_comments', url_args=[1])
+
+#        # 限界突破のお知らせを既読かどうかをチェックする
+#        if datetime.now() < datetime.local_datetime(2013, 7, 12, 23, 59, 59):
+#            if not self.player.is_read(whatsnew_id=WhatsNew.NEW_OFFICIALINFO_2):
+#                self.player.notify(whatsnew_id=WhatsNew.NEW_OFFICIALINFO_2, url_name='new_officialinfo2', url_args=[])
+
+        # ドラジェネの世界の更新情報
+#        if datetime.now() < datetime.local_datetime(2013, 7, 31, 23, 59, 59):
+#            if request.is_smartphone:
+#                if not self.player.is_read(whatsnew_id=WhatsNew.WORLD_UPDATE):
+#                    self.player.notify(whatsnew_id=WhatsNew.WORLD_UPDATE, url_name='world_whatsnew', url_args=[WhatsNew.WORLD_UPDATE])
+
+        # 合成キャンペーンのお知らせ
+        card_compose_campaign = CardComposeBonusCampaign.get_current_campaign()
+        if card_compose_campaign:
+            self.player.notify(whatsnew_id=WhatsNew.CARD_COMPOSE_CP, url_name='compose_index', url_args=[])
+
+        # デイジーにジョブチェンジできるか？
+        if not can_change_job(self.player.pk, 100501):
+            self.player.notify(whatsnew_id=WhatsNew.SHAM_GUILDBATTLE, url_name='sham_guildbattle_index', url_args=[])
+        else:
+            self.player.read_whatsnew(whatsnew_id=WhatsNew.SHAM_GUILDBATTLE)
+
+        # 聖戦ミッションの報酬受け取りがあるかチェック
+        from module.mission_guild import is_reward_get
+        if is_reward_get(self.player):
+            self.player.notify(whatsnew_id=WhatsNew.MISSION_GUILD, url_name='mission_guild_index', url_args=[])
+        else:
+            self.player.read_whatsnew(whatsnew_id=WhatsNew.MISSION_GUILD)
+
+        # レベルアップアビリティを追加したという新着
+        if datetime.now() < datetime.local_datetime(2013, 8, 7, 23, 59, 59):
+            if self.player.level >= 100:
+                if not self.player.is_read(whatsnew_id=WhatsNew.LEVELUP_ABILITY):
+                    self.player.notify(whatsnew_id=WhatsNew.LEVELUP_ABILITY, url_name='levelskilltree_index', url_args=[])
+        else:
+            if not self.player.is_read(whatsnew_id=WhatsNew.LEVELUP_ABILITY):
+                self.player.read_whatsnew(whatsnew_id=WhatsNew.LEVELUP_ABILITY)
+
+        # 新着情報
+        whatsnews = get_enables(self.player)
+
+        # 支援（挨拶）取得
+        # 特定の件数だけ取るべき。
+        contact_histories = self.player.contact_histories
+        if request.is_smartphone:
+            contact_histories = contact_histories[:5]
+        else:
+            contact_histories = contact_histories[:2]
+
+        # 課金ガチャの情報
+        g003_rarecoin_player_gacha = PlayerGacha.get_player_gacha(
+            self.player.id, SINGLE_GACHA_ID)
+
+        if request.is_smartphone and self.player.is_newbie():
+            hint = NewbieHint.get(self.player)
+            self.template_name = "root/newbie_home.html"
+
+        else:
+            hint = Hint.get(self.player)
+
+        # 初心者ビンゴのバナーを表示するかどうか
+        with commit_on_success([self.player.id], ensure_start=True):
+            player_bingo = get_player_newbiebingo(self.player)
+
+            # 聖戦ビンゴの内容を取得する。
+            # get_player_seisenbingoの中で初心者ビンゴが終わっているかチェックしている。
+            # 20130620 仕様変更で、初心者ビンゴ終わってなくても聖戦修行ビンゴできるようにする
+            player_seisen_bingo = get_player_seisenbingo(self.player)
+            if player_seisen_bingo is None:
+                is_end_seisen_bingo = False
+            else:
+                is_end_seisen_bingo = player_seisen_bingo.is_end
+        if not player_bingo.is_end and player_bingo.bingo_line_count == 8:
+            return HttpResponseOpensocialRedirect(reverse('newbie_bingo_clear'))
+
+        # 補填アイテム受け取りリンク
+        if can_receive_compensation(self.player):
+            whatsnews.insert(0, PlayerWhatsNew(
+                message=u'補償アイテムが受け取れます',
+                url_name='compensation_receive',
+                url_kwargs={}, player_id=self.player.id
+            ))
+
+        # 公式コミュニティ参加報酬
+        with commit_on_success(user_ids=[self.player.id]):
+            present_official_community_reward(self.player.id)
+
+        # # e001 close対応 5/13 で受け取り終了
+        # # e002 個口対応
+        # try:
+        #     event001 = Event.get(1)
+        #     event002 = Event.get(2)
+        #     event003 = Event.get(3)
+        #     event004 = Event.get(4)
+        # except Event.DoesNotExist:
+        #     event001 = None
+        #     event002 = None
+        #     event003 = None
+        #     event004 = None
+        # Event.get_all_for_view_context() でまとめて取得する
+
+        # e022 後半戦 聖戦開催中の残り時間表示
+        guildbattle_manager = self.guildbattle_manager
+        from events.e022_decisivebattle.module.e022_2ndhalf import is_secondhalf_open
+        from events.e022_decisivebattle.apps.v_2ndhalf.v_battle.views import get_guildbattle_guilds
+        from events.e022_decisivebattle.module.e022_2ndhalf.e022_2ndhalf_guildbattle import GuildBattleManager
+        if is_secondhalf_open():
+            guildbattle_guild, _ = get_guildbattle_guilds(self.player.guild)
+            if guildbattle_guild:
+                guildbattle_manager = GuildBattleManager.get(guildbattle_guild.matching_id)
+
+        from campaigns.c020_assetexchange.module.models import AssetCampaign
+        asset_campaign = AssetCampaign.get_current()
+
+        clear_gumi_crystal_mission(self.player, C035MissionIds.LOGIN)
+
+        context = {
+            'player': self.player,
+            'whatsnews': whatsnews,
+            'contact_histories': contact_histories,
+            'g003_rarecoin_player_gacha': g003_rarecoin_player_gacha,
+            'hint': hint,
+            'is_end_newbie_bingo': player_bingo.is_end,
+            'is_end_seisen_bingo': is_end_seisen_bingo,
+            'guildbattle_manager': guildbattle_manager,
+            'is_join_community': is_join_community(self.player.id),
+            'rookie_loginstamp': rookie_loginstamp,
+            'rookie_campaign': rookie_campaign,
+            'c032_comeback_loginstamp': c032_comeback_loginstamp,
+            'c032_comeback_campaign': c032_comeback_campaign,
+            'c040_comeback_loginstamp': c040_comeback_loginstamp,
+            'c040_comeback_campaign': c040_comeback_campaign,
+            'asset_campaign': asset_campaign,
+        }
+
+        # イベント用 event001, event002, ... のような view 変数を加える
+        # view mixin を作ってやっても良いかも
+        context.update(Event.get_all_for_view_context())
+
+        context.update(measure_context)
+
+        return self.render_to_response(context)
+
+    post = get
+
+    def _get_view_context(self, request):
+
+        interput_swf = False
+        next_url = None
+        next_url_args = []
+        context = {}
+
+        # くじ引きCP
+        from campaigns.c026_gree_lot import check_gree_lot_campaign
+        from campaigns.c026_gree_lot.module.base.models import Campaign
+        from campaigns.c026_gree_lot.constants import CURRENT_CAMPAIGN_ID
+        check_gree_lot = check_gree_lot_campaign(self.player)
+        if check_gree_lot:
+            return True, 'c026_gree_lot_index', [CURRENT_CAMPAIGN_ID], context
+
+        # タロットくじキャンペーンの表示処理
+        gree_lot_login_cp = (not check_gree_lot is None)
+        gree_lot_campaign = Campaign.get_current()
+        if not gree_lot_campaign:
+            # 受取期間中のキャンペーンを取得
+            gree_lot_campaign = Campaign.get_current_by_acquire_reward()
+
+        # 幻獣姫ひとことCP
+#         genju_mood_campaign_status = self.get_simple_campaign_status(self.player)
+
+        context.update({
+            'gree_lot_login_cp': gree_lot_login_cp,
+            'gree_lot_campaign': gree_lot_campaign,
+#             'genju_mood_campaign_status': genju_mood_campaign_status,
+        })
+
+        return interput_swf, next_url, next_url_args, context
+
+    def _get_gacha_notice_response(self, request):
+        """
+        ガチャの告知のレスポンス取得
+        return: HttpReponseOepnsocialRedirect or None
+        """
+        # g042 10月月初ガチャ
+        g042_manager = G042PlayerGachaManager(self.player)
+
+        # 初回告知
+        if g042_manager.can_play_first_trailer():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer'))
+
+        ## フィーバー開始告知
+        #if g042_manager.can_play_fever_time_trailer():
+        #    return HttpResponseOpensocialRedirect(
+        #        reverse('g042_october_trailer_fever_time'))
+
+        # 10連初回割引復活
+        if g042_manager.can_play_second_half_price_notice():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer_first_half_price_second'))
+
+        # 新幻獣追加告知
+        if g042_manager.can_play_second_trailer():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer_second'))
+
+        # ステップアップ開始告知
+        if g042_manager.can_play_onetwothree_trailer():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer_onetwothree'))
+
+        # 新幻獣追加(second)期間中の割引
+        if g042_manager.can_play_second_half_price_trailer():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer_second_half_price'))
+
+        # 10連初回割引復活(third)
+        if g042_manager.can_play_third_trailer():
+            return HttpResponseOpensocialRedirect(
+                reverse('g042_october_trailer_third'))
+
+        for gacha_name in GACHA_NAMES:
+            try:
+                import_name = __import__('gacha.{}.{}_player'.format(gacha_name, gacha_name),
+                                         globals(), locals(), ['PlayerGachaManager'], 0)
+                manager = getattr(import_name, 'PlayerGachaManager')(self.player)
+
+                trailer_url = manager.get_trailer_url()
+                if trailer_url:
+                    return HttpResponseOpensocialRedirect(trailer_url)
+            except (ImportError, AttributeError):
+                pass
+
+        return None
+
+    def get_simple_campaign_status(self, player):
+        from module.simplecampaign import Campaign, PlayerCampaignStatus
+        campaign = Campaign.get(20)
+        genju_mood_campaign_status = PlayerCampaignStatus(player, campaign)
+        return genju_mood_campaign_status

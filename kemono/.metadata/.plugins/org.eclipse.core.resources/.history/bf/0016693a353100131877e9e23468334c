@@ -1,0 +1,83 @@
+{% extends "common/base.html" %}
+{% load osmobile common_tags player_tags g_tags mobile navigator_tags %}
+{% block content %}
+
+
+  {# ヘッダ画像 #}
+  {% g_subtitle 'title' %}raid_ranking{% endg_subtitle %}
+
+
+  {# 見出し #}
+  {% g_subtitle 'main'  %}{{ boss.name }}{% endg_subtitle %}
+
+  <table>
+    <tr>
+      <td align="center" valign="top" width="50">
+        <img src="{% image_url boss.image.ranking_banner %}" width="48" height="48" />
+      </td>
+      <td align="left" style="text-align:left;">
+        <div style="font-size:font-size:MOBILE-FONT-SIZE-NORMAL;">
+        {% g_parameter %}
+          {% key %}階級{% value %}{{ player_entry.ranking_class.name|z2h }}{% endkey %}
+          {% key %}ﾗﾝｷﾝｸﾞ{% value %}{{ player_boss_ranking.rank|default:'-' }}位{% endkey %}
+          {% key %}{{ boss.name|z2h }}Lv{% value %}{{ ranking_entry.last_level }}{% endkey %}
+        {% endg_parameter %}
+        </div>
+      </td>
+    </tr>
+  </table>
+  {# ボタン #}
+  {% g_button 'deco_s' %}{% key %}{% opensocial_url raid_reward %}{% value %}
+  ﾚｲﾄﾞ討伐報酬
+  {% endkey %}{% endg_button %}
+  {% g_button 'deco_s' %}{% key %}{% opensocial_url ranking_raid_reward boss.id view_class.id %}{% value %}
+  ﾗﾝｷﾝｸﾞ報酬
+  {% endkey %}{% endg_button %}
+  {% margin %}
+  {% line 'solid_s' %}
+  {% margin %}
+
+
+  {# タブ #}
+  {% g_tab view_class.id %}
+    {% key 1 %}{% opensocial_url 'ranking_raid_index' boss.id 1 %}{% value %}ﾗｲﾄ {% endkey %}
+    {% key 2 %}{% opensocial_url 'ranking_raid_index' boss.id 2 %}{% value %}ﾐﾄﾞﾙ {% endkey %}
+    {% key 3 %}{% opensocial_url 'ranking_raid_index' boss.id 3 %}{% value %}ｴｷｽﾊﾟｰﾄ{% endkey %}
+  {% endg_tab %}
+
+
+  {% g_subtitle %}ﾗﾝｷﾝｸﾞ{% endg_subtitle %}
+  {% for ranking_entity in ranking.current %}
+    <table width="100%">
+      <tr>
+        <td align="center" valign="top" width="50"><div style="width:48px;height:48px;">{% player_avatar ranking_entity.player %}</div></td>
+        <td align="center" valign="top" width="40">
+          <img src="{% image_url ranking_entity.player.avatar.image.icon %}" width="38" height="48">
+        </td>
+        <td align="left">
+          <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+            {{ ranking_entity.rank }}位&nbsp;<a href="{% opensocial_url profile_index ranking_entity.player.id %}">{{ ranking_entity.player.nickname }}</a><br />
+            <span>vs {{ ranking_entity.player_boss.boss.name }} (Lv{{ ranking_entity.last_level }})</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  {% endfor %}
+
+
+  {# 戻るリンク #}
+  {% g_list 'backpage' %}
+    {% item %}<a href="{% opensocial_url ranking_index %}">ﾚｲﾄﾞﾗﾝｷﾝｸﾞTOP</a>{% enditem %}
+  {% endg_list %}
+
+
+  {# 注意事項 #}
+  {% g_list 'notice' %}
+    {% item %}ﾗﾝｷﾝｸﾞは自分が遭遇し､討伐したﾚｲﾄﾞﾎﾞｽのLvが高い順に並びます｡{% enditem %}
+    {% item %}ﾗﾝｷﾝｸﾞ対象のﾚｲﾄﾞﾎﾞｽLv1に遭遇した時点でのﾕｰｻﾞｰLvに応じて所属階級が決まります｡{% enditem %}
+    {% item %}ﾚｲﾄﾞﾎﾞｽに遭遇していない場合はﾗﾝｷﾝｸﾞ対象外となります｡{% enditem %}
+    {% item %}救援依頼から倒したﾚｲﾄﾞﾎﾞｽLvはﾗﾝｷﾝｸﾞにｶｳﾝﾄされません｡{% enditem %}
+  {% endg_list %}
+
+
+{% endblock %}

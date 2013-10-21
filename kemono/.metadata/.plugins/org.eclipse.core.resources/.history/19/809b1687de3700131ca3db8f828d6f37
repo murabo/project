@@ -1,0 +1,372 @@
+# -*- coding:utf-8 -*-
+"""招待View
+"""
+from django.views.generic import TemplateView
+from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.utils.functional import cached_property
+
+from mobilejp.middleware.mobile import get_current_device
+
+from module.invitation.invitation_player.models import LimitedCounter
+
+from gamelog.api import log_page_access
+
+from gsocial.utils.authdevice.api import get_auth_device_api
+from gsocial.http import HttpResponseOpensocialRedirect
+
+from gextension.exceptions import ErrorMessageException, RedirectException
+
+from gtoolkit import path_container
+from gtoolkit.animation import AnimationView
+from horizontalpartitioning.transaction import commit_on_success
+
+from module.common.gree_reward import ad_program
+from module.player.views import PlayerView
+from module.invitation.exceptions import InvitationError
+from module.invitation import execute_invite
+from module.invitation.models import (
+    InvitationProgramRewardCoin,
+    InvitationProgram,
+)
+from module.invitation.invitation_player.models import (
+    PlayerInvitationCount,
+    PlayerInvitationProgramFacade,
+    PlayerInvitationReceivedReward,
+    PlayerInvitationProgram,
+
+    TotalInvitationProgramCount,
+)
+
+from apps.website.v_invitation import get_campaign
+
+from campaigns.c035_gumi_crystal.module import clear_gumi_crystal_mission, C035MissionIds
+
+
+class IndexView(PlayerView, TemplateView):
+    """
+    招待キャンペーン
+    """
+    template_name = "invitation/i001/index.html"
+
+    def get_context_data(self, **kwargs):
+        log_page_access(self.player.pk, 'invite_top') # Gamelog
+
+        campaign = get_campaign(self.player)
+        if not campaign:
+            raise ErrorMessageException(title=u'招待', message=u'キャンペーンが終了しています')
+
+        next_invite_reward_count, next_invite_reward = campaign.get_next_invite_reward()
+        next_send_reward_count, next_send_reward = campaign.get_next_send_reward()
+
+        self.template_name = campaign.index_template_name
+        print campaign
+        print self.template_name
+
+        return {
+            'campaign': campaign,
+            'next_invite_reward_count': next_invite_reward_count,
+            'next_invite_reward': next_invite_reward,
+            'next_send_reward_count': next_send_reward_count,
+            'next_send_reward': next_send_reward,
+        }
+
+class InviteCallbackView(PlayerView):
+    """
+    招待コールバック
+    """
+    result_url_name = 'invitation_campaign_invite_result'
+
+    def get(self, request, *args, **kwargs):
+
+        invite_member_ids = request.GET.get('invite_member', '')
+        invite_member_ids = invite_member_ids.split(',')
+        invite_member_ids = [osuser_id for osuser_id in invite_member_ids if osuser_id != '']
+
+        campaign_id = self.campaign_id if hasattr(self, 'campaign_id') else None
+        campaign = get_campaign(self.player, campaign_id)
+        try:
+            # gumiクリスタルキャンペーン
+            clear_gumi_crystal_mission(self.player, C035MissionIds.INVITE)
+            invite = execute_invite(self.player, campaign.campaign, invite_member_ids)
+
+        except InvitationError.CampaignClose:
+            raise ErrorMessageException(title=u'招待', message=u'キャンペーンが終了しています')
+
+        except (InvitationError.InviteMemberZero, InvitationError.NewJoinerZero):
+            # 誰も招待していない or 新規がいない
+            return HttpResponseOpensocialRedirect(
+                reverse(self.result_url_name, args=[campaign.id]),
+                request)
+
+        except InvitationError.GetJob, inst:
+            # 新ジョブget
+            new_job_id, new_joiner = inst
+            path_container.set(self.player.id, 'new_job_get', self.result_url_name,
+                               url_args=[campaign.id,
+                                         new_joiner])
+
+            return HttpResponseOpensocialRedirect(
+                reverse('special_job_unlock_flash', args=[new_job_id]), request)
+
+        else:
+            return HttpResponseOpensocialRedirect(
+                reverse(self.result_url_name,
+                        args=[campaign.id,
+                              invite.new_joiner]),
+                request)
+
+
+class InviteResultView(PlayerView, TemplateView):
+    """
+    招待キャンペーン招待結果
+    """
+    template_name = "invitation/i001/result.html"
+
+    def get_context_data(self, **kwargs):
+        campaign_id = kwargs.get('campaign_id')
+        invite_count = int(kwargs.get('invite_count', 0))
+
+        campaign = get_campaign(campaign_id)
+
+        self.template_name = campaign.result_template_name
+
+        return {
+            'campaign': campaign,
+            'invite_count': invite_count,
+            }
+
+
+class NoticeExecuteView(PlayerView):
+    """
+    通知のフラグを立てる
+    """
+    def get(self, request, *args, **kwargs):
+
+        campaign = get_campaign(self.player)
+        LimitedCounter.count_up(self.player.pk, 'c035_gumi_crystal_notice')
+
+        return HttpResponseOpensocialRedirect(
+            reverse(C.URL_NAME_PREFIX + 'notice_animation'))
+
+
+class NoticeAnimationView(PlayerView, AnimationView):
+    """通知アニメーション
+    """
+    animation_name = 'campaigns/c035_gumi_crystal/notice'
+    next_url_name = 'c035_gumi_crystal_index'
+
+
+# ========================================
+# GREE Invite Program
+# ========================================
+
+
+class InviteProgramMixin(object):
+
+    @cached_property
+    def gree_campaign_id(self):
+        current_program = InvitationProgram.get_current()
+        if current_program:
+            return current_program.id
+        return 2
+
+    def _dispatch_authorization_hook(self, request, *args, **kwargs):
+        if get_current_device().is_featurephone:
+            return HttpResponseOpensocialRedirect(
+                reverse('root_home', args=[]),
+                request
+            )
+        return None
+
+    def redirect_if_campaign_closed(self, viewname='root_home'):
+        """
+        キャンペーンが終了している
+        """
+        invitation_program = InvitationProgram.get(self.gree_campaign_id)
+        if not invitation_program.is_in_term:
+            raise RedirectException(viewname=viewname)
+
+    def redirect_if_over_limit(self, viewname='root_home'):
+        """
+        上限に達した
+        """
+        player_invitation_program_facade = PlayerInvitationProgramFacade(self.player, self.gree_campaign_id)
+        if not player_invitation_program_facade.is_before_limit():
+            raise RedirectException(viewname=viewname)
+
+    def redirect_if_already_assigned(self, viewname='root_home'):
+        """
+        登録済み
+        """
+        if PlayerInvitationProgram.is_assigned(self.player.id, self.gree_campaign_id):
+            raise RedirectException(viewname=viewname)
+
+
+class InviteProgramStartView(InviteProgramMixin, PlayerView, TemplateView):
+    """
+    GREE Invite Program 参加ページ
+    SPのみ
+    """
+    template_name = "invitation/gree/start.html"
+
+    def get(self, request, *args, **kwargs):
+
+        gree_program = InvitationProgram.get(self.gree_campaign_id)
+        is_assigned = PlayerInvitationProgram.is_assigned(self.player.id, self.gree_campaign_id)
+
+        player_invitation_program_facade = PlayerInvitationProgramFacade(self.player, self.gree_campaign_id)
+
+        # AUTH API取得
+        authdevice = get_auth_device_api(request, user_id=self.player.id)
+        # 認証済みか
+        is_auth_device = False
+        if settings.DEBUG:
+            is_auth_device = True
+        if authdevice.is_auth_device:
+            is_auth_device = True
+        else:
+            if authdevice.check_auth_device():
+                is_auth_device = True
+
+        campaign = get_campaign(self.player)
+        rewards = InvitationProgramRewardCoin.get_by_gree_campaign_id(self.gree_campaign_id)
+
+        context = {
+            'gree_program':gree_program,
+            'is_assigned':is_assigned,
+            'is_auth_device':is_auth_device,
+            'is_before_limit':player_invitation_program_facade.is_before_limit(),
+            'campaign': campaign,
+            'rewards':rewards,
+            # デバッグユーザーにだけ表示
+            'total_count': TotalInvitationProgramCount.get_current_count(self.gree_campaign_id)
+        }
+
+        return self.render_to_response(context)
+
+
+class InviteProgramCommitView(InviteProgramMixin, PlayerView, TemplateView):
+    """
+    GREE Invite Program 参加確定処理
+    SPのみ
+    """
+    GREE_REWARD_URL = 'http://reward.gree.net/3.0.5238c?media_id=908&digest=d9dd7d77495883009dbf5ed075275f155b0a52887c153e4a246f237fb88d9155&campaign_id={gree_campaign_id}&_identifier={player_id}'
+    template_name = "invitation/gree/redirect.html"
+
+    def get(self, request, *args, **kwargs):
+
+        # キャンペーンが終了している
+        self.redirect_if_campaign_closed('invitation_progrem_start')
+        # 最大招待可能数に達した
+        self.redirect_if_over_limit('invitation_progrem_start')
+        # 既に登録している
+        self.redirect_if_already_assigned('invitation_progrem_start')
+
+        # リダイレクト用のURL作成（テンプレート側でリダイレクトしている）
+        invitation_program = InvitationProgram.get(self.gree_campaign_id)
+        url = self.GREE_REWARD_URL.format(gree_campaign_id=invitation_program.program_id,
+                                          player_id=self.player.id)
+
+        # DEBUG時はGREEのURLを避ける
+        if settings.DEBUG:
+            url = request.get_full_path()
+
+        # キャンペーン登録をアプリ側でも管理
+        with commit_on_success([self.player.id]):
+            count = PlayerInvitationCount.get_count_by_player(self.player.id)
+            PlayerInvitationProgram.assign(self.player.id, self.gree_campaign_id, count)
+
+        return self.render_to_response({
+                'redirect_url': url,
+        })
+
+
+class InviteProgramGetAnimation(InviteProgramMixin, PlayerView, AnimationView):
+    """
+    GREE Invite Program 一定人数達成Flash
+    SPのみ
+    """
+    animation_name = "invitation/gree/achievement"
+    use_id_map = True
+
+    def get(self, request, *args, **kwargs):
+
+        # キャンペーンが終了している
+        self.redirect_if_campaign_closed('root_home')
+        # 最大招待可能数に達した
+        self.redirect_if_over_limit('root_home')
+        # 達成済み成立数の取得
+        player_invitation_program_facade = PlayerInvitationProgramFacade(self.player, self.gree_campaign_id)
+        achievement_counts = player_invitation_program_facade.get_achievement_counts()
+        counts = [achievement_count.count for achievement_count in achievement_counts]
+
+        # 不正
+        if not achievement_counts:
+            return HttpResponseOpensocialRedirect(
+                reverse('root_home', args=[]),
+                request
+            )
+
+        number = None
+        # 報酬対象の成立数
+        for count in counts:
+            if not PlayerInvitationReceivedReward.is_received_count(self.player.id, self.gree_campaign_id, count):
+                number = count
+                break
+
+        # 対象成立数がもうない
+        if number is None or not number:
+            return HttpResponseOpensocialRedirect(
+                reverse('root_home', args=[]),
+                request
+            )
+        # 報酬付与済みレコード追加
+        with commit_on_success([self.player.id]):
+            PlayerInvitationReceivedReward.received_count(self.player.id, self.gree_campaign_id, number)
+            # 緊急で全体の成立数を数える
+            # @TODO 固定じゃなくする
+            if number == 3:
+                total_add_number = 3
+            elif number == 10:
+                total_add_number = 7
+            elif number == 20:
+                total_add_number = 10
+            if total_add_number is not None:
+                TotalInvitationProgramCount.count_up(self.gree_campaign_id, total_add_number)
+
+        # パラメータ
+        params = self.get_params(request, number, *args, **kwargs)
+
+        return self.render_animation(
+            request,
+            self.get_next_url(request, *args, **kwargs),
+            params=params,
+            replace_images=self.get_replace_images(request, number, *args, **kwargs)
+        )
+
+    def get_next_url(self, request, *args, **kwargs):
+        player_invitation_program_facade = PlayerInvitationProgramFacade(self.player, self.gree_campaign_id)
+        achievement_counts = player_invitation_program_facade.get_achievement_counts()
+        if achievement_counts:
+            return reverse('invitation_progrem_get_animation', args=[])
+        return reverse('root_home', args=[])
+
+    def get_replace_images(self, request, number, *args, **kwargs):
+        invitation_reward_coin = InvitationProgramRewardCoin.get_by_count(self.gree_campaign_id, number)
+        images = {
+            'bg':invitation_reward_coin.image.achievement,
+        }
+        return images
+
+    def get_params(self, request, number, *args, **kwargs):
+        invitation_reward_coin = InvitationProgramRewardCoin.get_by_count(self.gree_campaign_id, number)
+        flash_params = {
+            'str1_1' : u"招待キャンペーン！",
+            'str1_2' : u"%s人の友だち招待が成立したよ！" % (number),
+            'str2_1' : u"GEEEコインを%sコインプレゼント！" % (invitation_reward_coin.coin),
+            'str2_2' : u"これからも「ドラゴンジェネシス」をよろしくね！",
+        }
+        ad_program_url = ad_program(self.player.pk, invitation_reward_coin.gree_reward_id)
+        flash_params.update({'ad_program_url':ad_program_url})
+        return flash_params

@@ -1,0 +1,17 @@
+{% load common_tags afterbefore_tags %}
+
+{% comment %}
+コメント：画像バナーではなくなったのでインクルードなしでこのファイルから直接ページ遷移へ変更
+{% ifbefore '2013-06-27 19:30:00' %}
+  {% include 'invitation/i001/current_banner.html' %}
+{% else %}
+  {% ifbefore '2013-08-20 19:30:00' %}
+    {% include 'invitation/i002/current_banner.html' %}
+  {% else %}
+    {% include 'invitation/i003/current_banner.html' %}
+  {% endifbefore %}
+{% endifbefore %}
+{% endcomment %}
+
+<a href="{% opensocial_url invitation_campaign_index %}">ﾒｰﾙ送信だけで限定ｼﾞｮﾌﾞGET!</a>
+{# {% margin %} #}<br />

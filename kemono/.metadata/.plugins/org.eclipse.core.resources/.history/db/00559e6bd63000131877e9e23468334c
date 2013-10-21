@@ -1,0 +1,89 @@
+{% extends "common/base.html" %}
+{% block content %}
+
+
+  {# ヘッダ画像 #}
+  {% g_subtitle 'title' %}raid_ranking{% endg_subtitle %}
+
+
+  {# 見出し #}
+  {% g_subtitle 'main' %}{{ boss.name }}{% endg_subtitle %}
+  <table>
+    <tr>
+      <td align="center" valign="top" width="50">
+        <img src="{% image_url player_boss_ranking.boss.image.ranking_banner %}" width="48" height="48" />
+      </td>
+      <td align="left" style="text-align:left;">
+        <div style="font-size:font-size:MOBILE-FONT-SIZE-NORMAL;">
+        {% g_parameter %}
+          {% key %}階級{% value %}{{ player_boss_ranking.entry.ranking_class.name|z2h }}{% endkey %}
+          {% key %}ﾗﾝｷﾝｸﾞ{% value %}{{ player_boss_ranking.rank }}位{% endkey %}
+          {% key %}{{ player_boss_ranking.boss.name|z2h }}Lv{% value %}{{ player_boss_ranking.player_boss.last_level }}{% endkey %}
+        {% endg_parameter %}
+        </div>
+      </td>
+    </tr>
+  </table>
+  {% margin %}
+  {% line 'solid_s' %}
+  {% margin %}
+
+
+  {# タブ #}
+  {% g_tab view_class.id %}
+    {% key 1 %}{% opensocial_url 'ranking_raid_reward' boss.id 1 %}{% value %}ﾗｲﾄ {% endkey %}
+    {% key 2 %}{% opensocial_url 'ranking_raid_reward' boss.id 2 %}{% value %}ﾐﾄﾞﾙ {% endkey %}
+    {% key 3 %}{% opensocial_url 'ranking_raid_reward' boss.id 3 %}{% value %}ｴｷｽﾊﾟｰﾄ{% endkey %}
+  {% endg_tab %}
+
+
+  {# 報酬テーブル #}
+  {% for reward in boss_ranking.rewards %}
+    {% if reward.ranged %}
+      {% g_subtitle %}{{ reward.max_rank }}位～{{ reward.min_rank }}位{% endg_subtitle %}
+    {% else %}
+      {% g_subtitle %}{{ reward.max_rank }}位{% endg_subtitle %}
+    {% endif %}
+    {% for entity in reward.entities %}
+      <table width="100%">
+        <tbody>
+          <tr>
+            <td align="left" valign="top" width="63">
+              <img src="{% image_url entity.image %}" width="60" height="60">
+            </td>
+            <td align="left" valign="top">
+              <div style="font-size:xx-small;">
+                <span style="color:#029D09;">{{ entity.name|z2h }}</span><br />{{ entity.description|z2h }}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% if not forloop.last %}
+        {% line 'solid_s' %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+  {% margin %}
+
+
+  {# 関連リンク #}
+  {% g_widelink 'next' %}<a href="{% opensocial_url ranking_raid_howto %}">ﾚｲﾄﾞﾗﾝｷﾝｸﾞ説明</a>{% endg_widelink %}
+  {% g_widelink 'next' %}<a href="{% opensocial_url raid_reward %}">ﾚｲﾄﾞ討伐報酬</a>{% endg_widelink %}
+
+
+  {# 戻るリンク #}
+  {% g_list 'backpage' %}
+    {% item %}<a href="{% opensocial_url ranking_index %}">ﾚｲﾄﾞﾗﾝｷﾝｸﾞTOP</a>{% enditem %}
+  {% endg_list %}
+
+
+  {% todo %}「manager.basic.boss.name」「manager.rare.boss.name」を出してください{% endtodo %}
+  {# 注意事項 #}
+  {% g_list 'notice' %}
+    {% item %}ﾗﾝｷﾝｸﾞ集計には時間がかかる場合があります｡{% enditem %}
+    {% item %}ﾗﾝｷﾝｸﾞ報酬は｢{{ manager.basic.boss.name }}｣｢{{ manager.rare.boss.name }}｣の出現最終日に確定します｡{% enditem %}
+  {% endg_list %}
+
+
+{% endblock %}

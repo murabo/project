@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+import datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+        # Removing unique constraint on 'RankingHistory', fields ['ranking_id', 'ranking_class_id']
+        db.delete_unique(u'raid_rankinghistory', ['ranking_id', 'ranking_class_id'])
+
+
+    def backwards(self, orm):
+        # Adding unique constraint on 'RankingHistory', fields ['ranking_id', 'ranking_class_id']
+        db.create_unique(u'raid_rankinghistory', ['ranking_id', 'ranking_class_id'])
+
+
+    models = {
+        u'raid.rankinghistory': {
+            'Meta': {'object_name': 'RankingHistory'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_level': ('django.db.models.fields.IntegerField', [], {}),
+            'player_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_class_id': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'raid.rankingstatus': {
+            'Meta': {'object_name': 'RankingStatus'},
+            'finished_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        }
+    }
+
+    complete_apps = ['raid']

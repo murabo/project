@@ -1,0 +1,154 @@
+# -*- coding:utf-8 -*-
+# My Django settings
+from settings.base import *
+from gtoolkit import datetime
+
+
+# My DB Settings
+DB_USER = 'root'
+DB_PASS = ''
+
+#繝�ヰ繝�げ繝｢繝ｼ繝峨↓縺励◆縺�う繝吶Φ繝�D
+DEBUG_EVENT_NO = 1
+IS_LOCAL = True
+
+# base縺ｨ蜷後§繧ゅ�繧定ｨｭ螳�
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_gree',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_shard0': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_shard0',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_shard1': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_shard1',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_guild': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_guild',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_gamelog': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_gamelog',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_analytics': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_analytics',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_event': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_event',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_guildbattle_shard0': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_guildbattle_shard0',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+    'gsc_guildbattle_shard1': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gamecore2_guildbattle_shard1',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '',
+        'PORT': '',
+    },
+
+}
+
+# Redis
+REDIS_DATABASES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': '6379',
+        'DB': '0',
+        },
+    'raid': {
+        'HOST': 'localhost',
+        'PORT': '6379',
+        'DB': '1',
+        }
+}
+
+
+# LocalMemCache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT' : 3600,
+        'OPTIONS' : {'MAX_ENTRIES': 30000,},
+        },
+    }
+
+# DebugToolbar
+#MIDDLEWARE_CLASSES += (
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
+#)
+
+#INSTALLED_APPS += (
+#    'debug_toolbar',
+#)
+
+
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
+    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    'debug_toolbar.panels.template.TemplateDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.signals.SignalDebugPanel',
+    'debug_toolbar.panels.logger.LoggingPanel',
+)
+
+def custom_show_toolbar(request):
+    return True # Always show toolbar, for example purposes only.
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
+    'HIDE_DJANGO_SQL': False,
+    'TAG': 'body',
+    'ENABLE_STACKTRACES' : True,
+}
+
+OPENSOCIAL_DEBUG_USER_ID = 9906933312
+
+# 繝�ヰ繝�げ譌･譎�#from datetime import datetime, timedelta
+#DATETIME_NOW_FOR_DEBUG = timedelta(days=2)
+DATETIME_NOW_FOR_DEBUG = datetime(2013, 10, 11, 17, 59, 59)
+

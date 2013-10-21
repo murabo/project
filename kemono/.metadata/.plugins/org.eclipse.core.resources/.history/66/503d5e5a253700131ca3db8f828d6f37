@@ -1,0 +1,257 @@
+{% extends "common/base.html" %}
+{% load osmobile mobile common_tags style_tags gtoolkit_image afterbefore_tags %}
+{% block content %}
+
+
+  {% g_subtitle 'title' 'free_img' %}/scenes/invitation/i003/header.jpg{% endg_subtitle %}
+
+
+  {# 見出し1 #}
+  {% g_subtitle 'main' 0 %}第4弾招待ﾒｰﾙ送信ごとに{% endg_subtitle %}
+  <table width="100%">
+    <tr>
+      <td valign="top" width="40"><img src="{% image_url campaign.friend_ticket_item.image.icon %}" width="40" height="40" /></td>
+      <td align="left" valign="top">
+        <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+          ﾚｱが出やすい<br />
+          <span style="color:{% color 'STRONG_FG' %};">{{campaign.friend_ticket_item.name|z2h}}</span>!!<br />
+          ﾒｰﾙを送信した分だけもらえる!
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <span style="color:{% color 'LINK_FG' %};font-size:MOBILE-FONT-SIZE-NORMAL;">10人に招待ﾒｰﾙを送信するだけで</span>
+      </td>
+    </tr>
+  </table>
+  <img src="{% image_url %}/scenes/invitation/img_01.jpg" width="240" height="125" />
+
+
+  {# 招待ボタン #}
+  <a href="{% opensocial_invite_url_with_body campaign.campaign.message_text invitation_campaign_callback %}">
+    <img src="{% image_url %}/scenes/campaign/130418_05/invitation_button.gif" width="200" height="30" />
+  </a>
+  {% margin %}
+
+
+  {# 招待送信人数 #}
+  <span style="background-color: #ff0000;">現在の招待送信人数{{ campaign.invite_send_count }}人</span><br />
+  {% if DEBUG %}
+  ﾃﾞﾊﾞｯｸﾞ表示-集計期間<br />
+  ({{campaign.campaign_sub_term}})<br />
+  {% endif %}
+
+  特殊ｼﾞｮﾌﾞ<span style="color:{% color 'STRONG_FG' %};">[ﾅｰｽﾒｲﾄﾞ]</span><br />
+  {% if campaign.invite_send_count >= 10 %}
+  獲得済み!<br />
+  {% else %}
+  獲得まであと{{next_send_reward_count}}人!<br />
+  {% endif %}
+  {% margin %}
+  <span style="background-color: #ff0000;">現在の招待成立人数{{ campaign.invitation_campaign_count.count }}人</span><br />
+  {% if next_invite_reward %}
+  {{next_invite_reward.reward.rarity.name}}<span style="color:{% color 'STRONG_FG' %};">[{{next_invite_reward.reward.name|z2h}}]</span><br />
+  獲得まであと{{next_invite_reward_count}}人!
+  {% else %}
+  全て獲得済みです
+  {% endif %}
+  {% margin %}
+  既に[ﾅｰｽﾒｲﾄﾞ]獲得済みの場合は獲得されません。
+  {% margin %}
+  {# 見出し2 #}
+  {% g_subtitle 'main' %}NEW招待ｷｬﾝﾍﾟｰﾝ開始後<br />1人招待成立ごとに{% endg_subtitle %}
+  <table width="100%">
+    <tr>
+      <td valign="top" width="40">
+        <img src="{% image_url campaign.ticket_item.image.icon %}" width="40" height="40" />
+      </td>
+      <td align="left" valign="top">
+        <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+          ﾚｱ以上確定!!<br />
+          <span style="color:{% color 'STRONG_FG' %};">{{campaign.ticket_item.name|z2h}}</span>GET!!
+        </div>
+      </td>
+    </tr>
+  </table>
+  {% margin %}
+
+
+  {# 見出し3 #}
+  {% g_subtitle 'main' 0 %}1､3､5､10､15人招待成立で{% endg_subtitle %}
+  <div style="background-color: #00073b;">
+    <img src="{% image_url %}/scenes/invitation/i003/img_01.jpg" width="240" height="94" />
+
+    <table align="center" bgcolor="#49390f" cellspacing="0" cellpadding="1">
+      <tr>
+        <td>
+          <table bgcolor="#1e1300">
+            <tr>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">攻撃</span>{{campaign.sr_card.physical_attack.max}}
+                </div>
+              </td>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">防御</span>{{campaign.sr_card.physical_defense.max}}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">魔攻</span>{{campaign.sr_card.magic_attack.max}}
+                </div>
+              </td>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">魔防</span>{{campaign.sr_card.magic_defense.max}}
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    {% margin 5 '#00073b' %}
+    <table align="center" cellspacing="0" cellpadding="1">
+      <tr>
+        <td align="center" colspan="2">
+          <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+            {# TODO_note コスト・成長の値を入れて下さい #}
+            {% g_parameter 'oneline' %}
+              {% key %}ｺｽﾄ{% value %}{{ campaign.sr_card.cost }}{% endkey %}
+              {% key %}成長{% value %}<span style="color:{% color campaign.sr_card.grow_type.color_context %}">{{ campaign.sr_card.grow_type.name }}</span>{% endkey %}
+            {% endg_parameter %}
+          </div>
+        </td>
+      </tr>
+    {% for skill in campaign.sr_card.card_skills %}
+      <tr>
+        <td align="right"><span style="color:{% color 'STRONG_FG2' %};font-size:MOBILE-FONT-SIZE-NORMAL;">{{skill.position.name|z2h}}</span></td>
+        <td>
+          <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+            <span style="color:{% color skill.skill.element.color_context %};">[{{skill.skill.element.name|z2h}}]</span>{{skill.skill.name|z2h}}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </table>
+    {% margin 5 '#00073b' %}
+    ※各ﾊﾟﾗﾒｰﾀｰはMAX限界突破時<br />の最大値です。
+    {% margin 5 '#00073b' %}
+    <img src="{% image_url %}/controls/lines/line_s.gif" width="100%" height="1" />
+  </div>
+  {% margin %}
+
+
+  <table width="100%">
+    <tr>
+      <td><img src="{% image_url %}/scenes/invitation/i003/img_02.jpg" width="120" height="83" /></td>
+      <td align="left">
+        <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+          {{campaign.sr_card.name|z2h}}を複数集めて限界突破で<span style="color:{% color 'STRONG_FG' %};">超強化!!</span>
+        </div>
+      </td>
+    </tr>
+  </table>
+  {% margin %}
+
+
+  {# 見出し4 #}
+  {% g_subtitle 'main' 0 %}20人招待成立で{% endg_subtitle %}
+  <div style="background-color: #360000;">
+    <img src="{% image_url %}/scenes/invitation/i003/img_03.jpg" width="240" height="147" />
+    <table align="center" bgcolor="#00020d" cellspacing="0" cellpadding="1">
+      <tr>
+        <td>
+          <table bgcolor="#00071b">
+            <tr>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">攻撃</span>{{campaign.ur_card.physical_attack.max}}
+                </div>
+              </td>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">防御</span>{{campaign.ur_card.physical_defense.max}}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">魔攻</span>{{campaign.ur_card.magic_attack.max}}
+                </div>
+              </td>
+              <td>
+                <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+                  <span style="color:{% color 'STRONG_FG2' %};">魔防</span>{{campaign.ur_card.magic_defense.max}}
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    {% margin 5 '#360000' %}
+    <table align="center" cellspacing="0" cellpadding="1">
+      <tr>
+        <td align="center" colspan="2">
+          <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+            {# TODO_note コスト・成長の値を入れて下さい #}
+            {% g_parameter 'oneline' %}
+              {% key %}ｺｽﾄ{% value %}{{ campaign.ur_card.cost }}{% endkey %}
+              {% key %}成長{% value %}<span style="color:{% color campaign.ur_card.grow_type.color_context %}">{{ campaign.ur_card.grow_type.name }}</span>{% endkey %}
+            {% endg_parameter %}
+          </div>
+        </td>
+      </tr>
+    {% for skill in campaign.ur_card.card_skills %}
+      <tr>
+        <td align="right"><span style="color:{% color 'STRONG_FG2' %};font-size:MOBILE-FONT-SIZE-NORMAL;">{{skill.position.name|z2h}}</span></td>
+        <td>
+          <div style="font-size:MOBILE-FONT-SIZE-NORMAL;">
+            <span style="color:{% color skill.skill.element.color_context %};">[{{skill.skill.element.name|z2h}}]</span>{{skill.skill.name|z2h}}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </table>
+    {% margin 5 '#360000' %}
+    ※各ﾊﾟﾗﾒｰﾀｰはMAX限界突破時<br />の最大値です。
+    {% margin 5 '#360000' %}
+    <img src="{% image_url %}/controls/lines/line_s.gif" width="100%" height="1" />
+  </div>
+  {% margin %}
+
+
+  <a href="{% opensocial_invite_url_with_body campaign.campaign.message_text invitation_campaign_callback campaign.pk %}">
+    <img src="{% image_url %}/scenes/campaign/130418_05/invitation_button.gif" width="200" height="30" />
+  </a>
+
+
+  {# BGN 注意事項 #}
+  {% g_list 'notice' %}
+    {% item %}8/20 12:00以降に招待成立した場合のみｶｳﾝﾄをいたします｡{% enditem %}
+    {% item %}招待ｶﾞﾁｬﾁｹｯﾄが貰えるのは招待ﾒｰﾙを受けたGREEの友だち1人につき､1回までとなっています｡{% enditem %}
+    {% item %}FacebookやTwitterやﾒｰﾙやｶｶｵﾄｰｸやLINEやQRｺｰﾄﾞ経由で友だちを招待した場合は､招待ｷｬﾝﾍﾟｰﾝの対象外となります｡{% enditem %}
+    {% item %}招待したGREEの友だちが初回の登録時のみ有効です｡{% enditem %}
+    {% item %}招待成立の条件は､招待ﾒｰﾙを受け取ったﾕｰｻﾞｰ様がﾄﾞﾗｺﾞﾝｼﾞｪﾈｼｽのﾁｭｰﾄﾘｱﾙをｸﾘｱｰすることとなります｡{% enditem %}
+    {% item %}招待報酬は招待された友だちが携帯電話認証済みﾕｰｻﾞｰ様の場合のみ付与されます｡ {% enditem %}
+    {% item %}非携帯電話認証ﾕｰｻﾞｰ様がｹﾞｰﾑを始めた後に携帯電話認証を行った場合は､携帯電話認証が確認され次第､報酬をお送りします｡{% enditem %}
+    {% item %}本ｷｬﾝﾍﾟｰﾝの報酬を受取れる期間は､次回の招待ｷｬﾝﾍﾟｰﾝ開始時までとなります｡{% enditem %}
+    {% item %}各報酬は条件達成後､ﾌﾟﾚｾﾞﾝﾄBOXへ付与されます｡その際､お時間がかかる場合がございますのでご了承ください｡{% enditem %}
+    {% item %}招待送信時と招待成立時で異なるｷｬﾝﾍﾟｰﾝが行われていた場合､付与されるのは成立時のｷｬﾝﾍﾟｰﾝ報酬となります｡{% enditem %}
+    {% item %}招待報酬は次回以降のｷｬﾝﾍﾟｰﾝの際にも報酬として出すことがございます｡{% enditem %}
+    {% item %}今回の招待ｷｬﾝﾍﾟｰﾝは次回ｷｬﾝﾍﾟｰﾝ開始をもって終了とさせて頂きますのでご了承ください｡{% enditem %}
+  {% endg_list %}
+
+
+  {% g_list 'relatedlink' %}
+    {% item %}<a href="{% help_link_url 'usergrade' %}">携帯電話認証とは</a>{% enditem %}
+  {% endg_list %}
+
+
+{% endblock %}

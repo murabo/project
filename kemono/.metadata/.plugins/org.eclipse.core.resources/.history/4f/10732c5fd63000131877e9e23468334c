@@ -1,0 +1,115 @@
+{% extends "common/base.html" %}
+{% load player_tags gtoolkit_pager %}
+{% block page_title %}
+  <g:title class="simple">
+    <img src="{% image_url %}/controls/title/raid_ranking.jpg">
+  </g:title>
+{% endblock %}
+{% block content %}
+
+
+  {# ボックス1 #}
+  <g:frame class="gframe-interval-set mt-0">
+    <h1 style="margin-bottom:-20px">{{ boss.name }}</h1>
+    <div class="ranking-information" style="background-image:url({% image_url boss.image.header %} ); ">
+      <g:parameter class="ranking-information-body">
+        <dl>
+          <dt>階級 : </dt>
+          <dd class="text-yellow">{{ player_boss_ranking.entry.ranking_class.name }}</dd>
+        </dl>
+        <dl>
+          <dt>ランキング : </dt>
+          <dd class="text-yellow">{{ player_boss_ranking.rank }}位</dd>
+        </dl>
+        <dl>
+          <dt>{{ player_boss_ranking.boss.name }} : </dt>
+          <dd>Lv{{ player_boss_ranking.player_boss.last_level }}</dd>
+        </dl>
+      </g:parameter>
+    </div>
+  </g:frame>
+
+
+  {# タブ #}
+  <g:tab class="adjust-tab mt-10">
+    <header>
+      <ul class="item-3">
+        <li{% if view_class.id == 1 %} class="active"{% endif %}>
+          <a href="{% opensocial_url 'ranking_raid_reward' boss.id 1 %}">
+            <div>ライト</div>
+          </a>
+        </li>
+        <li{% if view_class.id == 2 %} class="active"{% endif %}>
+          <a href="{% opensocial_url 'ranking_raid_reward' boss.id 2 %}">
+            <div>ミドル</div>
+          </a>
+        </li>
+        <li{% if view_class.id == 3 %} class="active"{% endif %}>
+          <a href="{% opensocial_url 'ranking_raid_reward' boss.id 3 %}">
+            <div>エキスパート</div>
+          </a>
+        </li>
+      </ul>
+    </header>
+  </g:tab>
+
+
+  {# ランキング #}
+  {% for reward in boss_ranking.rewards %}
+    <section class="reward-items">
+      <g:subtitle class="decorated subtitle-interval-set">
+        <span>
+          {% if reward.ranged %}
+            {{ reward.max_rank }}位～{{ reward.min_rank }}位
+          {% else %}
+            {{ reward.max_rank }}位
+          {% endif %}
+        </span>
+      </g:subtitle>
+      <g:list class="item">
+        <ul>
+          {% for entity in reward.entities %}
+            <li>
+              <dl>
+                <dt>
+                  <img src="{% image_url entity.image %}" width="70" height="70">
+                </dt>
+                <dd>
+                  <h2>{{ entity.name }}</h2>
+                  <p>{{ entity.description }}</p>
+                </dd>
+              </dl>
+            </li>
+          {% endfor %}
+        </ul>
+      </g:list>
+    </section>
+  {% endfor %}
+
+
+  {# 関連リンク #}
+  <g:navigator>
+    <ul>
+      <li>
+        <a class="next" href="{% opensocial_url ranking_raid_howto %}">レイドランキング説明</a>
+      </li>
+      <li>
+        <a class="next" href="{% opensocial_url raid_reward %}">レイド討伐報酬</a>
+      </li>
+      <li>
+        <a class="prev" href="{% opensocial_url ranking_index %}">レイドランキングTOPへ</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+
+  {% todo %}「manager.basic.boss.name」「manager.rare.boss.name」を出してください{% endtodo %}
+  <g:frame class="rounded indent-justify">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert"></span>ランキング集計には時間がかかる場合があります。</p>
+    <p><span class="icon alert"></span>ランキング報酬は「{{ manager.basic.boss.name }}」「{{ manager.rare.boss.name }}」の出現最終日に確定します。</p>
+  </g:frame>
+
+
+{% endblock %}

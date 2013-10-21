@@ -1,0 +1,349 @@
+# -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+from collections import defaultdict
+from django.utils.functional import cached_property
+from gtoolkit.db import FakeMasterModel
+from jsonmastermodel import models, fields
+from kome.middleware.actionlog import log
+import granking
+from module.common.base_models.reward.models import RewardPresentMixin
+from django.db import models as django_models
+from boss import Boss
+from gtoolkit import datetime
+
+class BossRankingEntity(object):
+    def __init__(self, ranking_key, player_id, boss_id):
+        self._ranking_key = ranking_key
+        self.player_id = player_id
+        self.boss_id = boss_id
+
+    @cached_property
+    def player(self):
+        """
+        :rtype: Player
+        """
+        from module.player import get_player
+        return get_player(self.player_id)
+
+    @cached_property
+    def rank(self):
+        """
+        :rtype: int
+        """
+        return granking.get_rank(self._ranking_key, self.player_id)
+
+    @cached_property
+    def last_level(self):
+        """
+        :rtype: int
+        """
+        return self.player_boss.last_level
+
+    @cached_property
+    def player_boss(self):
+        from ..raid_player.models import PlayerBoss
+        return PlayerBoss.get_by(self.player.id, self.boss_id)
+
+
+class BossRanking(object):
+    _KEY_FORMAT = 'RAID_RANKING_{BOSS_ID}_{RANKING_CLASS_ID}'
+
+    def __init__(self, boss_id, ranking_class_id):
+        self.boss_id = boss_id
+        self.ranking_class_id = ranking_class_id
+
+    @classmethod
+    def get_bossranking_by(cls, ranking_id, ranking_class_id):
+        boss = Boss.get_by_ranking_id(ranking_id)
+        return cls(boss.id, ranking_class_id)
+
+    @cached_property
+    def granking_key(self):
+        """
+        granking用のキーを返す
+        """
+        return self._KEY_FORMAT.format(BOSS_ID=self.boss_id,
+                                       RANKING_CLASS_ID=self.ranking_class_id)
+
+    def get_ranking(self):
+        """
+        ランキング取得
+        :rtype: list
+        """
+
+        def wrapper(player_id):
+            return BossRankingEntity(self.granking_key, player_id,
+                                     self.boss_id)
+
+        return granking.gen_list(self.granking_key, wrapper=wrapper)
+
+    def update_ranking(self, player_id, last_level):
+        """
+        最終Lvをアップデート
+        :param player_id:
+        :type player_id: string
+        :param last_level:
+        :type last_level: int
+        """
+        with log().log('raid_update_ranking',
+                       boss_id=self.boss_id, last_level=last_level):
+            return granking.push(self.granking_key, player_id, str(last_level))
+
+    def is_finish(self):
+        """
+        ランキングが終了したか
+        """
+        if not self.boss.end_at:
+            return False
+        if datetime.now() <= self.boss.end_at:
+            return False
+        return True
+
+    @cached_property
+    def rewards(self):
+        return RankingReward.get_ranking_rewards(self.boss_id,
+                                                 self.ranking_class_id)
+
+    @cached_property
+    def boss(self):
+        return Boss.get(self.boss_id)
+
+    def get_rank(self, player_id):
+        return granking.get_rank(self.granking_key, player_id)
+
+
+class RankingClass(FakeMasterModel):
+    LIGHT = 1
+    MIDDLE = 2
+    HEAVY = 3
+
+    fixtures = {
+        LIGHT: {
+            '_name': 'ライト',
+            '_condition': lambda player: player.level <= 30,
+        },
+        MIDDLE: {
+            '_name': 'ミドル',
+            '_condition': lambda player: 31 <= player.level <= 99,
+        },
+        HEAVY: {
+            '_name': 'エキスパート',
+            '_condition': lambda player: 100 <= player.level,
+        },
+    }
+
+    @classmethod
+    def get_class_by(cls, player):
+        """
+        プレイヤーの属するランキングを返す
+
+        :param player:
+        :type player: Player
+        :rtype: RankingClass
+        """
+        for ranking_class in cls.get_all():
+            if ranking_class.is_match(player):
+                return ranking_class
+
+        raise cls.DoesNotExist
+
+    @cached_property
+    def name(self):
+        return self._name
+
+    def is_match(self, player):
+        """
+        指定プレイヤーがこのクラスの条件に当てはまっているか
+        :param player:
+        :rtype: bool
+        """
+        return self._condition(player)
+
+
+class RankingRankReward(object):
+    """
+    特定順位の報酬
+    """
+    def __init__(self, boss_id, ranking_class_id, rank):
+        self.boss_id = boss_id
+        self.ranking_class_id = ranking_class_id
+        self.rank = rank
+
+    @cached_property
+    def entities(self):
+        return RankingRewardEntity.get_entities_by(
+            self.boss_id, self.ranking_class_id, self.rank)
+
+    def present_for_player(self, target_player, message=None):
+        for entity in self.entities:
+            entity.present_reward(target_player, message=message)
+
+    def give_for_player(self, target_player):
+        for entity in self.entities:
+            entity.give_reward(target_player)
+
+
+class RankingReward(object):
+    """
+    報酬画面で表示用のランキング報酬
+    """
+    def __init__(self, entities):
+        self.entities = entities
+
+    @cached_property
+    def ranking_class_id(self):
+        return self.entities[0].ranking_class_id
+
+    @cached_property
+    def min_rank(self):
+        return self.entities[0].min_rank
+
+    @cached_property
+    def max_rank(self):
+        return self.entities[0].max_rank
+
+    @property
+    def ranged(self):
+        return self.min_rank != self.max_rank
+
+    @classmethod
+    def get_ranking_rewards(cls, boss_id, ranking_class_id):
+        entities = RankingRewardEntity.get_reward_entities_by(boss_id,
+                                                              ranking_class_id)
+        grouping = defaultdict(list)
+        for entity in entities:
+            grouping['{}_{}'.format(entity.min_rank,
+                                    entity.max_rank)].append(entity)
+
+        return sorted([RankingReward(grouped_entities)
+                       for grouped_entities in grouping.values()],
+                      key=lambda x: x.min_rank)
+
+
+class RankingRewardEntity(models.JsonMasterModel, RewardPresentMixin):
+    MASTER_DATA_JSON_PATH = 'raid', 'ranking_reward_entity.json'
+
+    boss_id = fields.JsonMasterIntegerField('ボスID')
+    ranking_class_id = fields.JsonMasterIntegerField('階級ID')
+
+    min_rank = fields.JsonMasterIntegerField('最低順位')
+    max_rank = fields.JsonMasterIntegerField('最高順位')
+
+    reward_type = fields.JsonMasterIntegerField('報酬種類')
+    reward_id = fields.JsonMasterIntegerField('報酬ID')
+    reward_quantity = fields.JsonMasterIntegerField('報酬数')
+    reward_message = fields.JsonMasterCharField('報酬文言')
+
+    @classmethod
+    def get_entities_by(cls, boss_id, ranking_class_id, rank):
+        return cls.objects.filter(boss_id=boss_id,
+                                  ranking_class_id=ranking_class_id,
+                                  min_rank__gte=rank,
+                                  max_rank__lte=rank)
+
+    @classmethod
+    def get_reward_entities_by(cls, boss_id, ranking_class_id):
+        return cls.objects.filter(boss_id=boss_id,
+                                  ranking_class_id=ranking_class_id)
+
+
+class RankingStatus(django_models.Model):
+    ranking_id = django_models.IntegerField(primary_key=True)
+    finished_at = django_models.DateTimeField()
+
+    class Meta(object):
+        app_label = 'raid'
+
+    @classmethod
+    def finish(cls, ranking_id):
+        if cls.get(pk=ranking_id).is_finished():
+            raise Exception("already is finished")
+
+        # こういう感じのをバッチファイルに書く 
+        #for ranking_class in RankingClass.get_all():
+        #    cls._finish_ranking_class(ranking_id, ranking_class.id)
+
+        cls.objects.create(pk=ranking_id,
+                           finished_at=datetime.now())
+
+        return
+
+    @classmethod
+    def _finish_ranking_class(cls, ranking_id, ranking_class_id):
+        # Todo: PlayerRankingEntityにrankを入れる処理
+        pass
+
+    @classmethod
+    def get_finished_ranking(cls):
+        # finished_atは必ず入るので全てとってきてかまわない
+        return cls.objects.all()
+        #return cls.objects.exclude(finished_at=None)
+
+    @classmethod
+    def get_ranking_status_rare(cls):
+        ranking_status_list = cls.objects.all()
+        ranking_rare_boss_list = []
+        for ranking_status_obj in ranking_status_list:
+            if ranking_status_obj.boss._is_rare:
+                ranking_rare_boss_list.append(ranking_status_obj)
+        return ranking_rare_boss_list
+
+    @classmethod
+    def get_ranking_status_free(cls):
+        ranking_status_list = cls.objects.all()
+        ranking_rare_boss_list = []
+        for ranking_status_obj in ranking_status_list:
+            if not ranking_status_obj.boss._is_rare:
+                ranking_rare_boss_list.append(ranking_status_obj)
+        return ranking_rare_boss_list
+
+    @cached_property
+    def boss(self):
+        return Boss.get_by_ranking_id(self.pk)
+
+    def is_finished(self):
+        return bool(self.finished_at)
+
+
+class RankingHistory(django_models.Model):
+    ranking_id = django_models.IntegerField()
+    ranking_class_id = django_models.IntegerField()
+    
+    player_id = django_models.CharField(max_length=255)
+    rank = django_models.IntegerField()
+    last_level = django_models.IntegerField()
+
+    class Meta(object):
+        app_label = 'raid'
+
+    @classmethod
+    def get_ranking_by(cls, ranking_id, ranking_class_id):
+        return cls.objects.filter(ranking_id=ranking_id,
+                                  ranking_class_id=ranking_class_id)
+    
+    @classmethod
+    def make_ranking_history(cls, ranking_id, ranking_class_id, player_id, rank, last_level):
+        return cls.objects.create(ranking_id=ranking_id,
+                                  ranking_class_id=ranking_class_id,
+                                  player_id=player_id,
+                                  rank=rank,
+                                  last_level=last_level,
+                                  )
+
+    @cached_property
+    def player(self):
+        """
+        :rtype: Player
+        """
+        from module.player import get_player
+        return get_player(self.player_id)
+
+    @cached_property
+    def boss(self):
+        #TODO レビュー後消す予定
+        return Boss.get_by_ranking_id(self.ranking_id)
+
+    @cached_property
+    def boss_ranking(self):
+        return BossRanking.get_bossranking_by(self.ranking_id, self.ranking_class_id)
+

@@ -1,0 +1,57 @@
+# -*- coding:utf-8 -*-
+from django.conf.urls import patterns, url
+from apps.website.v_invitation.views import (
+    IndexView,
+    InviteCallbackView,
+    InviteResultView,
+
+    InviteProgramStartView,
+    InviteProgramCommitView,
+    InviteProgramGetAnimation,
+)
+
+
+urlpatterns = patterns('apps.website.v_invitation.views',
+    # 招待TOP
+    url(r'^$',
+        IndexView.as_view(), name='invitation_campaign_index'),
+    url(r'^(?P<campaign_id>\d+)/$',
+        IndexView.as_view(), name='invitation_campaign_index'),
+
+    # 告知Flash
+    url(r'^$',
+        NoticeExecuteView.as_view(), name='invitation_campaign_index'),
+    url(r'^(?P<campaign_id>\d+)/$',
+        NoticeAnimationView.as_view(), name='invitation_campaign_index'),
+
+    # 招待コールバック
+    # アプリ内からのリンク用
+    url(r'^invite/callback/$',
+        InviteCallbackView.as_view(), name='invitation_campaign_callback'),
+
+    # 互換性のため残してます。第２弾が始まれば消して良い
+    url(r'^invite/callback/(?P<campaign_id>\d+)/$',
+        InviteCallbackView.as_view(), name='invitation_campaign_callback'),
+
+    # 招待結果
+    url(r'^invite/result/(?P<campaign_id>\d+)/$',
+        InviteResultView.as_view(), name='invitation_campaign_invite_result'),
+    url(r'^invite/result/(?P<campaign_id>\d+)/(?P<invite_count>\d+)/$',
+        InviteResultView.as_view(), name='invitation_campaign_invite_result'),
+    url(r'^invite/result/(?P<campaign_id>\d+)/(?P<invite_count>\d+)/(?P<get_money>\d+)/(?P<get_gacha_pt>\d+)/(?P<invite_send_reward>\d+)/$',
+        InviteResultView.as_view(), name='invitation_campaign_invite_result'),
+
+    # GREE共通フッタからの導線
+    url(r'^invite/$',
+        InviteCallbackView.as_view(), name='invitation_campaign_callback_fp'),
+    url(r'^invite_touch/$',
+        InviteCallbackView.as_view(), name='invitation_campaign_callback_sp'),
+    
+    # GREE Invite Program 参加ページ
+    url(r'^gree/start/$', InviteProgramStartView.as_view(),
+        name='invitation_progrem_start'),
+    url(r'^gree/commit/$', InviteProgramCommitView.as_view(),
+        name='invitation_progrem_commit'),
+    url(r'^gree/get/animation/$', InviteProgramGetAnimation.as_view(),
+        name='invitation_progrem_get_animation'),
+)

@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+import datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+        # Adding model 'RankingHistory'
+        db.create_table(u'raid_rankinghistory', (
+            ('ranking_id', self.gf('django.db.models.fields.IntegerField')(default=0, primary_key=True)),
+            ('ranking_class_id', self.gf('django.db.models.fields.IntegerField')()),
+            ('player_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('rank', self.gf('django.db.models.fields.IntegerField')()),
+            ('last_level', self.gf('django.db.models.fields.IntegerField')()),
+        ))
+        db.send_create_signal(u'raid', ['RankingHistory'])
+
+        # Deleting field 'RankingStatus.id'
+        db.delete_column(u'raid_rankingstatus', u'id')
+
+        # Adding field 'RankingStatus.ranking_id'
+        db.add_column(u'raid_rankingstatus', 'ranking_id',
+                      self.gf('django.db.models.fields.IntegerField')(default=0, primary_key=True),
+                      keep_default=False)
+
+
+    def backwards(self, orm):
+        # Deleting model 'RankingHistory'
+        db.delete_table(u'raid_rankinghistory')
+
+
+        # User chose to not deal with backwards NULL issues for 'RankingStatus.id'
+        raise RuntimeError("Cannot reverse this migration. 'RankingStatus.id' and its values cannot be restored.")
+        # Deleting field 'RankingStatus.ranking_id'
+        db.delete_column(u'raid_rankingstatus', 'ranking_id')
+
+
+    models = {
+        u'raid.rankinghistory': {
+            'Meta': {'object_name': 'RankingHistory'},
+            'last_level': ('django.db.models.fields.IntegerField', [], {}),
+            'player_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_class_id': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        },
+        u'raid.rankingstatus': {
+            'Meta': {'object_name': 'RankingStatus'},
+            'finished_at': ('django.db.models.fields.DateTimeField', [], {}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        }
+    }
+
+    complete_apps = ['raid']

@@ -1,0 +1,40 @@
+{% extends "common/base.html" %}
+{% load osmobile common_tags%}
+{% block page_title %}
+  <header>
+    <img src="{% image_url %}/scenes/invitation/i003/header_image.jpg" class="max-image">
+  </header>
+{% endblock %}
+{% block content %}
+
+
+  <g:frame class="g-frame-set">
+    <h1>送信完了</h1>
+    <g:hbox>
+      <p> {{ invite_count }}人の友だちを誘いました!  </p>
+    </g:hbox>
+    <g:button class="decorated-l">
+      <a href="invite:friends?callbackurl={% opensocial_url invitation_campaign_callback campaign.pk %}&body={{ campaign.message_text }}">更に招待する</a>
+    </g:button>
+  </g:frame>
+
+
+  <g:frame class="rounded indent-justify">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert">
+      報酬は新規に誘った人の分、付与されています。既に誘ったことのある人の分は追加されていません。</span>
+    </p>
+  </g:frame>
+
+
+  <g:navigator class="mt-10 mb-10">
+    <ul>
+      <li>
+        <a href="{% opensocial_url invitation_campaign_index %}" class="prev">招待キャンペーンTOPへ</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+
+{% endblock %}

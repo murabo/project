@@ -1,0 +1,221 @@
+# -*- coding:utf-8 -*-
+import random
+from django.core.urlresolvers import reverse
+from django.views.generic import TemplateView
+from gtoolkit.animation import AnimationView
+from gsocial.http import HttpResponseOpensocialRedirect
+from gtoolkit.pager import get_pager_with_softbank_fp_limited as get_pager
+from horizontalpartitioning.transaction import commit_on_success
+from module.player import PlayerView
+from module.raid import Boss, RankingClass, BossRanking, PlayerRanking, RankingRewardEntity, RankingStatus, PlayerRankingEntry, RankingHistory
+
+class RankingRaidIndexView(PlayerView, TemplateView):
+    """
+    指定ボスのレイドランキング
+    """
+    template_name = 'ranking/raid/index.html'
+
+    def get_context_data(self, **kwargs):
+        try:
+            boss = Boss.get(int(kwargs.get('boss_id', 0)))
+        except Boss.DoesNotExist:
+            boss = Boss.get_current_ranking_free_boss()
+
+        player_boss_ranking = PlayerRanking(self.player.id, boss)
+
+        if player_boss_ranking.entry:
+            view_class_id = int(kwargs.get(
+                'view_class', player_boss_ranking.entry.ranking_class_id))
+            view_class = RankingClass.get(view_class_id)
+        else:
+            view_class_id = None
+            view_class = RankingClass.get(1)
+        page = int(kwargs.get('page', 1))
+
+        if view_class_id:
+            boss_ranking = BossRanking(boss.id, view_class_id)
+        else:
+            boss_ranking = BossRanking(boss.id, 1)
+        ranking = get_pager(boss_ranking.get_ranking(), page=page)
+
+        return {
+            'view_class': view_class,
+            'ranking': ranking,
+            'boss': boss,
+            'boss_ranking': boss_ranking,
+            'player_boss_ranking': player_boss_ranking,
+        }
+
+
+class RankingRaidRareIndexView(PlayerView):
+    """
+    現在のプラチナレイドランキング
+    """
+    template_name = 'ranking/raid/index.html'
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseOpensocialRedirect(reverse(
+            'ranking_raid_index', args=[Boss.get_current_ranking_rare_boss().id]
+        ))
+
+
+class RankingRaidOldIndexView(PlayerView, TemplateView):
+    """
+    過去ボスのレイドランキング
+    """
+    template_name = 'ranking/raid/old_index.html'
+
+    def get_context_data(self, **kwargs):
+        try:
+            boss = Boss.get(int(kwargs.get('boss_id', 0)))
+        except Boss.DoesNotExist:
+            raise Exception("Boss dose not exist")
+
+        ranking_id = boss.id
+        ranking_entry = PlayerRankingEntry.get_ranking_entry_by(self.player.id, ranking_id)
+        page = int(kwargs.get('page', 1))
+
+        if ranking_entry:
+            view_class_id = int(kwargs.get(
+                'view_class', ranking_entry.ranking_class_id))
+            view_class = RankingClass.get(view_class_id)
+            ranking = get_pager(RankingHistory.get_ranking_by(ranking_id, view_class_id), page=page)
+        else:
+            view_class_id = int(kwargs.get(
+                'view_class', 1))
+            view_class = RankingClass.get(1)
+            ranking = get_pager(RankingHistory.get_ranking_by(ranking_id, 1), page=page)
+
+        return {
+            'view_class': view_class,
+            'ranking': ranking,
+            'ranking_entry': ranking_entry,
+            'boss': boss,
+        }
+
+
+class RankingRaidListView(PlayerView, TemplateView):
+    """
+    過去レイドランキング一覧
+    """
+    template_name = 'ranking/raid/list.html'
+
+    def get_context_data(self, **kwargs):
+        
+        rarity_flg = int(kwargs.get('rarity_flg', 0))
+        reward_recieved_ranking_status_id = int(kwargs.get('ranking_status_id', 0))
+
+        if rarity_flg == 0:
+            ranking_statuses = RankingStatus.get_ranking_status_free()
+            finished_ranking_boss = Boss.get_finished_ranking_free_boss()
+        elif rarity_flg == 1:
+            ranking_statuses = RankingStatus.get_ranking_status_rare()
+            finished_ranking_boss = Boss.get_finished_ranking_rare_boss()
+
+        ranking_entries = []
+        dummy_flg = True
+        for ranking_status in ranking_statuses:
+            if ranking_status.ranking_id
+            ranking_entry = PlayerRankingEntry.get_ranking_entry_by(self.player.id, ranking_status.ranking_id)
+            ranking_entries.append((ranking_status, ranking_entry))
+        
+        # 集計中のボス対応（ranking_statusテーブルにレコードがないボス用） 
+        ranking_status_dummy = {}
+        ranking_status_dummy['boss'] = finished_ranking_boss
+        ranking_status_dummy['dummy_flg'] = True
+        ranking_entry = PlayerRankingEntry.get_ranking_entry_by(self.player.id, finished_ranking_boss.id )
+        ranking_entries.append((ranking_status_dummy, ranking_entry))
+
+        return {
+            'finished_ranking_boss':finished_ranking_boss,
+            'ranking_entries': ranking_entries,
+            'rarity_flg': rarity_flg,
+            'reward_recieved_ranking_status_id': reward_recieved_ranking_status_id,
+        }
+
+
+class RankingRaidResultView(PlayerView, TemplateView):
+    template_name = 'ranking/raid/result.html'
+
+    def get(self, request, *args, **kwargs):
+        ranking_id = kwargs.get('ranking_id', None)
+        if not ranking_id:
+            return HttpResponseOpensocialRedirect(
+                reverse('ranking_index'))
+
+        basic_boss = Boss.objects.get(pk=int(ranking_id))
+        rare_boss = Boss.objects.get(_ranking_id=int(ranking_id))
+
+        basic = PlayerRanking(self.player.id, basic_boss)
+        rare = PlayerRanking(self.player.id, rare_boss)
+        basic_rewards = RankingRewardEntity.get_entities_by(
+            basic_boss.id, basic.entry.ranking_class.id, basic.rank)
+        rare_rewards = RankingRewardEntity.get_entities_by(
+            rare_boss.id, rare.entry.ranking_class.id, rare.rank)
+        return self.render_to_response({
+            'basic': basic,
+            'rare': rare,
+            'basic_rewards': basic_rewards,
+            'rare_rewards': rare_rewards
+        })
+
+
+class RankingRaidHowtoView(PlayerView, TemplateView):
+    template_name = 'ranking/raid/howto.html'
+
+
+class RankingRaidRewardView(PlayerView, TemplateView):
+    template_name = 'ranking/raid/reward.html'
+
+    def get_context_data(self, **kwargs):
+        try:
+            boss = Boss.get(int(kwargs.get('boss_id', 0)))
+        except Boss.DoesNotExist:
+            boss = Boss.get_current_ranking_free_boss()
+
+        player_boss_ranking = PlayerRanking(self.player.id, boss)
+
+        if player_boss_ranking.entry:
+            view_class_id = int(kwargs.get(
+                'view_class', player_boss_ranking.entry.ranking_class_id))
+            view_class = RankingClass.get(view_class_id)
+        else:
+            view_class_id = 1
+            view_class = RankingClass.get(1)
+
+        boss_ranking = BossRanking(boss.id, view_class_id)
+
+        return {
+            'view_class': view_class,
+            'boss': boss,
+            'boss_ranking': boss_ranking,
+            'player_boss_ranking': player_boss_ranking,
+        }
+
+
+class RankingRaidRewardExecuteView(PlayerView, TemplateView):
+    """
+    ランキング報酬付与処理
+    """
+    template_name = 'ranking/raid/list.html'
+
+    def get(self, request, *args, **kwargs):
+        rarity_flg = int(kwargs.get('rarity_flg', 0))
+        ranking_status_id = int(kwargs.get('ranking_statut_id', 0))
+
+        with commit_on_success([self.player.id]):
+            player_ranking_entry =  PlayerRankingEntry.get_ranking_entry_by(self.player.id, ranking_status_id, for_update=True)
+            player_ranking_entry.receive_rewards(self.player)
+
+        return HttpResponseOpensocialRedirect(reverse(
+            'ranking_raid_list', args=[rarity_flg, ranking_status_id]
+        ))
+
+
+class RankingRaidAnnouncementAnimationView(PlayerView, AnimationView):
+    animation_name = 'ranking/raid/announcement'
+
+    def get_next_url(self, request, *args, **kwargs):
+        ranking_id = 0
+        return reverse('ranking_raid_result',
+                       args=[ranking_id])

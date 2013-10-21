@@ -1,0 +1,131 @@
+{% extends 'common/base.html' %}
+{% load gtoolkit_pager player_tags %}
+{% block page_title %}
+  <g:title class="simple">
+    <img src="{% image_url %}/controls/title/raid_ranking.jpg">
+  </g:title>
+{% endblock %}
+{% block content %}
+
+
+  {# ボックス1 #}
+  <g:frame class="gframe-interval-set mt-0">
+    <h1 style="margin-bottom:-20px">{{ boss.name }}</h1>
+    <div class="ranking-information" style="background-image:url({% image_url boss.image.header %} ); ">
+      <g:parameter class="ranking-information-body">
+        <dl>
+          <dt>階級 : </dt>
+          <dd class="text-yellow">{{ ranking_entry.ranking_class.name }}</dd>
+        </dl>
+        <dl>
+          <dt>ランキング : </dt>
+          <dd class="text-yellow">{{ ranking_entry.rank }}位</dd>
+        </dl>
+        <dl>
+          <dt>{{ boss.name|z2h }} : </dt>
+          <dd>Lv{{ ranking_entry.last_level }}</dd>
+        </dl>
+      </g:parameter>
+    </div>
+
+
+  {# ボックス2 #}
+    <g:hbox class="mt-10 m-auto mb-0">
+      <g:button class="simple-m">
+        <a href="{% opensocial_url raid_reward %}">レイド討伐報酬</a>
+      </g:button>
+      <g:button class="simple-m">
+        <a href="{% opensocial_url ranking_raid_reward boss.id view_class.id %}">ランキング報酬</a>
+      </g:button>
+    </g:hbox>
+  </g:frame>
+
+
+  {# タブ #}
+  <g:tab class="adjust-tab mt-10">
+    <header>
+      <ul class="item-3">
+        {% if view_class.id == 1 %} 
+          <li class="active">
+          <a href="javascript:void(0);">
+        {% else %}
+          <li>
+          <a href="{% opensocial_url 'ranking_raid_old_index' boss.id 1 %}">
+        {% endif %}
+          ライト</a>
+          </li>
+        {% if view_class.id == 2 %} 
+          <li class="active">
+          <a href="javascript:void(0);">
+        {% else %}
+          <li>
+          <a href="{% opensocial_url 'ranking_raid_old_index' boss.id 2 %}">
+        {% endif %}
+          ミドル</a>
+          </li>
+        {% if view_class.id == 3 %} 
+          <li class="active">
+          <a href="javascript:void(0);">
+        {% else %}
+          <li>
+          <a href="{% opensocial_url 'ranking_raid_old_index' boss.id 3 %}">
+        {% endif %}
+          エキスパート</a>
+        </li>
+      </ul>
+    </header>
+  </g:tab>
+
+
+  {# 見出し：ランキング #}
+  <g:subtitle class="decorated">ランキング</g:subtitle>
+  {# ページャー #}
+  {% pager ranking 'ranking_raid_index' boss.id view_class.id %}
+  <g:list class="player">
+    <ul>
+      {% for ranking_entity in ranking.current %}
+        <li>
+          <dl>
+            <dt>
+            <div class="player-status__gree-avatar">{% player_avatar ranking_entity.player "huge" %}</div>
+            <img src="{% image_url ranking_entity.player.avatar.image.icon %}">
+            </dt>
+            <dd>
+            {{ ranking_entity.rank }}位
+            テスト{{ranking_entity.player.id}}
+            {% comment %}
+            <a href="{% opensocial_url profile_index ranking_entity.player.id %}">{{ ranking_entity.player.nickname }}</a><br>
+            {% endcomment %}
+            VS {{ boss.name }} (Lv{{ ranking_entity.last_level }})
+            </dd>
+          </dl>
+        </li>
+      {% endfor %}
+    </ul>
+  </g:list>
+  {# ページャー #}
+  {% pager ranking 'ranking_raid_index' boss.id view_class.id %}
+
+
+  {# 戻るリンク #}
+  <g:navigator>
+    <ul>
+      <li>
+        <a href="{% opensocial_url ranking_index %}" class="prev">レイドランキングTOPへ</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+
+  {# 注意事項 #}
+  <g:frame class="rounded indent-justify">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert">ランキングは自分が遭遇し、討伐したレイドボスのLvが高い順に並びます。</span></p>
+    <p><span class="icon alert">ランキング対象のレイドボスLv1に遭遇した時点でのユーザーLvに応じて所属階級が決まります。</span></p>
+    <p><span class="icon alert">レイドボスに遭遇していない場合はランキング対象外となります。</span></p>
+    <p><span class="icon alert">救援依頼から倒したレイドボスLvはランキングにカウントされません。</span></p>
+  </g:frame>
+
+
+{% endblock %}

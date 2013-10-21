@@ -1,0 +1,35 @@
+{% extends 'common/base.html' %}
+{% load osmobile debug_tags %}
+{% block title %}invitation(ﾃﾞﾊﾞｯｸﾞ){% endblock %}
+{% block content %}
+招待関連デバッグ機能<br />
+{% if invite_count > 0 %}
+{{invite_count}}人に招待メールを送信したことにした。<br /><br />
+{% endif %}
+<br />
+<a href="{% opensocial_url invitation_campaign_index %}">招待キャンペーンページへ</a><br />
+<a href="{% opensocial_url invitation_campaign_invite_result　4 %}">招待resultページへ</a><br />
+<br />
+招待送信人数:「{{inviter_invitation_count.send_count}}」人<br />
+招待成立人数:「{{invite_success_count}}」人<br />
+<br /><br />
+greeを通さずに招待メールを送信したことにします<br />
+「,」区切りで複数人に送れるよ<br />
+<form method="POST" action="{% opensocial_url debug_invitation_send %}">
+  player_id:<input type="text" name="invite_member" value="" class="status" size="5" />
+  <input type="submit" value="送る" />
+</form>
+<br /><br />
+
+<h1>招待『成立』人数を変更</h1> <br />
+# キャンペーンID:3 <br />
+<a href="{% opensocial_url debug_invitation_count_up 0 %}">招待成立人数 0人</a><br />
+<a href="{% opensocial_url debug_invitation_count_up 5 %}">招待成立人数 5人</a><br />
+<a href="{% opensocial_url debug_invitation_count_up 10 %}">招待成立人数 10人</a><br />
+<a href="{% opensocial_url debug_invitation_count_up 20 %}">招待成立人数 20人</a><br />
+<a href="{% opensocial_url debug_invitation_count_up 50 %}">招待成立人数 50人</a><br />
+<a href="{% opensocial_url debug_invitation_count_up 100 %}">招待成立人数 100人</a><br />
+
+<br /><br />
+
+{% endblock %}

@@ -1,0 +1,83 @@
+# -*- coding: utf-8 -*-
+import datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+        # Deleting model 'RaidBattleSkill'
+        db.delete_table(u'raid_raidbattleskill')
+
+        # Adding model 'RankingStatus'
+        db.create_table(u'raid_rankingstatus', (
+            ('ranking_id', self.gf('django.db.models.fields.IntegerField')(default=0, primary_key=True)),
+            ('finished_at', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+        ))
+        db.send_create_signal(u'raid', ['RankingStatus'])
+
+        # Adding model 'RankingHistory'
+        db.create_table(u'raid_rankinghistory', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('ranking_id', self.gf('django.db.models.fields.IntegerField')()),
+            ('ranking_class_id', self.gf('django.db.models.fields.IntegerField')()),
+            ('player_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('rank', self.gf('django.db.models.fields.IntegerField')()),
+            ('last_level', self.gf('django.db.models.fields.IntegerField')()),
+        ))
+        db.send_create_signal(u'raid', ['RankingHistory'])
+
+        # Adding unique constraint on 'RankingHistory', fields ['ranking_id', 'ranking_class_id']
+        db.create_unique(u'raid_rankinghistory', ['ranking_id', 'ranking_class_id'])
+
+
+    def backwards(self, orm):
+        # Removing unique constraint on 'RankingHistory', fields ['ranking_id', 'ranking_class_id']
+        db.delete_unique(u'raid_rankinghistory', ['ranking_id', 'ranking_class_id'])
+
+        # Adding model 'RaidBattleSkill'
+        db.create_table(u'raid_raidbattleskill', (
+            ('skill_category', self.gf('django.db.models.fields.IntegerField')()),
+            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('target_id', self.gf('django.db.models.fields.IntegerField')()),
+            ('cost', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('job_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=32)),
+            ('odds', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('command_effect', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('support_effect', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('value', self.gf('django.db.models.fields.IntegerField')()),
+            ('element_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('category_id', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('parameter', self.gf('django.db.models.fields.IntegerField')(null=True)),
+        ))
+        db.send_create_signal(u'raid', ['RaidBattleSkill'])
+
+        # Deleting model 'RankingStatus'
+        db.delete_table(u'raid_rankingstatus')
+
+        # Deleting model 'RankingHistory'
+        db.delete_table(u'raid_rankinghistory')
+
+
+    models = {
+        u'raid.rankinghistory': {
+            'Meta': {'unique_together': "((u'ranking_id', u'ranking_class_id'),)", 'object_name': 'RankingHistory'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_level': ('django.db.models.fields.IntegerField', [], {}),
+            'player_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_class_id': ('django.db.models.fields.IntegerField', [], {}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'raid.rankingstatus': {
+            'Meta': {'object_name': 'RankingStatus'},
+            'finished_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'ranking_id': ('django.db.models.fields.IntegerField', [], {'default': '0', 'primary_key': 'True'})
+        }
+    }
+
+    complete_apps = ['raid']

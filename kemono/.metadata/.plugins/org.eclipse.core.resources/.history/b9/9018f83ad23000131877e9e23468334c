@@ -1,0 +1,81 @@
+{% extends 'common/base.html' %}
+{% load gtoolkit_pager player_tags datetime_tags %}
+{% block page_title %}
+  <g:title class="simple">
+    <img src="{% image_url %}/controls/title/raid_ranking.jpg">
+  </g:title>
+{% endblock %}
+{% block content %}
+
+
+  {# タブ #}
+  <g:tab class="adjust-tab">
+    <header>
+      <ul class="item-2">
+        <li{% if rarity_flg == 0 %} class="active"{% endif %}>
+          <a href="{% opensocial_url 'ranking_raid_list' 0 %}">レイドボス</a>
+        </li>
+        <li{% if rarity_flg == 1 %} class="active"{% endif %}>
+          <a href="{% opensocial_url 'ranking_raid_list' 1 %}">プラチナボス</a>
+        </li>
+      </ul>
+    </header>
+  </g:tab>
+
+  {% for ranking_status,ranking_entory in ranking_entries %}
+    <g:frame class="gframe-interval-set">
+      <h1 style="margin-bottom:-20px">VS {{ ranking_status.boss.name }}</h1>
+      <div class="ranking-information" style="background-image:url({% image_url ranking_status.boss.image.header %} ); ">
+        <g:parameter class="ranking-information-body">
+          <dl>
+            <dt>討伐期間 : </dt>
+            <dd>{% convert_datetime ranking_status.boss.start_at 'date_only' %}～{% convert_datetime ranking_status.boss.end_at 'date_only' %}</dd>
+          </dl>
+          <dl>
+            <dt>{{ ranking_status.boss.name|z2h }} : </dt>
+            <dd>Lv{{ ranking_entory.last_level }}</dd>
+          </dl>
+          <dl>
+            <dt>階級 : </dt>
+            <dd class="text-yellow">{{ ranking_entory.ranking_class.name }}</dd>
+          </dl>
+          <dl>
+            <dt>ランキング : </dt>
+            <dd class="text-yellow">{{ ranking_entory.rank }}位</dd>
+          </dl>
+        </g:parameter>
+      </div>
+      <g:button class="simple-l mt-10 mb-10">
+        <a href="{% opensocial_url 'ranking_raid_index' %}">ランキングを確認</a>
+      </g:button>
+      {% todo %}報酬受け取り後非表示{% endtodo %}
+      {% if not ranking_entory.received_at %}
+        <g:button class="simple-l mt-10 mb-0">
+           <a href="{% opensocial_url 'ranking_raid_reward_execute' rarity_flg ranking_status.boss.id %}">報酬を受け取る</a>
+        </g:button>
+      {% elif reward_recieved_ranking_status_id == ranking_status.boss.id %}
+        <p style="margin: 10px auto; text-align: center; color: red;">※プレゼントBOXに送られました</p>
+      {% endif %}
+    </g:frame>
+  {% endfor %}
+
+
+  {# 戻るリンク #}
+  <g:navigator>
+    <ul>
+      <li>
+        <a href="{% opensocial_url ranking_index %}" class="prev">レイドランキングTOPへ</a>
+      </li>
+    </ul>
+  </g:navigator>
+
+
+  {# 注意事項 #}
+  <g:frame class="rounded indent-justify">
+    <h1><span class="icon alert">注意事項</span></h1>
+    <hr class="spear">
+    <p><span class="icon alert"></span>報酬の受け取には時間がかかる場合がございます。</p>
+  </g:frame>
+
+
+{% endblock %}

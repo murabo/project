@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+"""
+ダミープレイヤー生成
+
+(kemono)application > python manage.py create_player 6366413
+ok
+(kemono)application >
+"""
+
+from django.core.management.base import BaseCommand
+from horizontalpartitioning.transaction import commit_on_success
+from module.common.management.commands.mixins.std_echo import StdEchoMixin
+from module.player import Player
+# debug用
+from apps.website.v_signup.views import _initialize_debug_skip_player
+
+class Command(BaseCommand, StdEchoMixin):
+
+    def handle(self, *args, **options):
+        if len(args) < 1:
+            print self._usage()
+            return
+
+        for player_id in range(101,10001):
+            self._run(player_id)
+
+    def _usage(self):
+        self.echo(u'player_idを引数で設定してください。 ex)python manage.py create_player 6366413,6366414')
+
+    def _run(self, player_id):
+        """
+        プレイヤーを生成する
+
+        """
+        player = self._create_player(player_id)
+        self._set_player(player)
+        print u"created[{}]".format(player.nickname)
+
+    def _create_player(self, player_id):
+        player = Player.get_or_none(player_id)
+
+        if not player:
+            player = Player.create(player_id, player_id)
+
+        return player
+
+    def _set_player(self, player):
+
+        with commit_on_success(user_ids=[player.pk]):
+            _initialize_debug_skip_player(player)
+
+        return player

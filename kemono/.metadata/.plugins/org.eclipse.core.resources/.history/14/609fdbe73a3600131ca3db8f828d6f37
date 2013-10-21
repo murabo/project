@@ -1,0 +1,11 @@
+<g:banner>
+  <a class="
+    {% if is_home %}
+    cp-invitation-03s
+    {% else %}
+    cp-invitation-03l
+    {% endif %}
+    " href="{% opensocial_url invitation_campaign_index %}">
+    友達招待で幻獣GET!
+  </a>
+</g:banner>

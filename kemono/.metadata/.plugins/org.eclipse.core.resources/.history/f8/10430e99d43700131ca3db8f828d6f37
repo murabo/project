@@ -1,0 +1,645 @@
+# -*- coding: utf-8 -*-
+from django.db import models
+from django.utils.functional import cached_property
+
+from gtoolkit.db.models import DateTimeFieldMixin
+from gtoolkit import datetime
+from horizontalpartitioning.models import PlayerHasManyModel
+from horizontalpartitioning.transaction import commit_on_success
+from kome.middleware.actionlog import log
+
+from module.player import get_player
+from module.invitation.models import (
+    InvitationProgramRewardCoin,
+    InvitationCampaign, 
+    InvitationCampaignSendReward, 
+    InvitationCampaignSubTerm, 
+    InvitationProgram,
+)
+from module.invitation.exceptions import InvitationError
+from module.job.job_player import get_player_job_all
+from module.deposit.constants import DEPOSIT_CONTENT_TYPE_JOB
+
+from gtoolkit.redis.generic import RedisString
+import gredis
+
+
+class PlayerInvitationFacade(object):
+    def __init__(self, player, campaign, invite_member_ids, is_sns_invitation=True):
+        self.player = player
+        self.campaign = campaign
+        self.invite_member_ids = invite_member_ids
+        self.is_sns_invitation = is_sns_invitation
+        self.new_joiner = 0
+        self.new_job_id = 0
+        self.job_ids = set([ player_job.job_id for player_job in get_player_job_all(player.pk) ])
+
+        # サブ期間があるときはインスタンスが入る
+        self.campaign_sub_term = InvitationCampaignSubTerm.get_current_campaign_sub_term(self.campaign.id)
+        self.campaign_sub_term_id = self.campaign_sub_term.id if self.campaign_sub_term else None
+
+    def _can_invite(self, invited_osuserid):
+        """招待可能か
+        キャンペーンに関係なく招待されていたら新規付与しない
+        """
+        return True if PlayerInvitation.by_player(invited_osuserid).filter(inviter_id=self.player.pk).count() == 0 else False
+
+    def _can_invite_send(self, invited_osuserid):
+        """招待送信カウントアップ可能か
+        """
+        return True if PlayerInvitationSubTerm.by_player(invited_osuserid).filter(inviter_id=self.player.pk,
+                                                                                  campaign_id=self.campaign.id,
+                                                                                  campaign_sub_term_id=self.campaign_sub_term_id).count() == 0 else False
+
+    def _invite(self):
+        # 招待カウント管理レコード取得
+        inviter_invitation_count = PlayerInvitationCount.get_by_campaign(self.player.pk, self.campaign.pk)
+        # 招待カウント管理レコード取得(サブ期間)
+        inviter_invitation_count_sub_term = PlayerInvitationCountSubTerm.get_by_campaign(self.player.pk, self.campaign.pk, self.campaign_sub_term_id)
+
+        sorted_osuserid_list = sorted(self.invite_member_ids)
+        for invited_osuserid in sorted_osuserid_list:
+            # 被招待ユーザー
+            with commit_on_success([self.player.pk, invited_osuserid]):
+                # 通算で招待を送っているかどうかのチェック
+                if self._can_invite(invited_osuserid):
+                    # レコードが取得できなかった場合は、新たに招待したユーザ
+                    with log().invitation_send():
+                        # 招待レコードの作成
+                        # 招待されたユーザのシャードにレコードを作成する
+                        PlayerInvitation.create(invited_osuserid,
+                                                inviter_id=self.player.pk,
+                                                campaign_id=self.campaign.pk,
+                                                is_sns_invitation=self.is_sns_invitation)
+
+                        with self.player.lock as p:
+                            # 招待送信数をカウントアップする
+                            inviter_invitation_count.count_up_by_send()
+                            inviter_invitation_count.save()
+
+                            # 招待送信報酬を付与
+                            # サブ期間外
+                            if not self.campaign_sub_term_id:
+                                send_count = PlayerInvitationCount.get_send_count_by_player(p.pk)
+                                PlayerInvitation._give_present_by_send(p, self.campaign, send_count)
+
+                                self.new_joiner += 1
+
+                        log().set(invitee_oid=invited_osuserid)
+
+                # サブ期間で招待を送っているかどうかのチェック
+                if self._can_invite_send(invited_osuserid):
+                    # レコードが取得できなかった場合は、新たに招待したユーザ
+                    with log().log('invitation_send_sub'):
+                        # 招待レコードの作成
+                        # 招待されたユーザのシャードにレコードを作成する
+                        PlayerInvitationSubTerm.create(invited_osuserid,
+                                                inviter_id=self.player.pk,
+                                                campaign_id=self.campaign.pk,
+                                                campaign_sub_term_id=self.campaign_sub_term_id)
+
+                        with self.player.lock as p:
+                            # 招待送信数をカウントアップする
+                            inviter_invitation_count_sub_term.count_up_by_send()
+                            inviter_invitation_count_sub_term.save()
+
+                            # 招待送信報酬を付与
+                            # サブ期間内
+                            if self.campaign_sub_term_id:
+                                send_count_sub_term = PlayerInvitationCountSubTerm.get_by_campaign(p.pk, self.campaign.id, self.campaign_sub_term_id).send_count
+                                PlayerInvitation._give_present_by_send(p, self.campaign, send_count_sub_term)
+
+                                self.new_joiner += 1
+
+                        log().set(invitee_oid=invited_osuserid)
+
+
+    def _get_new_job_id(self):
+        """新規ジョブを取得したか
+        """
+        new_job_ids = set([ player_job.job_id for player_job in get_player_job_all(self.player.pk) ])
+        diff_job_ids = new_job_ids - self.job_ids
+
+        # 報酬で取得出来るジョブの取得
+        reward_job_ids = set([ reward.reward_id for reward in InvitationCampaignSendReward.get_all() if
+                               reward.campaign_id == self.campaign.id and
+                               reward.reward_type == DEPOSIT_CONTENT_TYPE_JOB])
+
+        new_job_ids = list(diff_job_ids & reward_job_ids)
+        if not new_job_ids:
+            return 0
+
+        return new_job_ids[0]
+
+    def execute(self):
+        """実処理
+        """
+        if not self.campaign:
+            raise InvitationError.CampaignClose
+
+        if not self.invite_member_ids:
+            raise InvitationError.InviteMemberZero
+
+        self._invite()
+
+        if not self.new_joiner:
+            raise InvitationError.NewJoinerZero
+
+        self.new_job_id = self._get_new_job_id()
+        if self.new_job_id:
+            raise InvitationError.GetJob(self.new_job_id, self.new_joiner)
+
+
+class PlayerInvitationCount(DateTimeFieldMixin, PlayerHasManyModel):
+    """
+    プレイヤーごとの招待成立人数を管理する
+    招待キャンペーンID毎にカウントする
+    """
+
+    campaign_id = models.IntegerField()
+    send_count = models.IntegerField(default=0)
+    count = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = (('player_id', 'campaign_id', 'deleted_uuid'),)
+
+    @classmethod
+    def get_by_campaign(cls, player_id, campaign_id):
+        try:
+            obj = cls.get(player_id,
+                          campaign_id=campaign_id)
+        except cls.DoesNotExist:
+            obj = cls(player_id=player_id,
+                      campaign_id=campaign_id)
+        return obj
+
+    @classmethod
+    def get_send_count_by_player(cls, player_id):
+        """キャンペーンによらず、プレイヤーが今までに送信した人数を返す
+        """
+        objs = cls.by_player(player_id)
+        count = sum([ o.send_count for o in objs ])
+        return count
+
+    @classmethod
+    def get_count_by_player(cls, player_id):
+        """
+        キャンペーンによらず、プレイヤーが今までに招待成立した人数を返す
+        """
+        obj = cls.by_player(player_id)
+        count = sum([o.count for o in obj])
+        return count
+
+    def count_up_by_send(self, count_up=1):
+        """
+        招待送信数をカウント
+        """
+        self.send_count += count_up
+
+    def count_up(self, count_up=1):
+        """
+        招待成立人数をカウント
+        """
+        self.count += count_up
+
+
+class PlayerInvitation(DateTimeFieldMixin, PlayerHasManyModel):
+    '''
+    誰が誰を招待したかの情報を保持するクラス
+    招待された人のシャードに格納される
+    '''
+
+    class Meta:
+        verbose_name = u'招待管理'
+        verbose_name_plural = verbose_name
+        unique_together = (('inviter_id', 'player_id', 'campaign_id'),)
+
+    inviter_id = models.CharField(max_length=255, db_index=True) # 招待した人
+
+    campaign_id = models.IntegerField(null=True) #誘った時のキャンペーンが入る
+
+    is_sns_invitation = models.BooleanField(u'正式なSNS招待かどうか', default=False, help_text=u'False=他アプリのメッセージフィードを利用する招待とか')
+    is_code_invitation = models.BooleanField(u'招待コード入力かどうか', default=False)
+
+    is_accepted = models.BooleanField(u'登録したか', default=False)
+    is_received = models.BooleanField(u'受取ったか', default=False)
+
+    invited_at = models.DateTimeField(verbose_name=u'被招待者登録日時', null=True, blank=True, default=None)
+
+    def __unicode__(self):
+        return u"%s : %s → %s" % (self.id, str(self.inviter.userid), str(self.player_id))
+
+    @cached_property
+    def campaign(self):
+        return InvitationCampaign.get(self.campaign_id)
+
+    @cached_property
+    def inviter(self):
+        return get_player(self.inviter_id)
+
+    @cached_property
+    def invited(self):
+        if self.player_id is None:
+            return None
+        return get_player(self.player_id)
+
+    @classmethod
+    def get_invited_list(cls, player):
+        """
+        招待されたリスト
+        """
+        return list(cls.by_player(player.pk).filter(is_accepted=False))
+
+    @classmethod
+    def _give_present_by_invite(cls, player, inviter_player, campaign, invite_count):
+        """
+        招待成立人数に応じたプレゼントを付与する
+        """
+        # 報酬一覧を取得
+        rewards = campaign.get_rewards(invite_count)
+        for reward in rewards:
+            reward.present_reward(inviter_player)
+
+    @classmethod
+    def _give_present_by_send(cls, player, campaign, invite_count):
+        """
+        招待送信人数に応じたプレゼントを付与する
+        """
+        # 報酬一覧を取得
+        rewards = campaign.get_send_rewards(invite_count)
+        for reward in rewards:
+            reward.present_reward(player)
+
+    @classmethod
+    def accept(cls, player, campaign_id):
+        """
+        招待されたかもしれないプレイヤーが登録したら呼ぶ
+        報酬は現在のキャンペーンの報酬を渡す
+        呼ぶタイミングはチュートリアルが終わった後
+        （その時点で、招待関連としてはそのプレイヤーがゲームを開始したと認識する）
+        """
+
+        invitations = cls.get_invited_list(player)
+        if not invitations:
+            return False
+
+        campaign = InvitationCampaign.get(campaign_id)
+        if not campaign:
+            return False
+
+        for invitation in invitations:
+            # 招待されたタイミングでの報酬を取得する
+            with commit_on_success([player.pk, invitation.inviter_id]):
+                inviter_player = get_player(invitation.inviter_id)
+
+                with log().invitation_receive():
+                    player_invitation_count = PlayerInvitationCount.get_by_campaign(inviter_player.pk, campaign.pk)
+
+                    # 招待成立
+                    invitation.is_accepted = True
+                    invitation.invited_at = datetime.now()
+                    invitation.campaign_id = campaign.id
+                    invitation.save()
+
+                    # 招待成立人数のカウント
+                    player_invitation_count.count_up()
+                    player_invitation_count.save()
+
+                    #アイテムの付与
+                    invite_count = player_invitation_count.count
+                    PlayerInvitation._give_present_by_invite(player, inviter_player, campaign, invite_count)
+
+                    # プレイヤーが招待されたフラグをONにする
+                    player.invited()
+
+                    log().set(invite_from_uid=inviter_player.pk)
+
+        return True
+
+
+
+class InvaitationNoticeFlashLimitedCounter(RedisString):
+    """
+    フラッシュ再生回数の保存に使用するカウンター
+    """
+    key_prefix = None
+    expire = 60 * 60 * 24 * 31  # 1 month
+    limit = 1  # 1回まで
+    CAMPAIGN_NAME = u'invaitation'
+
+    @classmethod
+    def can_count_up(cls, player_id, counter_key):
+        """
+        カウントアップ可能か
+        :param cls:
+        :param player_id:
+        :param counter_key:
+        :return:
+        """
+        return cls.get_count_by(player_id, counter_key) < cls.limit
+
+    @classmethod
+    def get_count_by(cls, player_id, counter_key):
+        """
+        現在のカウントを返す
+
+        :param player_id:
+        :param counter_key:
+        :return:
+        """
+        count = cls.create(cls._get_key(player_id, counter_key))
+        if count.data is None:
+            return 0
+        return int(count.data)
+
+    @classmethod
+    def count_up(cls, player_id, counter_key):
+        """
+        カウントアップする
+
+        :param player_id:
+        :param counter_key:
+        :return:
+        """
+        with cls(cls._get_key(player_id, counter_key)) as count:
+            if count.data is None:
+                count.data = "0"
+            count.data = str(int(count.data) + 1)
+
+    @classmethod
+    def delete_count(cls, player_id, counter_key):
+        """
+        カウンターを削除する
+
+        :param player_id:
+        :param counter_key:
+        :return:
+        """
+        with cls(cls._get_key(player_id, counter_key)) as count:
+            count.delete()
+
+    @classmethod
+    def _get_key(cls, player_id, counter_key):
+        return '{}:{}:{}'.format(CAMPAIGN_NAME, player_id, counter_key)
+
+
+
+# ========================================
+# GREE Invite Program
+# ========================================
+
+class TotalInvitationProgramCount(object):
+    """
+    全体の成立数をを数える
+    """
+
+    expire = 60 * 60 * 24 * 30
+
+    @classmethod
+    def _key(cls, program_id):
+        return '{}:{}'.format(cls.__name__, program_id)
+
+    @classmethod
+    def get_current_count(cls, program_id):
+        key = cls._key(program_id)
+        r = gredis.get()
+        point = r.get(key)
+        if point:
+            return int(point)
+        return 0
+
+    @classmethod
+    def count_up(cls, program_id, add_point):
+        key = cls._key(program_id)
+        r = gredis.get()
+        r.incr(key, add_point)
+
+
+class PlayerInvitationProgram(DateTimeFieldMixin, PlayerHasManyModel):
+    """
+    GREE Invite Program に参加した情報を保持する
+    """
+    class Meta:
+        app_label = 'invitation_player'
+        unique_together = ('player_id', 'gree_campaign_id', 'deleted_uuid',)
+
+    # campaign_idとは別
+    gree_campaign_id = models.IntegerField()
+    # 開始したときの初期の成立人数
+    default_count = models.IntegerField()
+    
+    @property
+    def invitation_program(self):
+        return InvitationProgram.get(self.gree_campaign_id)
+    
+    @classmethod
+    def assign(cls, player_id, gree_campaign_id, default_count):
+        if cls.is_assigned(player_id, gree_campaign_id):
+            return
+        return cls.create(
+            player_id=player_id,
+            gree_campaign_id=gree_campaign_id,
+            default_count=default_count
+        )
+    
+    @classmethod
+    def is_assigned(cls, player_id, gree_campaign_id):
+        """
+        GREE招待キャンペーンレコードあるか
+        """
+        try:
+            obj = cls.get(player_id, gree_campaign_id=gree_campaign_id)
+            return True
+        except cls.DoesNotExist:
+            return False
+
+
+class PlayerInvitationProgramFacade(object):
+    
+    def __init__(self, player, gree_campaign_id):
+        self.player = player
+        self.gree_campaign_id = gree_campaign_id
+
+    @property
+    def player_invitation_program(self):
+        try:
+            return PlayerInvitationProgram.get(self.player.id, gree_campaign_id=self.gree_campaign_id)
+        except PlayerInvitationProgram.DoesNotExist:
+            return None
+
+    @property
+    def invitation_program(self):
+        return InvitationProgram.get(self.gree_campaign_id)
+
+    @property
+    def player_invitation_program_count(self):
+        """
+        ’GREEキャンペーンに参加してから’成立した招待数
+        トータルのカウントから参加時のカウントを引いた値
+        """
+        
+        player_invitation_program = self.player_invitation_program
+        if player_invitation_program is None:
+            return 0
+
+        default_count = player_invitation_program.default_count
+        try:
+            total_count = PlayerInvitationCount.get_count_by_player(self.player.id)
+            program_count = total_count - default_count
+            return program_count
+        except PlayerInvitationCount.DoesNotExist:
+            return 0
+
+    def get_achievement_counts(self):
+        """
+        成立した報酬対象カウントをリストで返す
+        """
+        count = self.player_invitation_program_count
+        return InvitationProgramRewardCoin.get_smaller_by_counts(self.gree_campaign_id, count)
+    
+    def is_before_limit(self):
+        """
+        招待可能な最大数にまだ達していないか
+        """
+        # ここに置くものでもないけど緊急なので…
+        total_count = TotalInvitationProgramCount.get_current_count(self.gree_campaign_id)
+        limit_count = self.invitation_program.limit_count
+        return total_count < limit_count
+        
+
+class _ReceivedCountRewardMixin(object):
+    """
+    PlayerInvitationReceivedRewardに
+    カウント報酬関連の処理を追加
+    """
+    
+    @classmethod
+    def get_count_reward_name(cls, count):
+        return '_'.join([cls.REWARD_NAME_PREFIX, 'count', str(count)])
+    
+    @classmethod
+    def received_count(cls, player_id, gree_campaign_id, count, reward_id=0):
+        reward_name = cls.get_count_reward_name(count)
+        return cls._received(player_id, gree_campaign_id, reward_name, reward_id)
+    
+    @classmethod
+    def is_received_count(cls, player_id, gree_campaign_id, count, reward_id=0):
+        reward_name = cls.get_count_reward_name(count)
+        return cls._is_received(player_id, gree_campaign_id, reward_name, reward_id)
+
+
+class PlayerInvitationReceivedReward(DateTimeFieldMixin,
+                                     PlayerHasManyModel,
+                                     _ReceivedCountRewardMixin):
+    """
+    報酬を受け取ったかを管理する。
+    レコードが存在すればすでに受け取っている。
+    今はGREEのコインが貰えるキャンペーンでしか使っていない
+    機能が増えたらMixinを追加
+    """
+
+    REWARD_NAME_PREFIX = 'invitation'
+
+    class Meta:
+        app_label = 'invitation_player'
+        unique_together = ('player_id', 'reward_name', 'reward_id', 'deleted_uuid',)
+
+    campaign_id = models.IntegerField()
+    reward_name = models.CharField(max_length=255)
+    reward_id = models.IntegerField()
+
+    @classmethod
+    def _received(cls, player_id, gree_campaign_id, reward_name, reward_id):
+        return cls.create(
+            player_id=player_id,
+            campaign_id=gree_campaign_id,
+            reward_name=reward_name,
+            reward_id=reward_id
+        )
+
+    @classmethod
+    def _is_received(cls, player_id, gree_campaign_id, reward_name, reward_id):
+        count = cls.by_player(player_id) \
+                   .filter(campaign_id=gree_campaign_id,
+                           reward_name=reward_name,
+                           reward_id=reward_id) \
+                   .count()
+        return True if 0 < count else False
+
+
+# ========================================
+# 送信数リセット
+# ========================================
+
+class PlayerInvitationCountSubTerm(DateTimeFieldMixin, PlayerHasManyModel):
+    """
+    プレイヤーごとの招待成立人数を管理する
+    (今のところ送信人数のみ管理)
+    招待キャンペーンサブ期間毎にカウントする
+    InvitationCampaignSubTermが指定されている際は
+    こちらでカウントアップされる
+    """
+
+    campaign_id = models.IntegerField()
+    campaign_sub_term_id = models.IntegerField(null=True)
+
+    send_count = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = (('player_id', 'campaign_id', 'campaign_sub_term_id', 'deleted_uuid'),)
+
+    @classmethod
+    def get_by_campaign(cls, player_id, campaign_id, campaign_sub_term_id):
+        try:
+            obj = cls.get(player_id,
+                          campaign_id=campaign_id,
+                          campaign_sub_term_id=campaign_sub_term_id)
+        except cls.DoesNotExist:
+            obj = cls(player_id=player_id,
+                      campaign_id=campaign_id,
+                      campaign_sub_term_id=campaign_sub_term_id)
+        return obj
+
+    def count_up_by_send(self, count_up=1):
+        """
+        招待送信数をカウント
+        """
+        self.send_count += count_up
+
+
+class PlayerInvitationSubTerm(DateTimeFieldMixin, PlayerHasManyModel):
+    '''
+    誰が誰を招待したかの情報を保持するクラス
+    キャンペーンサブ期間毎に持つ
+
+    招待された人のシャードに格納される
+    '''
+
+    class Meta:
+        verbose_name = u'招待管理 サブ期間'
+        verbose_name_plural = verbose_name
+        unique_together = (('inviter_id', 'player_id', 'campaign_id', 'campaign_sub_term_id'),)
+
+    inviter_id = models.CharField(max_length=255, db_index=True) # 招待した人
+
+    campaign_id = models.IntegerField(null=True) #誘った時のキャンペーンが入る
+    campaign_sub_term_id = models.IntegerField(null=True) #誘った時のキャンペーンが入る
+
+    def __unicode__(self):
+        return u"%s : %s → %s" % (self.id, str(self.inviter.userid), str(self.player_id))
+
+    @cached_property
+    def campaign(self):
+        return InvitationCampaign.get(self.campaign_id)
+
+    @cached_property
+    def inviter(self):
+        return get_player(self.inviter_id)
+
+    @cached_property
+    def invited(self):
+        if self.player_id is None:
+            return None
+        return get_player(self.player_id)
+
+

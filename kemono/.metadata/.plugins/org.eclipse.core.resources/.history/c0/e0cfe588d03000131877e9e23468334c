@@ -1,0 +1,221 @@
+# -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+from django.db import models
+from django.utils.functional import cached_property
+from horizontalpartitioning.models import PlayerHasManyModel
+from gtoolkit import datetime
+from ...models.ranking import RankingClass, BossRanking, RankingStatus, RankingRankReward
+from ...models.boss import Boss
+
+
+class PlayerRankingManager(object):
+    """
+    レイドランキングのデータを参照するためのマネージャ
+    """
+
+    def __init__(self, player):
+        self.player = player
+
+    @cached_property
+    def basic(self):
+        return self.get_player_ranking(Boss.get_current_ranking_free_boss())
+
+    @cached_property
+    def rare(self):
+        return self.get_player_ranking(Boss.get_current_ranking_rare_boss())
+
+    @cached_property
+    def entry(self):
+        return PlayerRankingEntry.get_ranking_entry_by(
+            self.player.id, self.ranking_id)
+
+    @cached_property
+    def ranking_id(self):
+        return self._get_ranking_id()
+
+    def _get_ranking_id(self):
+        # ランキングIDには通常ボスのIDを使う
+        return Boss.get_current_ranking_free_boss().id
+
+    def enter_ranking(self):
+        """
+        ランキングに参加登録する（クラス確定）
+        """
+        return PlayerRankingEntry.entry_ranking(self.player, self.ranking_id)
+
+    def get_player_ranking(self, boss=None, boss_id=None):
+        """
+        :rtype: PlayerRanking
+        """
+        if not boss:
+            boss = Boss.get(boss_id)
+
+        return PlayerRanking(self.player.id, boss)
+
+
+class PlayerRanking(object):
+    """
+    各ボスごとのランキング情報用マネージャ
+    """
+    _KEY_FORMAT = 'RAID_RANKING_{BOSS_ID}'
+
+    def __init__(self, player_id, boss):
+        """
+        :param player_id:
+        :type player_id: string
+        :param boss:
+        :type boss: Boss
+        """
+        self.player_id = player_id
+        self.boss = boss
+
+    @cached_property
+    def entry(self):
+        """
+        :rtype: PlayerRankingEntry
+        """
+        return PlayerRankingEntry.get_ranking_entry_by(
+            self.player_id, self.boss.ranking_id)
+
+    def update_count(self, last_level):
+        """
+        最終Lvをアップデート
+        """
+        if self.entry:
+            self.boss_ranking.update_ranking(self.player_id, last_level)
+
+    @cached_property
+    def boss_ranking(self):
+        """
+        Rankingマスター
+        :rtype: BossRanking
+        """
+        return BossRanking(self.boss.id, self.entry.ranking_class_id)
+
+    @cached_property
+    def rank(self):
+        rank = self.boss_ranking.get_rank(self.player_id)
+        if not rank:
+            return '-'
+        return rank
+
+    @cached_property
+    def player_boss(self):
+        from .boss import PlayerBoss
+        return PlayerBoss.get_by(self.player_id, self.boss.id)
+
+
+class PlayerRankingEntry(PlayerHasManyModel):
+    """
+    プレイヤーのランキング参加レコード
+    """
+    ranking_id = models.IntegerField('ランキングID')
+
+    ranking_class_id = models.IntegerField('参加クラスID')
+    entered_at = models.DateTimeField('参加日時')
+
+    rank = models.IntegerField(default=None, null=True)
+    last_level = models.IntegerField(default=None, null=True)
+    received_at = models.DateTimeField(default=None, null=True)
+
+    class Meta(object):
+        app_label = 'raid_player'
+        unique_together = (
+            ('player_id', 'ranking_id', 'deleted_uuid'),
+        )
+
+    @classmethod
+    def entry_ranking(cls, player, ranking_id):
+        ranking_entry, is_created = cls.get_or_create_for_update(
+            player.id,
+            ranking_id=ranking_id,
+            ranking_class_id=RankingClass.get_class_by(player).id,
+            entered_at=datetime.now())
+        return ranking_entry
+
+    @classmethod
+    def get_ranking_entry_by(cls, player_id, ranking_id, for_update=False):
+        """
+        :param player_id:
+        :type player_id: string
+        :param ranking_id:
+        :type ranking_id: int
+        :rtype: PlayerRankingEntry or None
+        """
+        if for_update:
+            return cls.get_for_update(player_id, ranking_id=ranking_id)
+        try:
+            return cls.by_player(player_id).get(ranking_id=ranking_id)
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_finished_ranking_entries_by(cls, player_id):
+        """
+        :param player_id:
+        :type player_id: string
+        :rtype: list of PlayerRankingEntry
+        """
+        return cls.by_player(player_id).filter(
+            ranking_id__in=[ranking_status.id for ranking_status 
+                            in RankingStatus.get_finished_ranking()])
+
+    @classmethod
+    def finish_ranking(cls, player_id, ranking_id):
+        ranking_entry = cls.get_ranking_entry_by(player_id, ranking_id, 
+                                                  for_update=False)
+        print 11
+        print ranking_entry.ranking_class_id
+        if not ranking_entry.ranking_class_id:
+            return False
+        print 2
+        boss_ranking = BossRanking.get_bossranking_by(ranking_id, ranking_entry.ranking_class_id)
+        player_boss_ranking = PlayerRanking(player_id, boss_ranking.boss)
+
+        ranking_entry.rank = player_boss_ranking.rank
+        ranking_entry.last_level = player_boss_ranking.player_boss.last_level
+        return ranking_entry.save()
+        
+    @cached_property
+    def ranking_class(self):
+        return RankingClass.get(self.ranking_class_id)
+
+    def is_received(self):
+        return bool(self.received_at)
+
+    @property
+    def ranking_rewards(self):
+        return RankingRankReward(self.ranking_id, self.ranking_class_id, self.rank).entities
+
+    def can_receive_rewards(self):
+        if not self.boss_ranking.boss.is_finish():
+            raise Exception("ranking is not finish")
+
+        if not self.rank:
+            raise Exception("rank is None")
+
+        if self.is_received():
+            raise Exception("already is received")
+
+        if not self.ranking_rewards:
+            raise Exception("ranking_rewards is None")
+
+        return True
+
+    def receive_rewards(self, target_player):
+        
+        self.require_for_update()
+        
+        if not self.can_receive_rewards():
+            raise
+
+        for reward in self.ranking_rewards:
+            reward.present_reward(target_player)
+
+        self.received_at = datetime.now()
+
+        return self.save()
+
+    @cached_property
+    def boss_ranking(self):
+        return BossRanking.get_bossranking_by(self.ranking_id, self.ranking_class_id)

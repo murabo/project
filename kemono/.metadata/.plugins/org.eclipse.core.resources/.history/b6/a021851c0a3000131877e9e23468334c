@@ -1,0 +1,97 @@
+{% load osmobile %}
+{% load quest_tags %}
+
+<article style="border-image: url('{% image_url player_quest_m.current_player_quest_s.quest_s.background.image.quest_select_bg %}') 158 8 24 8 stretch;">
+  {# ここのstyle指定の意味は _stage_carousel.scss を参照して下さい #}
+  <div class="hgroup">
+    <h1>{{player_quest_m.quest_m.name}}</h1>
+    <p class="clear-count">
+      {% if player_quest_m.loop_count > 0 %}
+        <img class="icon-clear" src="{% image_url %}/scenes/quest/area_icon_clear02.png">
+        {% with loop_count=player_quest_m.loop_count %}
+        {% if loop_count > 4 %}
+          <img class="icon-star" src="{% image_url %}/scenes/quest/area_icon_star.png">
+          <span style="color:#ed3;text-shadow:1px 1px 2px #740;font-size:12px;font-weight:bold;">&nbsp;×{{loop_count}}</span>
+        {% else %}
+          {% for i in player_quest_m.loop_count|range %}
+            <img class="icon-star" src="{% image_url %}/scenes/quest/area_icon_star.png">
+          {% endfor %}
+        {% endif %}
+        {% endwith %}
+      {% endif %}
+    </p>
+  </div>
+  <ul class="floor-list">
+    {% for player_quest_s in player_quest_m.player_quest_s_list %}
+      {% if player_quest_s.is_completed %}
+        <li class="clear" data-id="{{player_quest_s.quest_s.id}}" ></li>
+      {% elif player_quest_s.is_playing %}
+        {% if player_quest_s.quest_s.has_boss %}
+          <li class="current-boss" data-id="{{player_quest_s.quest_s.id}}" >
+            <img src="{% image_url player.avatar.image.quest_icon %}">
+          </li>
+        {% else %}
+          <li class="current" data-id="{{player_quest_s.quest_s.id}}" >
+            <img src="{% image_url player.avatar.image.quest_icon %}">
+          </li>
+        {% endif %}
+      {% else %}
+        {% if player_quest_s.quest_s.has_boss %}
+          <li class="boss" data-id="{{player_quest_s.quest_s.id}}"></li>
+        {% else %}
+          <li class="close" data-id="{{player_quest_s.quest_s.id}}"></li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% with player_quest_s=player_quest_m.current_player_quest_s %}
+  <p class="floor-status">
+    ステージ&nbsp;{{player_quest_m.quest_s_progress|add:1}}/{{player_quest_m.quest_s_count}}
+    <g:gauge class="aqua">
+      <em class="value" style="width:{{ player_quest_s.step_progress_percent }}px"></em>
+    </g:gauge>
+    {{ player_quest_s.step_progress_percent }}%
+  </p>
+  {# Lv20まで消費{% T 'ENERGY' %}なし #}
+  {% if player.quest_energy_is_not_necessary %}
+    <section>
+      <article class="strong">
+        Lv20までは{% T 'QUEST' %}中{% T 'ENERGY' %}消費無し!
+      </article>
+    </section>
+  {% endif %}
+  <g:button class="decorated-l">
+    <a href="{% opensocial_url quest_step_flash player_quest_m.quest_m.id %}" {% if is_playing %}class="shortcut"{% endif %}>
+      このステージを{% T 'QUEST' %}
+    </a>
+  </g:button>
+  <g:parameter>
+    {% with quest_s=player_quest_s.quest_s %}
+    <dl>
+      <dt>消費体力</dt>
+      <dd>{{quest_s.lost_energy}}</dd>
+      <dt>経験</dt>
+      <dd>{{quest_s.gain_exp}}</dd>
+      <dt>獲得ゼニー</dt>
+      <dd>{{quest_s.gain_money_min}}〜{{quest_s.gain_money_max}}</dd>
+    </dl>
+    {% endwith %}
+  </g:parameter>
+  <g:subtitle class="semi-decorated" style="width:262px;text-align:center;">
+    {{player_quest_m.quest_m.questboss.reward_gacha_ticket_item.name}}から出現！
+  </g:subtitle>
+  {{player_quest_m.quest_m.id}}
+  <figure style="text-align:center;">
+    {% for c in player_quest_m.quest_m.feature_ticket_gacha_cards %}
+      <img src="{% image_url c.reward.image.medium %}" alt="" style="display:inline-block;margin:6px 6px 0 6px;width:80px;height:100px;">
+    {% endfor %}
+  </figure>
+  {{player_quest_m.quest_m.id}}
+  <g:button class="simple-l">
+    <a href="{% opensocial_url quest_m_detail player_quest_m.quest_m.id %}" >
+      エリア詳細を見る
+    </a>
+  </g:button>
+  {% endwith %}
+</article>
+

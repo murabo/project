@@ -1,0 +1,40 @@
+  <g:frame class="gframe-intarval-set">
+    <h1>レイドランキング</h1>
+    <p style="text-align:center">
+      <span class="text-yellow">
+        {{ ranking.boss.name }}Lv　{{ ranking.player_boss.last_level }}
+      </span><br>
+      <span>
+        現在{{ ranking.rank }}位
+      </span>
+    </p>
+    <g:navigator>
+      <ul>
+        <li>
+          <a href="{% opensocial_url 'ranking_raid_howto' %}" class="next">
+            レイドランキング説明
+          </a>
+        </li>
+        <li>
+          デバッグ；{{ ranking.boss_ranking }}
+           
+          {% if ranking.entry %}
+          <a href="{% opensocial_url 'ranking_raid_reward' ranking.boss.id ranking.entry.ranking_class.id %}" class="next">
+          {% else %}
+          <a href="{% opensocial_url 'ranking_raid_reward' ranking.boss.id 1 %}" class="next">
+          {% endif %}
+            レイドランキング報酬
+          </a>
+        </li>
+        <li>
+          {% if is_rare %}
+            <a href="{% opensocial_url 'ranking_raid_rare_index' %}" class="next">
+          {% else %}
+            <a href="{% opensocial_url 'ranking_raid_index' %}" class="next">
+          {% endif %}
+            レイドランキング詳細
+          </a>
+        </li>
+      </ul>
+    </g:navigator>
+  </g:frame>

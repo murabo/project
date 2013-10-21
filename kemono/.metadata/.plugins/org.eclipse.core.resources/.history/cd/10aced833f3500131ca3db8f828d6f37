@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+"""
+レイドボス期間終了時のランキング集計・データ作成
+"""
+import os
+#from optparse import make_option
+from django.core.management.base import BaseCommand
+from django.conf import settings
+
+from ...models.ranking import RankingStatus, RankingHistory, RankingClass
+from module.raid import Boss, BossRanking, PlayerRankingEntry
+from horizontalpartitioning.transaction import commit_on_success
+import datetime
+
+class Command(BaseCommand):
+    def handle(self, *args, **options):
+            print 'start : %s' % datetime.datetime.now()
+            bosses = Boss.get_all()
+            for boss in bosses: 
+                # ランキング対象のボスであれば
+                if boss.is_ranking() and boss.is_finish():
+                    ranking_id = boss.id
+                    #ランキング集計中、もしくは集計後だったらbreak
+                    
+                    # ランキングクラス種別毎のボスランキングを取得
+                    ranking_classes = RankingClass.get_all()
+                    for ranking_class in ranking_classes:
+                        boss_ranking = BossRanking.get_bossranking_by(ranking_id, ranking_class.id)
+                        ranking_entities = boss_ranking.get_ranking()
+                        for ranking_entity in ranking_entities:
+                            #　player_ranking_entryにrankとlast_levelを入れる
+                            with commit_on_success([ranking_entity.player.id]):
+                                finish_ranking_result = PlayerRankingEntry.finish_ranking(ranking_entity.player.id, ranking_id)
+                                if finish_ranking_result:
+                                    # ranking_historyにgrankingの情報を移す
+                                    RankingHistory.make_ranking_history(ranking_id, ranking_class.id, ranking_entity.player.id, ranking_entity.rank, ranking_entity.last_level)
+                    # ranking_statusにboss_idとfinished_atを入れる
+                    RankingStatus.finish(ranking_id) 
+            print 'end : %s' % datetime.datetime.now()

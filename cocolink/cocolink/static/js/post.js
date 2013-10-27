@@ -28,13 +28,17 @@ $(function() {
 			$(document).on('click', '#js-result-list li', function() {
 				that._dsp_place_info($(this));
 				that._toggle_txt_page();
-				self.map.geocoder($(this));
+				//self.map.geocoder($(this));//詳細住所はとりあえず取得なし！
 			});
 
 			$(document).on('click', '.js_star', function() {
 				that._review($(this));
 			});
 
+			//送信
+			$(document).on('click', '.js-submit', function() {
+				that.submit();
+			});
 			//this._get_list();
 		},
 		//地図画面と投稿画面の表示切り替え
@@ -49,7 +53,32 @@ $(function() {
 		_review: function(that) {
 			var n = that.attr('id').split("_");
 			$(".star_review").find('.starlevel5').removeClass().addClass('starlevel5 star'+n[1]);
+		},
+		submit: function(that) {
+
+
+        var data = {};
+
+        data.csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
+        data.message = $(".js_post_textarea").val();
+		data.lat = $('#lat').val();
+		data.lng = $('#lng').val();
+		data.message = $('#js-message').val();
+		data.category = $('#category option:selected').val();
+		//data.reference =  $("")
+			  		
+
+			$.ajax({
+			  type: "POST",
+			  url: "http://127.0.0.1:8080/ajax_post/",
+			  dataType: "json",
+			  data:data
+			});
+
 		}
+
+
+
 
 
 

@@ -12,48 +12,72 @@
 		},
 		_bind: function() {
 
-			$(".js-submit").on("click", this.get_place_list);
+
+			var that = this;
+
+			//検索ボタン
+			$(".js-search").click(function(){
+				$("#js-result-list").html('');
+				that.crearMarker();
+				that.get_place_list();
+			});
+
+			//現在地に戻る
+			$(".js-current").click(function(){
+				$("#js-result-list").html('');
+				that.crearMarker();
+				that.get_map();
+			});
+
+			//入力した住所へ地図移動
+			$(".js-geocoding").click(function(){
+				that.geocoding($("#js-geocoding-input").val());
+			});
+	
 
 		},
 		_map: '',
+		_markersArray : [],
 		//現在地の座標取得
 		get_present_location: function() {
 
 
 
 		},
-		//現在地取得
-		get_map: function(callback){
+		//指定した住所の地図表示
+		get_map: function(latlng){
 
 			var that = this;
 
-			var openInfoWindow;
-			var lat="";
-			var lng="";
-
 			// 位置情報取得に成功したとき
 			var position = function (position) {
-				lat = position.coords.latitude;
-				lng = position.coords.longitude;
 
-				var latlng = new google.maps.LatLng(lat, lng);
+				var lat = null,lng = null;
+
+				if(!latlng){
+					lat = position.coords.latitude;
+					lng = position.coords.longitude;
+					latlng = new google.maps.LatLng(lat, lng);
+				}
+
 				var myOptions = {
-					zoom: 19,
+					zoom: 15,
 					center: latlng,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
+
 				that.map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 				var marker = new google.maps.Marker({
 					position: latlng,
 					map: that.map,
 				});
+				that._markersArray.push(marker);
 
 				$("body").data("lat",lat);
 				$("body").data("lng",lng);
-
-				that.get_place_list();
 				//that.change_area();
 			}
+
 			// 位置情報取得に失敗したとき
 			var error = function (error) {
 				alert(error.message);
@@ -66,30 +90,34 @@
 			};
 			//初期表示で現在地を表示
 			navigator.geolocation.getCurrentPosition( position , error , option);
-		},
-		get_place_list: function(bounds){
 
-			var beaches = [
-			  ['Bondi Beach', 35.7156029, 139.8979243, 8],
-			  ['Coogee Beach', -33.923036, 151.259052, 5],
-			  ['Cronulla Beach', -34.028249, 151.157507, 3],
-			  ['Manly Beach', -33.80010128657071, 151.28747820854187, 2],
-			  ['Maroubra Beach', -33.950198, 151.259302, 1]
-			];
+
+		},
+		//一覧取得
+		get_place_list: function(){
+
+			var that = this;
+			var locations = new Array();
 
 			var template = $.trim($('#template').html());
 			var pyrmont = new google.maps.LatLng($("body").data("lat"),$("body").data("lng"));
 
-			 var request = {
+			var types = new Array();
+			if ( $('#category option:selected').val() != '' ){
+				types.push($('#category option:selected').val());
+			};
+
+			//TODO キーワード検索が上手くいってないよー！！！！	
+ 			 var request = {
 			    location: pyrmont,
 			    radius: '500',
-			    types: ""
+			    types: types,
+			    //query : $('#js-query').val()//
+			    query: 'restaurant'
 			  };
 
-			var service = new google.maps.places.PlacesService(this.map);
+			var service = new google.maps.places.PlacesService(that.map);
 			service.search(request, createList);
- 			setMarkers(this.map, beaches);
-
 
 			function createList(results, status){
 
@@ -105,94 +133,104 @@
 					        properties += g[prop];
 					    }
 
+						var loc = results[i]['geometry']['location'].toString();
+						loc = loc.replace(/\(|\)/ig, '');
+						loc = loc.split(',');	
+
+						locations.push(['Bondi',loc[0],loc[1],i+1]);	
+
 						frag+= template.replace( /{name}/ig, results[i].name)
+										.replace( /{index}/ig, i+1)
 										.replace( /{icon}/ig, results[i].icon)
+										.replace( /{lat}/ig, loc[0])
+										.replace( /{lng}/ig, loc[1])
+										.replace( /{id}/ig, results[i].id)
 										.replace( /{location}/ig, results[i]['geometry']['location'])
 										.replace( /{{formatted_address}}/ig, results[i].formatted_address)
 										.replace( /{vicinity}/ig, (undefined == results[i].vicinity)?"":results[i].vicinity );
 					}
 
-					
-
-					$("#js-result-list").html(frag);
+ 					that.setMarkers('yes', that.map, locations);					
+					$("#js-result-list").append(frag);
 
 
 				}
 			}
 
-
-
-
-
-
-function setMarkers(map, locations) {
-  // Add markers to the map
-
-  // Marker sizes are expressed as a Size of X,Y
-  // where the origin of the image (0,0) is located
-  // in the top left of the image.
-
-  // Origins, anchor positions and coordinates of the marker
-  // increase in the X direction to the right and in
-  // the Y direction down.
-  var image = new google.maps.MarkerImage('images/beachflag.png',
-      // This marker is 20 pixels wide by 32 pixels tall.
-      new google.maps.Size(20, 32),
-      // The origin for this image is 0,0.
-      new google.maps.Point(0,0),
-      // The anchor for this image is the base of the flagpole at 0,32.
-      new google.maps.Point(0, 32));
-  var shadow = new google.maps.MarkerImage('images/beachflag_shadow.png',
-      // The shadow image is larger in the horizontal dimension
-      // while the position and offset are the same as for the main image.
-      new google.maps.Size(37, 32),
-      new google.maps.Point(0,0),
-      new google.maps.Point(0, 32));
-      // Shapes define the clickable region of the icon.
-      // The type defines an HTML <area> element 'poly' which
-      // traces out a polygon as a series of X,Y points. The final
-      // coordinate closes the poly by connecting to the first
-      // coordinate.
-  var shape = {
-      coord: [1, 1, 1, 20, 18, 20, 18 , 1],
-      type: 'poly'
-  };
-  for (var i = 0; i < locations.length; i++) {
-
-    var beach = locations[i];
-    var myLatLng = new google.maps.LatLng(beach[1], beach[2]);
-    var marker = new google.maps.Marker({
-        position: myLatLng,
-        map: map,
-        //shadow: shadow, //好きな画像をセット
-        //icon: image,
-        shape: shape,
-        title: beach[0],
-        zIndex: beach[3]
-    });
-  }
-}
-
-
-
-
-
-
-
-
-
 		},
+		//地図にマーカー設定
+		setMarkers : function(isNumberPin, map, locations) {
+		   	var that = this;
+
+			  var image = new google.maps.MarkerImage('images/beachflag.png',
+			      // This marker is 20 pixels wide by 32 pixels tall.
+			      new google.maps.Size(20, 32),
+			      // The origin for this image is 0,0.
+			      new google.maps.Point(0,0),
+			      // The anchor for this image is the base of the flagpole at 0,32.
+			      new google.maps.Point(0, 32));
+			  var shadow = new google.maps.MarkerImage('images/beachflag_shadow.png',
+			      // The shadow image is larger in the horizontal dimension
+			      // while the position and offset are the same as for the main image.
+			      new google.maps.Size(37, 32),
+			      new google.maps.Point(0,0),
+			      new google.maps.Point(0, 32));
+			      // Shapes define the clickable region of the icon.
+			      // The type defines an HTML <area> element 'poly' which
+			      // traces out a polygon as a series of X,Y points. The final
+			      // coordinate closes the poly by connecting to the first
+			      // coordinate.
+			  var shape = {
+			      coord: [1, 1, 1, 20, 18, 20, 18 , 1],
+			      type: 'poly'
+			  };
+			  for (var i = 0; i < locations.length; i++) {
+
+			    var beach = locations[i];
+			    var myLatLng = new google.maps.LatLng(beach[1], beach[2]);
+			    var marker = new google.maps.Marker({
+			        position: myLatLng,
+			        map: map,
+			        //shadow: shadow, //好きな画像をセット
+			        icon: isNumberPin ? new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld="+ (i + 1) + "|ff7e73|000000") : null,
+			        shape: shape,
+			        title: beach[0],
+			        zIndex: beach[3]
+			    });
+			   
+			    that._markersArray.push(marker);
+			  
+			  }
+
+		 
+		},
+
+
+		//地図のマーカー削除
+		crearMarker : function (){
+		    
+		   	var that = this;
+
+		    if(that._markersArray == null) return;
+		    
+			for (var i = 0; i < that._markersArray.length; i++) {
+		    	that._markersArray[i].setMap(null); 
+		  	}
+		    //that._markersArray = null;
+		}
+		,
 		//詳細住所取得
 		geocoder: function(that){
 
 			var lat =that.find('.js-lat').val();
 			var lng =that.find('.js-lng').val();
 
+
 			//ジオコードオブジェクト
 			var geocoder = new google.maps.Geocoder();
 			geocoder.geocode(
 			  {
-			    'latLng': lat+','+lng
+			    'latLng': '(' + lat+','+lng + ')'
 			  },
 			  function(results, status){
 			    if(status==google.maps.GeocoderStatus.OK){
@@ -202,6 +240,30 @@ function setMarkers(map, locations) {
 			  }
 			);
 
+		},
+		//ジオコーディング
+		geocoding: function(address){
+
+			var that = this;
+            // 東京タワーをジオコーディング 
+            var request = { 
+                address: address
+            }; 
+ 
+            var geocoder = new google.maps.Geocoder(); 
+            geocoder.geocode(request, function(results, status) { 
+                // ステータスがOKならマーカーを表示する。 
+                if (status == google.maps.GeocoderStatus.OK) { 
+                	//alert(results[0].geometry.location);
+                	that.get_map(results[0].geometry.location);
+                    // var marker = new google.maps.Marker({ 
+                    //     position: results[0].geometry.location, 
+                    //     title: request.address, 
+                    //     map: mapObj 
+                    // }); 
+                } 
+           }); 
+ 
 		},
 		//地図の範囲変更
 		//TODO

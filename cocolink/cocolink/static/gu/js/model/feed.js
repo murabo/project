@@ -6,7 +6,7 @@ var FeedModel = Backbone.Model.extend({
 
                 'body_text' : null,
                 'created_at' : null,
-                'username' : null,
+                'user_id' : null,
                 'id' : null
             
         };

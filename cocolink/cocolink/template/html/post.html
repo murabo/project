@@ -13,6 +13,7 @@
 <title></title>
 </head>
 <body>
+    {% csrf_token %}
 
 <header class="tbl">
     <div class="tbl-cell w60 left_bx"></div>
@@ -22,43 +23,59 @@
 
 <article class="contents_top">
 
-    <h1>カテゴリー</h1>
-    <select name="category">
-        <option value="99">全て</option>
-        <option value="1">ファッション</option>
-        <option value="2">ラーメン</option>
-        <option value="3">スイーツ</option>
-        <option value="4">散歩</option>
-        <option value="5">イタリアン</option>
-    </select>
 
-    <h1 class="mt10">場所の検索方法</h1>
-    <input type="email" name="email" id="js-email"  maxlength="100" value="" class="w100p">
-    <button type="botton"class="js-submit btn bg_col_999 mt10">検索</button>
+        <h1>カテゴリー</h1>
+        <select name="category" id='category'>
+
+            <option value="">全て</option>
+            <option value="store">お店</option>
+            <option value="food">食事</option>
+            <option value="cafe">カフェ</option>
+            <option value="bus_station">バス停</option>
+            <option value="gym">ジム</option>
+
+        </select>
+
 
     <div class="contents map_page disp_block">
-        <div id="map_canvas" style="width:100%; height:120px"></div>
+
+
+        
+        <input type="text" name="query" id="js-geocoding-input"  maxlength="100" value="" class="w100p"　placeholder="ここに入力した住所へジャンプ">
+        <button type="botton"class="js-geocoding btn bg_col_999 mt10">ジャンプ</button>
+        
+        <button type="botton"class="js-search btn bg_col_999 mt10">検索</button>
+
+
+        <div id="map_canvas" style="width:100%; height:200px" class="mt10"></div>
+
+
+       <button type="botton"class="js-current btn bg_col_999 mt10">現在地に戻る</button>
+
+      <div class="js-current-post2 btn bg_col_999 mt10">現在地から投稿</div>
+
+
+        <h1>検索結果</h1>
+        <ul id="js-result-list" class="dsp_txt_page ullist mt10"></ul>
     </div>
 
     <div class="contents txt_page disp_none">
         <div class="dsp_map_page">戻る</div>
-    	<form action="xxx" method="post">
+
+    	<form action="http://127.0.0.1:8080/ajax_post/" method="post">
     	    <section class="m10">
-    	        <textarea id="js-textarea" name="message" class="p10 minH125" maxlength="140" placeholder="書き込み..."></textarea>
+    	        <textarea id="js-message" name="message" class="p10 minH125" maxlength="140" placeholder="書き込み..."></textarea>
     	        <div id="js-comment_counter" class="counter">140</div>
     	    </section>
 
             <div class="dsp_place">
                 <p class="place"></p>
+
                 <input type="hidden" name="lat" value="" id="lat">
                 <input type="hidden" name="lng" value="" id="lng">
-                <input type="hidden" name="zip3" value="" class="">
-    			<input type="hidden" name="zip4" value="" class="">
-    			<input type="hidden" name="city" value="" class="">
-                <input type="hidden" name="place_name" value="" class="">
+
 
     		</div>
-
             <input type="checkbox" name="public_flg" value="1">公開する<br>
             <input type="checkbox" name="review_flg" value="1">評価する
 
@@ -81,12 +98,12 @@
     	       <input type="hidden" name="data_url" value="" class="js-post-data-url">
     	    </div>
     	    <!--end  data url -->
-
     	</form>
 
+        <button type="botton"class="js-submit btn bg_col_999 mt10">投稿する</button>
+
     </div>
-    <h1>検索結果</h1>
-     <ul id="js-result-list" class="dsp_txt_page ullist mt10"></ul>
+
 </article>
 
 
@@ -108,11 +125,24 @@
 
 <script type="text/template" id="template">
 <li class="p5">
-<img src="{icon}" class="icon">{name}
-<p class="text10 text_col_gray">{vicinity}</p>
-<input type="hidden" name="lng" value="{location}" class="js-location">
+<div class="media">
+    <div class="img">
+        <span>{index}</span>
+        <img src="{icon}" class="icon">
+    </div> 
+    <div class="bd">
+        <p>{name}</p>
+        <p class="text10 text_col_gray">{vicinity}</p>
+    </div>
+<input type="hidden" name="lat" value="{lng}" class="js-lng">
+<input type="hidden" name="id" value="{id}" class="js-id">
 <input type="hidden" name="lng" value="{lat}" class="js-lat">
 <input type="hidden" name="lat" value="{lng}" class="js-lng">
+</div>
+
+
+
+
 </li>
 </script>
 

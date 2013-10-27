@@ -48,6 +48,13 @@ $(function() {
 		//選択したリストを投稿画面に表示
 		_dsp_place_info: function(that) {
 			$('.txt_page').find('.place').html(that);
+
+			//送信用変数にセット
+			$(".js-subumit-lng").val(that.find('.js-lng').val());
+			$(".js-subumit-reference").val(that.find('.js-reference').val());
+			$(".js-subumit-lat").val(that.find('.js-lat').val());
+
+
 		},
 		//評価の★を選択
 		_review: function(that) {
@@ -61,11 +68,13 @@ $(function() {
 
         data.csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
         data.message = $(".js_post_textarea").val();
-		data.lat = $('#lat').val();
-		data.lng = $('#lng').val();
+		data.lat_x = $(".js-subumit-lat").val();
+		data.lng_y = $(".js-subumit-lng").val();
+		data.reference = $(".js-subumit-reference").val();
 		data.message = $('#js-message').val();
 		data.category = $('#category option:selected').val();
-		//data.reference =  $("")
+		data.public_flg = ($(".js-public-flg:checked").val())? '1': '0';
+		data.review = ($(".js-review-flg:checked").val())? '1': '0';//0〜5
 			  		
 
 			$.ajax({

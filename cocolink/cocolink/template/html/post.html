@@ -41,8 +41,9 @@
 
 
         
-        <input type="text" name="query" id="js-geocoding-input"  maxlength="100" value="" class="w100p"　placeholder="ここに入力した住所へジャンプ">
+        <input type="text" name="query" id="js-geocoding-input"  maxlength="100" value="" class="w100p" placeholder="ここに入力した住所へジャンプ">
         <button type="botton"class="js-geocoding btn bg_col_999 mt10">ジャンプ</button>
+        <br/>
         
         <button type="botton"class="js-search btn bg_col_999 mt10">検索</button>
 
@@ -54,7 +55,7 @@
 
       <div class="js-current-post2 btn bg_col_999 mt10">現在地から投稿</div>
 
-
+        クリックした地図:<p class="js-place-text"></p>
         <h1>検索結果</h1>
         <ul id="js-result-list" class="dsp_txt_page ullist mt10"></ul>
     </div>
@@ -71,13 +72,15 @@
             <div class="dsp_place">
                 <p class="place"></p>
 
-                <input type="hidden" name="lat" value="" id="lat">
-                <input type="hidden" name="lng" value="" id="lng">
-
+<!-- 送信用!-->
+<input type="hidden" name="" value="" class="js-subumit-lng">
+<input type="hidden" name="" value="" class="js-subumit-reference">
+<input type="hidden" name="" value="" class="js-subumit-lat">
+<!-- 送信用!-->
 
     		</div>
-            <input type="checkbox" name="public_flg" value="1">公開する<br>
-            <input type="checkbox" name="review_flg" value="1">評価する
+            <input type="checkbox" name="public_flg" value="1" class="js-public-flg">公開する<br>
+            <input type="checkbox" name="review_flg" value="1" class="js-review-flg">評価する
 
             <div class="star_review">
                 <div class="starlevel5 star00"></div>
@@ -134,10 +137,10 @@
         <p>{name}</p>
         <p class="text10 text_col_gray">{vicinity}</p>
     </div>
-<input type="hidden" name="lat" value="{lng}" class="js-lng">
-<input type="hidden" name="id" value="{id}" class="js-id">
-<input type="hidden" name="lng" value="{lat}" class="js-lat">
-<input type="hidden" name="lat" value="{lng}" class="js-lng">
+<input type="hidden" name="" value="{lng}" class="js-lng">
+<input type="hidden" name="" value="{reference}" class="js-reference">
+<input type="hidden" name="" value="{lat}" class="js-lat">
+<input type="hidden" name="" value="{lng}" class="js-lng">
 </div>
 
 

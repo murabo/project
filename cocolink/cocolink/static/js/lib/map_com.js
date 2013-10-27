@@ -75,6 +75,8 @@
 
 				$("body").data("lat",lat);
 				$("body").data("lng",lng);
+
+				google.maps.event.addListener(that.map, 'click', that.click_map);
 				//that.change_area();
 			}
 
@@ -93,6 +95,33 @@
 
 
 		},
+		//地図のクリックイベント
+		click_map: function (event){
+		    
+      		//alert(event.latLng.toString());
+			var that = this;
+            // 東京タワーをジオコーディング 
+            var request = { 
+                latLng: event.latLng
+            }; 
+ 
+            var geocoder = new google.maps.Geocoder(); 
+            geocoder.geocode(request, function(results, status) { 
+                // ステータスがOKならマーカーを表示する。 
+                if (status == google.maps.GeocoderStatus.OK) { 
+                	$(".js-place-text").html(results[0].formatted_address);
+
+                	//that.get_map(results[0].geometry.location);
+                    // var marker = new google.maps.Marker({ 
+                    //     position: results[0].geometry.location, 
+                    //     title: request.address, 
+                    //     map: mapObj 
+                    // }); 
+                } 
+           }); 
+
+		},
+
 		//一覧取得
 		get_place_list: function(){
 
@@ -134,7 +163,7 @@
 					    }
 
 						var loc = results[i]['geometry']['location'].toString();
-						loc = loc.replace(/\(|\)/ig, '');
+						loc = loc.replace(/\(|\)|\s+/ig, '');
 						loc = loc.split(',');	
 
 						locations.push(['Bondi',loc[0],loc[1],i+1]);	
@@ -144,7 +173,7 @@
 										.replace( /{icon}/ig, results[i].icon)
 										.replace( /{lat}/ig, loc[0])
 										.replace( /{lng}/ig, loc[1])
-										.replace( /{id}/ig, results[i].id)
+										.replace( /{reference}/ig, results[i].id)
 										.replace( /{location}/ig, results[i]['geometry']['location'])
 										.replace( /{{formatted_address}}/ig, results[i].formatted_address)
 										.replace( /{vicinity}/ig, (undefined == results[i].vicinity)?"":results[i].vicinity );

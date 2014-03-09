@@ -65,7 +65,7 @@
             },1000);
 
 
-
+            test2.innerHTML = "あわあわ";
 
 		},
 		clickEvent : function(){

@@ -25,7 +25,7 @@
         handler : function(){
 
             this.setTabStyle();
-            document.addEventListener("scroll",bind(this,"setTabStyle"),false);
+            //document.addEventListener("scroll",bind(this,"setTabStyle"),false);
             document.addEventListener("touchstart",bind(this,"setTabStyle"),false);
             this.tab.addEventListener("click", bind(this,"clickEvent"), false);
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
@@ -35,16 +35,18 @@
         },
  		orientEvent  : function(){
 
-            clearTimeout(this.timer);
-            var test = document.getElementById("test");
-            var test2 = document.getElementById("test2");
 
-            test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
+            //var test = document.getElementById("test");
+            //var test2 = document.getElementById("test2");
+            //test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
+
+            clearTimeout(this.timer);
             if (Math.abs(window.orientation) === 90) {
                 this.landscape = 1;
                 this.tab.style.opacity = '0';
                 this.tab.style.webkitTransitionDuration = '0';
                 this.tab.className = 'footer_search_tab';
+
                 if(this.activeFlg == 1) this.clickEvent();
 
             } else {
@@ -203,7 +205,6 @@
 	};
 
 
-
     /*
      * Android
      */
@@ -253,19 +254,17 @@
 
 		loadFile();
         var ua = judgeUserAgent();
-        var searchFooter = new SearchFooter();
         var islowOs = false;
+        var searchFooter = new SearchFooter();
 
-        //ios4未満 Android2.1以下
         if( (ua.isIos && 500 > ua.version) ||  (ua.isIos == 0 && 2.1 >= ua.version)){
+            //ios4未満 Android2.1以下
             islowOs = true;
             searchFooter.handler = function(){};
-        }else{
-            //Android4未満　2.2以上　
-            if((ua.isIos == 0 && 4 > ua.version && ua.version >= 2.2) ) {
-                searchFooter.orientEvent = orientEvent;
-                searchFooter.clickEvent = clickEvent;
-            }
+        }else if((ua.isIos == 0 && 4 > ua.version && ua.version >= 2.2) ){
+            //Android4未満　2.2以上
+            searchFooter.orientEvent = orientEvent;
+            searchFooter.clickEvent = clickEvent;
         }
         searchFooter.init(channel,srPopular,islowOs);
 	};

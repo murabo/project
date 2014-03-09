@@ -37,6 +37,7 @@
 
 			var test = document.getElementById("test");
 			clearTimeout(this.timer);
+            test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
 			if (window.innerHeight > window.innerWidth) {
 				test.innerHTML = "たて123";
 				this.portrait = 0;

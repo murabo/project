@@ -34,7 +34,7 @@
         },
  		orientEvent  : function(){
 
-            setTimeout(function(){
+            //setTimeout(function(){
 
                 var test = document.getElementById("test");
                 var test2 = document.getElementById("test2");
@@ -62,7 +62,7 @@
                     }
                 }
 
-            },1000);
+           // },1000);
 
 
             test2.innerHTML = "あわあわ";

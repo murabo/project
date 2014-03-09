@@ -38,18 +38,15 @@
             clearTimeout(this.timer);
             var test = document.getElementById("test");
             var test2 = document.getElementById("test2");
-            that = this;
+
             test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
             if (Math.abs(window.orientation) === 90) {
                 this.landscape = 1;
-                if(this.activeFlg == 1){
-                    this.tab.style.opacity = '0';
-                    this.tab.style.webkitTransitionDuration = '0';
-                    this.tab.className = 'footer_search_tab';
-                    that.clickEvent();
-                }else{
-                    this.setTabStyle();
-                }
+                this.tab.style.opacity = '0';
+                this.tab.style.webkitTransitionDuration = '0';
+                this.tab.className = 'footer_search_tab';
+                if(this.activeFlg == 1) this.clickEvent();
+
             } else {
                 this.landscape = 0;
                 this.setTabStyle();
@@ -57,7 +54,7 @@
 
 		},
 		clickEvent : function(){
-alert();
+
             if ( this.activeFlg == 1 ) {
                 this.activeFlg = 0;
                 this.wrapp.style.webkitAnimationName = 'animation_down';

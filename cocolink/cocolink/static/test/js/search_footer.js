@@ -36,7 +36,7 @@
  		orientEvent  : function(){
 
             var that = this;
-            setTimeout(function(){
+            //setTimeout(function(){
 
                 var test = document.getElementById("test");
                 var test2 = document.getElementById("test2");
@@ -67,7 +67,7 @@
 
                 }
 
-            },1500);
+          //  },1500);
 
 		},
 		clickEvent : function(){

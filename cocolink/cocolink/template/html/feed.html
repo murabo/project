@@ -8,28 +8,42 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="format-detection" content="telephone=no">
 <title>maplus</title>
-<link rel="stylesheet" href="../css/general.css"/>
-<link rel="stylesheet" href="../css/layout.css"/>
-<link rel="stylesheet" href="../css/module.css"/>
+<link rel="stylesheet" href="../../static/css/general.css"/>
+<link rel="stylesheet" href="../../static/css/layout.css"/>
+<link rel="stylesheet" href="../../static/css/module.css"/>
+<link rel="stylesheet" href="../../static/css/font-awesome.css">
+<link rel="stylesheet" href="../../static/css/bootstrap.css" media="screen">
+
 <title>mapl
 	us</title>
 </head>
 <body class="">
 
 
-<header class="tbl">
-	<div class="tbl-cell w60 left_bx"></div>
-	<div class="tbl-cell canter_bx">ココlink</div>
-	<div class="tbl-cell w60 right_bx">
-		 <a href="post.html"><img src="../images/icon/push-pin.png" class=""></a>
-	</div>
+<header class="tbl clrF">
+    <a href="../feed"class="tbl-cell w33p left_bx">
+        <img src="../../static/images/logo.gif" class="img-header-logo ">
+    </a>
+    <div class="tbl-cell w33p canter_bx"></div>
+    <div class="tbl-cell w33p"></div>
 </header>	
 
+<nav class="g-nav">
+    <ul>
+    <li class="tbl-cell g-nav-cell"><a href="feed"><i class="fa fa-align-left fa-size-min fa-col-white"></i></a></li>
+    <li class="tbl-cell g-nav-cell"><a href="feed"><i class="fa fa-search-plus fa-size-min fa-col-white"></i></a></li>
+    <li class="tbl-cell g-nav-cell"><a href=""><i class="fa fa-pencil-square-o fa-size-min  fa-col-white"></i></a></li>
+    <li class="tbl-cell g-nav-cell"><a href=""><i class="fa fa-col-white fa-size-min fa-user"></i></a></li>
+    </ul>
+</nav>
 
-<div class="contents_top">
-    <article id="js_addlist" class="mt20">
+<article class="contents-top">
+	
+  <section class="main">
 
-	    <div class="post_bx p10 clrF">
+    <div id="js_addlist" class="mt20">
+
+	    <section class="post_bx p10 clrF">
 	    	<span class="text10 text_col_gray"> murabo408</span>
 	    	<span class="floRight text10 text_col_gray">10月2日 12:00</span>
 	        <p class="mt5 text15">ここのラーメンおいしかったよー</p>
@@ -38,30 +52,45 @@
 	        </div>
 
 	        <div class="mt10">
-		        <a class="text_col_link disp_block floLeft">
+		        <a class="place-text disp_block floLeft">
 		       		<p>COCO一番</p>
 		       		<p class="text10">東京都渋谷区道玄坂上３番地５丁目...</p>
 		        </a>
-				<span class="floRight text11">★★★</span>
+				<span class="floRight text11">
+					<i class="fa fa-star"></i>
+					<i class="fa fa-star"></i>
+					<i class="fa fa-star"></i>
+				</span>
 			</div>
-		</div>
-
-	<div class="tbl mt10">
-		<div class="mt5 tbl-cell">
-			<p><span class="text12 mr5">yoshiko</span><span class="text10 text_col_gray">コメントコメントコメント・・・</span>
-			</p>
-			<p><span class="text12 mr5">yoshiko</span><span class="text10 text_col_gray">コメントコメントコメント</span>
-			</p>
-			<span class="tx_underline text10 text_col_gray">その他のコメント</span>
-		</div>
-		<div class="tbl-cell floRight ">
-			<p class="btn_min mr10">add</p><p class="btn_min">コメ</p>
-		</div>
-	</div>
 
 
-    </article>
-</div>
+			<div class="tbl mt10">
+				
+				<div class="mt5 tbl-cell">
+					<!--
+					<p><span class="text12 mr5">yoshiko</span><span class="text10 text_col_gray">コメントコメントコメント・・・</span>
+					</p>
+					<p><span class="text12 mr5">yoshiko</span><span class="text10 text_col_gray">コメントコメントコメント</span>
+					</p>
+					<span class="tx_underline text10 text_col_gray">その他のコメント</span>
+					-->
+					<p class="ml5 mt10 fa-col-gray text10"><i class="fa fa-tag"></i><span class="ml5 fa-col-gray">ラーメン</p>
+				</div>
+				<div class="tbl-cell floRight ">
+					<span class="mr10">
+						<i class="fa fa-map-marker fa-size-min fa-col-orange"></i>
+					</span>
+				</div>
+			</div>
+
+
+		</section>
+
+
+   		</div>
+
+    </section>
+</article>
 
 
 

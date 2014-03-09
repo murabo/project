@@ -37,17 +37,18 @@
             setTimeout(function(){
 
                 var test = document.getElementById("test");
+                var test2 = document.getElementById("test2");
                 clearTimeout(this.timer);
                 test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
                 if (window.innerHeight > window.innerWidth) {
-                    //test.innerHTML = "たて123";
+                    test2.innerHTML = "たて123";
                     this.landscape = 0;
                     this.setTabStyle();
                 } else {
 
                     this.landscape = 1;
                     if(this.activeFlg == 1){
-                        //test.innerHTML = "よこ　上";
+                        test2.innerHTML = "よこ　上";
                         this.wrapp.style.webkitAnimationName = 'animation_down';
                         this.wrapp.style.webkitTransitionDuration = '0.1s';
                         this.tab.style.opacity = '0';
@@ -55,7 +56,7 @@
                         this.tab.className = 'footer_search_tab';
                         this.activeFlg = 0;
                     }else{
-                        //test.innerHTML = "よこ　下";
+                        test2.innerHTML = "よこ　下";
                         this.tab.style.opacity = '0';
                         this.tab.style.webkitTransitionDuration = '0';
                     }

@@ -26,7 +26,7 @@
 
             this.setTabStyle();
             document.addEventListener("scroll",bind(this,"setTabStyle"),false);
-            document.addEventListener("touchstart",bind(this,"setTabStyle"),false)
+            document.addEventListener("touchstart",bind(this,"setTabStyle"),false);
             this.tab.addEventListener("click", bind(this,"clickEvent"), false);
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
             window.addEventListener("orientationchange", bind(this,"orientEvent"), false);
@@ -35,17 +35,17 @@
         },
  		orientEvent  : function(){
 
-			var test = document.getElementById("test");
+			//var test = document.getElementById("test");
 			clearTimeout(this.timer);
 			if (window.innerHeight > window.innerWidth) {
-				test.innerHTML = "たて";
+				//test.innerHTML = "たて";
 				this.portrait = 0;
 			   	this.setTabStyle();
 			} else {
 
 				this.portrait = 1;
 			    if(this.activeFlg == 1){
-			    	test.innerHTML = "よこ　上";
+			    	//test.innerHTML = "よこ　上";
 					this.wrapp.style.webkitAnimationName = 'animation_down';
 					this.wrapp.style.webkitTransitionDuration = '0.1s';
 					this.tab.style.opacity = '0';
@@ -53,7 +53,7 @@
 					this.tab.className = 'footer_search_tab';
 					this.activeFlg = 0;
 			    }else{
-			    	test.innerHTML = "よこ　下";
+			    	//test.innerHTML = "よこ　下";
 					this.tab.style.opacity = '0';
 					this.tab.style.webkitTransitionDuration = '';
 			    }
@@ -63,25 +63,23 @@
 		clickEvent : function(){
 
 
-				if ( this.activeFlg == 1 ) {
-					this.activeFlg = 0;
-					this.wrapp.style.webkitAnimationName = 'animation_down';
-					this.wrapp.style.WebkitAnimationDuration = '0.1s';
-					//this.bar.style.opacity = '0';
-					//this.bar.style.webkitTransitionDuration = '0.2s';
-					this.setTabStyle();
-		
-				} else{
-					this.activeFlg = 1;
-					this.bar.style.display = 'block';
-					this.wrapp.style.webkitAnimationName = 'animation_up';
-					this.wrapp.style.WebkitAnimationDuration = '0.3s';
-					this.bar.style.opacity = '1';
-					this.tab.style.opacity = '1';
-					this.tab.style.webkitTransitionDuration  = '0';
-					this.tab.className = 'footer_search_active';
+            if ( this.activeFlg == 1 ) {
+                this.activeFlg = 0;
+                this.wrapp.style.webkitAnimationName = 'animation_down';
+                this.wrapp.style.WebkitAnimationDuration = '0.2s';
+                this.setTabStyle();
 
-				}	
+            } else{
+                this.activeFlg = 1;
+                this.wrapp.style.webkitAnimationName = 'animation_up';
+                this.wrapp.style.WebkitAnimationDuration = '0.3s';
+                this.bar.style.display = 'block';
+                this.bar.style.opacity = '1';
+                this.tab.style.opacity = '1';
+                this.tab.style.webkitTransitionDuration  = '0';
+                this.tab.className = 'footer_search_active';
+
+            }
 
 			
 		},
@@ -98,25 +96,25 @@
 		},
 		setTabStyle : function () {
 
-			if(this.portrait == 0 ){
+			//if(this.portrait == 0 ){
+                var that = this;
 				this.timer = null;
-				var that = this;
 				this.tab.style.opacity = '1';
 				this.tab.style.webkitTransitionDuration = '';	
 			
 				this.timer = setTimeout(function(){
 				
-					if(that.activeFlg == 0 ){
+					if(that.activeFlg == 0 && that.portrait == 0){
 						that.tab.style.opacity = '0.5';
 						that.tab.style.webkitTransitionDuration  = '2s';
 						that = null;
 					}
 
 				} , 1000);
-			}
+		//	}
 
 		},
-		createTemplate : function (lowOsFlg){
+		createTemplate : function (islowOs){
 
 
 			var tab_tpl ='<section id="footer_search_tab" class="footer_search_tab"  style="opacity:1">'+
@@ -152,7 +150,7 @@
 
 			var wrapper = document.createElement("footer");
 
-			if (lowOsFlg) {
+			if (islowOs) {
 				wrapper.className = 'footer_search_bottom_wrapper';
 				wrapper.innerHTML =  bar_tpl;
 				$('footer_search').appendChild(wrapper);
@@ -167,7 +165,7 @@
 			this.wrapp = document.getElementById("footer_search_wrapper");
 			this.tab =  document.getElementById("footer_search_tab");
 			this.bar =  document.getElementById("footer_search_bar");
-			if (!lowOsFlg) this.bar.style.opacity = '0';			
+			if (!islowOs) this.bar.style.opacity = '0';			
 
 		}
 
@@ -265,21 +263,20 @@
 		loadFile();
         var ua = judgeUserAgent();
         var searchFooter = new SearchFooter();
-        var osLowFlg = false;
+        var islowOs = false;
 
         //ios4未満 Android2.1以下
         if( (ua.isIos && 500 > ua.version) ||  (ua.isIos == 0 && 2.1 >= ua.version)){
-            osLowFlg = true;
+            islowOs = true;
             searchFooter.handler = function(){};
         }else{
             //Android4未満　2.2以上　
             if((ua.isIos == 0 && 4 > ua.version && ua.version >= 2.2) ) {
-
                 searchFooter.orientEvent = orientEvent;
                 searchFooter.clickEvent = clickEvent;
             }
         }
-        searchFooter.init(channel,srPopular,osLowFlg);
+        searchFooter.init(channel,srPopular,islowOs);
 	};
 
 })(window,window.document);

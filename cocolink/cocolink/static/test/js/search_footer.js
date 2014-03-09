@@ -111,14 +111,14 @@
                     this.tab.className = 'footer_search_tab';
                 }
 
-                if(that.activeFlg == 0 && that.landscape == 0){
-				    this.timer = setTimeout(function(){
-						that.tab.style.opacity = '0.5';
-						that.tab.style.webkitTransitionDuration  = '2s';
-						that = null;
+                this.timer = setTimeout(function(){
+                    if(that.activeFlg == 0 && that.landscape == 0){
+                        that.tab.style.opacity = '0.5';
+                        that.tab.style.webkitTransitionDuration  = '2s';
+                        that = null;
+                    }
+                } , 1000);
 
-			    	} , 1000);
-                 }
 		//	}
 
 		},

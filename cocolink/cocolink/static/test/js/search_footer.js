@@ -29,6 +29,7 @@
             document.addEventListener("touchstart",bind(this,"setTabStyle"),false);
             this.tab.addEventListener("click", bind(this,"clickEvent"), false);
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
+            window.addEventListener("orientationchange", bind(this,"orientEvent"), false);
             window.addEventListener("resize", bind(this,"orientEvent"), false);
 
         },
@@ -41,11 +42,7 @@
                 var test2 = document.getElementById("test2");
                 clearTimeout(this.timer);
                 test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
-                if (window.innerHeight > window.innerWidth) {
-                    test2.innerHTML = "たて123";
-                    that.landscape = 0;
-                    that.setTabStyle();
-                } else {
+                if (Math.abs(window.orientation) === 90) {
 
                     that.landscape = 1;
                     if(this.activeFlg == 1){
@@ -61,6 +58,13 @@
                         that.tab.style.opacity = '0';
                         that.tab.style.webkitTransitionDuration = '0';
                     }
+
+                } else {
+
+                    test2.innerHTML = "たて123";
+                    that.landscape = 0;
+                    that.setTabStyle();
+
                 }
 
             },1500);

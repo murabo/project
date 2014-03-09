@@ -38,7 +38,7 @@
 			var test = document.getElementById("test");
 			clearTimeout(this.timer);
 			if (window.innerHeight > window.innerWidth) {
-				test.innerHTML = "たて";
+				test.innerHTML = "たて123";
 				this.portrait = 0;
 			   	this.setTabStyle();
 			} else {

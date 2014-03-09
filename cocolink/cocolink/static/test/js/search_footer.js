@@ -43,6 +43,9 @@
             if (Math.abs(window.orientation) === 90) {
                 this.landscape = 1;
                 if(this.activeFlg == 1){
+                    this.tab.style.opacity = '0';
+                    this.tab.style.webkitTransitionDuration = '0';
+                    this.tab.className = 'footer_search_tab';
                     this.clickEvent();
                 }else{
                     this.setTabStyle();
@@ -59,13 +62,6 @@
                 this.activeFlg = 0;
                 this.wrapp.style.webkitAnimationName = 'animation_down';
                 this.wrapp.style.WebkitAnimationDuration = '0.2s';
-
-                if(this.landscape == 1){
-                    this.tab.style.opacity = '0';
-                    this.tab.style.webkitTransitionDuration = '0';
-                    this.tab.className = 'footer_search_tab';
-                }
-
                 this.setTabStyle();
 
             } else{

@@ -11,7 +11,7 @@
 		bar : null,
 		timer : null,
 		activeFlg : 0,
-		portrait : 0,
+        landscape : 0,
 		channel :  null,
 		sr :  null,
 		init : function(){
@@ -31,34 +31,40 @@
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
             window.addEventListener("orientationchange", bind(this,"orientEvent"), false);
 
-
         },
  		orientEvent  : function(){
 
-			var test = document.getElementById("test");
-			clearTimeout(this.timer);
-            test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
-			if (window.innerHeight > window.innerWidth) {
-				//test.innerHTML = "たて123";
-				this.portrait = 0;
-			   	this.setTabStyle();
-			} else {
+            setTimeout(function(){
 
-				this.portrait = 1;
-			    if(this.activeFlg == 1){
-			    	//test.innerHTML = "よこ　上";
-					this.wrapp.style.webkitAnimationName = 'animation_down';
-					this.wrapp.style.webkitTransitionDuration = '0.1s';
-					this.tab.style.opacity = '0';
-					this.tab.style.webkitTransitionDuration = '0';
-					this.tab.className = 'footer_search_tab';
-					this.activeFlg = 0;
-			    }else{
-			    	//test.innerHTML = "よこ　下";
-					this.tab.style.opacity = '0';
-					this.tab.style.webkitTransitionDuration = '0';
-			    }
-			}
+                var test = document.getElementById("test");
+                clearTimeout(this.timer);
+                test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
+                if (window.innerHeight > window.innerWidth) {
+                    //test.innerHTML = "たて123";
+                    this.landscape = 0;
+                    this.setTabStyle();
+                } else {
+
+                    this.landscape = 1;
+                    if(this.activeFlg == 1){
+                        //test.innerHTML = "よこ　上";
+                        this.wrapp.style.webkitAnimationName = 'animation_down';
+                        this.wrapp.style.webkitTransitionDuration = '0.1s';
+                        this.tab.style.opacity = '0';
+                        this.tab.style.webkitTransitionDuration = '0';
+                        this.tab.className = 'footer_search_tab';
+                        this.activeFlg = 0;
+                    }else{
+                        //test.innerHTML = "よこ　下";
+                        this.tab.style.opacity = '0';
+                        this.tab.style.webkitTransitionDuration = '0';
+                    }
+                }
+
+            },1000);
+
+
+
 
 		},
 		clickEvent : function(){
@@ -97,16 +103,16 @@
 		},
 		setTabStyle : function () {
 
-			//if(this.portrait == 0 ){
+			//if(this.landscape == 0 ){
                 var that = this;
 				this.timer = null;
-                if(this.portrait == 0 ){
+                if(this.landscape == 0 ){
                     this.tab.style.opacity = '1';
                     this.tab.style.webkitTransitionDuration = '';
                 }
 				this.timer = setTimeout(function(){
 				
-					if(that.activeFlg == 0 && that.portrait == 0){
+					if(that.activeFlg == 0 && that.landscape == 0){
 						that.tab.style.opacity = '0.5';
 						that.tab.style.webkitTransitionDuration  = '2s';
 						that = null;

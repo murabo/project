@@ -1,0 +1,11 @@
+@mixin sprite-background($name, $sprites, $sprites-img) {
+  background-image: $sprites-img;
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: image-height(sprite-file($sprites, $name)) / 2;
+  width: image-width(sprite-file($sprites, $name)) / 2;
+  $ypos: round(nth(sprite-position($sprites, $name), 2) / 2);
+  background-position: 0 $ypos;
+}
+$top: sprite-map("img/*.png");
+$sprites-img01: sprite-url($top);

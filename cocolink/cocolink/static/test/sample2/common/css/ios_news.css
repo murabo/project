@@ -1,0 +1,205 @@
+@charset "utf-8";
+/* auone news original */
+
+.date {
+	text-align: right;
+	margin-bottom:5px;
+	margin-right:10px;
+	margin-top:5px;
+	font-size:12px!important;
+	color:#666666;
+}
+ul#tab {
+	display:-webkit-box;
+	width:100%;
+	margin-top:20px;
+	margin-bottom:10px;
+	border-bottom:solid 1px #999999;
+}
+ul#tab li {
+	padding:4px 0 0 0;
+	width:50%;
+	-webkit-box-sizing:border-box;
+	margin-bottom:-1px;
+}
+ul#tab li.present{padding:0;}
+ul#tab li a {
+	display:block;
+	text-align:center;
+	background-color: #666666;
+	border-top:solid 1px #999999;
+	color:#ffffff;
+	line-height:30px;
+	font-size:17px;
+	text-decoration:none;
+		-webkit-border-top-right-radius:4px;
+	-webkit-border-top-left-radius:4px;
+}
+ul#tab li:nth-child(1) a {
+	margin-left:5px;
+}
+ul#tab li:nth-child(2) a {
+	margin-right:5px;
+}
+ul#tab li.present a {
+	background-color: #ffffff;
+	color: #333333;
+	border-top:solid 1px #999999;
+	border-right:solid 1px #999999;
+	border-left:solid 1px #999999;
+	padding-top:5px;
+}
+.bar1 {
+	-moz-transform:rotate(0deg) translate(0, -40px);
+	-webkit-transform:rotate(0deg) translate(0, -40px);
+	opacity:0.12;
+}
+.bar2 {
+	-moz-transform:rotate(45deg) translate(0, -40px);
+	-webkit-transform:rotate(45deg) translate(0, -40px);
+	opacity:0.25;
+}
+.bar3 {
+	-moz-transform:rotate(90deg) translate(0, -40px);
+	-webkit-transform:rotate(90deg) translate(0, -40px);
+	opacity:0.37;
+}
+.bar4 {
+	-moz-transform:rotate(135deg) translate(0, -40px);
+	-webkit-transform:rotate(135deg) translate(0, -40px);
+	opacity:0.50;
+}
+.bar5 {
+	-moz-transform:rotate(180deg) translate(0, -40px);
+	-webkit-transform:rotate(180deg) translate(0, -40px);
+	opacity:0.62;
+}
+.bar6 {
+	-moz-transform:rotate(225deg) translate(0, -40px);
+	-webkit-transform:rotate(225deg) translate(0, -40px);
+	opacity:0.75;
+}
+.bar7 {
+	-moz-transform:rotate(270deg) translate(0, -40px);
+	-webkit-transform:rotate(270deg) translate(0, -40px);
+	opacity:0.87;
+}
+.bar8 {
+	-moz-transform:rotate(315deg) translate(0, -40px);
+	-webkit-transform:rotate(315deg) translate(0, -40px);
+	opacity:1;
+}
+#div1 {
+	position:relative;
+	width:100px;
+	height:100px;
+	margin:-30px auto 0;
+	-webkit-transform:scale(0.5);
+	-webkit-animation-name: rotateThis;
+	-webkit-animation-duration:2s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:linear;
+	float:none;
+}
+#div1 div {
+	width:10px;
+	height:20px;
+	background:#cccccc;
+	position:absolute;
+	top:40px;
+	left:45px;
+}
+p.banner {
+	line-height:0;
+	margin-bottom:10px;
+}
+p.banner a {
+	text-indent:-9999px;
+	text-align:left;
+	background-repeat:no-repeat;
+	display:inline-block;
+	padding:10px;
+	background-position:center center;
+}
+p.banner a.au_one_news_ex {
+	background-image:url(../image/news/logo_aunewsEX201301_2x.png);
+	width:100px; height:50px;
+	-webkit-background-size:100px 50px; background-size:100px 50px;
+}
+.asahiNews a{padding: 3px 0px 10px 10px !important;}
+
+p.banner a.nikkan_sports {
+	background-image:url(../image/news/logo_nikkan_sports.png);
+	width:90px;
+	height:11px;
+}
+p.banner a.reuters {
+	background-image:url(../image/news/logo_reuters.png);
+	width:90px;
+	height:13px;
+}
+p.banner a.sanspo {
+	background-image:url(../image/news/logo_sanspo.png);
+	width:84px;
+	height:12px;
+}
+p.banner a.zakzak {
+	background-image:url(../image/news/logo_zakzak.png);
+	width:68px;
+	height:15px;
+}
+p.banner a.mainichi {
+	background-image:url(../image/news/logo_mainichi.gif);
+	width:90px;
+	height:19px;
+}
+
+
+
+
+p.banner a.nikkan_sports {
+	background-image:url(../image/news/logo_nikkan_sports_2x.png);
+	-webkit-background-size:90px 11px
+}
+p.banner a.reuters {
+	background-image:url(../image/news/logo_reuters_2x.png);
+	-webkit-background-size:90px 13px
+}
+p.banner a.sanspo {
+	background-image:url(../image/news/logo_sanspo_2x.png);
+	-webkit-background-size:84px 12px
+}
+p.banner a.zakzak {
+	background-image:url(../image/news/logo_zakzak_2x.png);
+	-webkit-background-size:68px 15px
+}
+p.banner a.mainichi {
+	background-image:url(../image/news/logo_mainichi_2x.gif);
+	-webkit-background-size:90px 19px
+}
+
+h3.word {
+	margin: 0 10px;
+	text-align: center;
+	font-size: 14px;
+	color: #666;
+	font-weight: bold;
+	padding: 2px 4px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #fff), color-stop(0.51, #f1f1f1), color-stop(0.00, #f3f3f3));
+	background: -webkit-linear-gradient(top, #fff 0%, #f1f1f1 51%, #f3f3f3 100%);
+}
+.sec-foot{margin:0 -10px;}
+.sec-foot .listStyle_01.border-t{margin-top:8px;}
+.sec-foot .listStyle_01.border-t li:first-child{border-top: solid 1px #CCC;}
+
+.sec-dl-link{margin:10px 0; padding:5px 2px; background:#eeeeee; border:1px #cccccc solid; -webkit-border-radius:3px;}
+.sec-dl-link p{text-align:center; padding:0 0 4px 0; font-size:14px;}
+.sec-dl-link ul{display:-webkit-box; -webkit-box-pack:center;}
+.sec-dl-link ul li{width:50%;}
+.sec-dl-link ul li a {display:-webkit-box; height:36px; margin:0 3px; background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3D3D3D), color-stop(1, #858585)); border:1px #777777 solid; -webkit-border-radius:3px; -webkit-box-pack:center; -webkit-box-align:center;}
+
+/* 2013122 add aunewslogo */
+.section .metaContainerBottom p.banner a.au_one_news_ex {
+	padding: 0;
+	border: none;
+}

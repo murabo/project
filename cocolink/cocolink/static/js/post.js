@@ -22,15 +22,9 @@ $(function() {
 		_bind: function() {
 
 			var that= this;
-			$(".dsp_map_page").click(function() {
-				that._toggle_txt_page();
-			});
-			$(document).on('click', '#js-result-list li', function() {
-				that._dsp_place_info($(this));
-				that._toggle_txt_page();
-				//self.map.geocoder($(this));//詳細住所はとりあえず取得なし！
-			});
 
+
+			//mapをクリックして住所を取得、その住所で投稿
 			$(document).on('click', '.js_star', function() {
 				that._review($(this));
 			});
@@ -41,21 +35,7 @@ $(function() {
 			});
 			//this._get_list();
 		},
-		//地図画面と投稿画面の表示切り替え
-		_toggle_txt_page: function() {
-			$('.txt_page,.map_page').toggleClass('disp_none disp_block');
-		},
-		//選択したリストを投稿画面に表示
-		_dsp_place_info: function(that) {
-			$('.txt_page').find('.place').html(that);
 
-			//送信用変数にセット
-			$(".js-subumit-lng").val(that.find('.js-lng').val());
-			$(".js-subumit-reference").val(that.find('.js-reference').val());
-			$(".js-subumit-lat").val(that.find('.js-lat').val());
-
-
-		},
 		//評価の★を選択
 		_review: function(that) {
 			var n = that.attr('id').split("_");

@@ -17,23 +17,64 @@
 
 			//検索ボタン
 			$(".js-search").click(function(){
-				$("#js-result-list").html('');
-				that.crearMarker();
-				that.get_place_list();
+				$(".js-result-list").html('');//検索結果一覧初期化
+				that.crearMarker();//マーカー削除
+				that.get_place_list();//検索結果一覧取得
 			});
 
 			//現在地に戻る
 			$(".js-current").click(function(){
-				$("#js-result-list").html('');
-				that.crearMarker();
-				that.get_map();
+				$(".js-result-list").html('');
+				that.crearMarker();//マーカー削除
+				that.get_map();//現在地取得
+			});
+
+			//検索結果一覧画面、投稿画面切り替え
+			$(".js−dsp_map_page").click(function() {
+				$(".js-list-pege").toggleClass("disp_block disp_none");
+				$(".js-map-page").toggleClass("disp_block disp_none");
 			});
 
 			//入力した住所へ地図移動
 			$(".js-geocoding").click(function(){
 				that.geocoding($("#js-geocoding-input").val());
 			});
-	
+
+			//住所入力テキストボックス表示
+			$(".js-dsp-zip-input-bx").click(function(){
+				$(".js-zip-input-bx").toggleClass("disp_block disp_none");
+			});
+
+			//キーワード検索入力テキスト画面表示
+			$(".js-dsp-category-input-bx").click(function(){
+				$(".js-list-pege").toggleClass("disp_block disp_none");
+				$(".js-map-page").toggleClass("disp_block disp_none");
+			});
+
+			//検索結果一覧から選択
+			$(document).on('click', '.js-result-list li', function() {
+				that._dsp_place_info($(this));
+				$(".js-list-pege").toggleClass("disp_block disp_none");
+				$(".js-map-page").toggleClass("disp_block disp_none");	
+			});
+
+			//mapをクリックして住所を取得、その住所で投稿
+			$(document).on('click', '.js-post', function() {
+			 	that._toggle_txt_page();
+			// 	//self.map.geocoder($(this));//詳細住所はとりあえず取得なし！
+			 });
+
+
+			//キーワード検索入力テキスト画面表示
+			$(".js-select-place-bx").click(function(){
+				that._set_default_zip();
+			});
+
+			//キーワード検索入力テキスト画面表示
+			$(".js-more-btn").click(function(){
+				that.get_place_list();//検索結果一覧取得
+			});
+
 
 		},
 		_map: '',
@@ -76,8 +117,27 @@
 				$("body").data("lat",lat);
 				$("body").data("lng",lng);
 
+				//TODO 共通化する
+				var request = { 
+                	latLng: latlng
+            	}; 
+ 				var geocoder = new google.maps.Geocoder(); 
+            	geocoder.geocode(request, function(results, status) { 
+                // ステータスがOKならマーカーを表示する。 
+	                if (status == google.maps.GeocoderStatus.OK) { 
+		                $(".js-place-text").html(results[0].formatted_address);
+
+						// var loc = results[0]['geometry']['location'].toString();
+						// loc = loc.replace(/\(|\)|\s+/ig, '');
+						// loc = loc.split(',');
+						// $(".js-subumit-lat").val(loc[0]);
+						// $(".js-subumit-lng").val(loc[1]);
+	                } 
+          		}); 
+
+
 				google.maps.event.addListener(that.map, 'click', that.click_map);
-				//that.change_area();
+				that.change_area();
 			}
 
 			// 位置情報取得に失敗したとき
@@ -97,7 +157,7 @@
 		},
 		//地図のクリックイベント
 		click_map: function (event){
-		    
+
       		//alert(event.latLng.toString());
 			var that = this;
             // 東京タワーをジオコーディング 
@@ -111,12 +171,17 @@
                 if (status == google.maps.GeocoderStatus.OK) { 
                 	$(".js-place-text").html(results[0].formatted_address);
 
-                	//that.get_map(results[0].geometry.location);
-                    // var marker = new google.maps.Marker({ 
-                    //     position: results[0].geometry.location, 
-                    //     title: request.address, 
-                    //     map: mapObj 
-                    // }); 
+					var loc = results[0]['geometry']['location'].toString();
+					loc = loc.replace(/\(|\)|\s+/ig, '');
+					loc = loc.split(',');
+					//$(".js-subumit-lat").val(loc[0]);
+					//$(".js-subumit-lng").val(loc[1]);
+					
+					$("body").data("lat",loc[0]);
+					$("body").data("lng",loc[1]);
+
+					//TODO クリックした箇所にマーカー表示
+					//that.setMarkers('yes', that.map, loc);
                 } 
            }); 
 
@@ -136,19 +201,19 @@
 				types.push($('#category option:selected').val());
 			};
 
-			//TODO キーワード検索が上手くいってないよー！！！！	
  			 var request = {
 			    location: pyrmont,
 			    radius: '500',
+			    bounds : $("body").data("defaultBounds"),
 			    types: types,
-			    //query : $('#js-query').val()//
-			    query: 'restaurant'
+			  　keyword : $('#js-q-input').val(),//中華手をキーワード検索
+			    //query: $('#js-q-input').val()
 			  };
 
 			var service = new google.maps.places.PlacesService(that.map);
 			service.search(request, createList);
 
-			function createList(results, status){
+			function createList(results, status,pagination){
 
  			 	if (status == google.maps.places.PlacesServiceStatus.OK) {
 
@@ -180,10 +245,24 @@
 					}
 
  					that.setMarkers('yes', that.map, locations);					
-					$("#js-result-list").append(frag);
+					$(".js-result-list").append(frag);
 
 
 				}
+
+
+				 if (pagination.hasNextPage) {
+
+				    var bx = $(".js-result-list-bx").find(".js-more-btn-bx");
+					var btn = bx.find(".js-more-btn");
+				    bx.displayBlock();
+
+					   btn.on("click",function(){
+							pagination.nextPage();
+						}); 
+				    
+				 }
+
 			}
 
 		},
@@ -230,7 +309,6 @@
 			    that._markersArray.push(marker);
 			  
 			  }
-
 		 
 		},
 
@@ -246,8 +324,8 @@
 		    	that._markersArray[i].setMap(null); 
 		  	}
 		    //that._markersArray = null;
-		}
-		,
+		},
+
 		//詳細住所取得
 		geocoder: function(that){
 
@@ -298,10 +376,9 @@
 		//TODO
 		change_area: function(){
 
-
 			var that = this;
 			google.maps.event.addListener(that.map, 'drag', dispLatLng);
-			google.maps.event.addListener(that.map, "zoom_changed", dispLatLng);
+			//google.maps.event.addListener(that.map, "zoom_changed", dispLatLng);
 
 			function dispLatLng(){
 
@@ -328,8 +405,31 @@
 
 				$("body").data("defaultBounds",defaultBounds);
 
-				document.getElementById("latlng").innerHTML = str;
 			}
+		},
+		//選択したリストを投稿画面に表示
+		_dsp_place_info: function(that) {
+			$('.js-select-place-bx').toggleClass("disp_block disp_none");
+			that.removeClass("arrow").find(".js-result-list-main").prepend('<i class="fa fa-times-circle-o fa-size-s floRight"></i>');
+			$('.js-select-place').html(that);
+
+			//送信用変数にセット
+			$(".js-subumit-lng").val(that.find('.js-lng').val());
+			$(".js-subumit-lat").val(that.find('.js-lat').val());
+			$(".js-subumit-reference").val(that.find('.js-reference').val());
+
+		},
+		//選択したリストを削除
+		_set_default_zip: function(that) {
+
+			$('.js-select-place-bx').toggleClass("disp_block disp_none");
+			$('.js-select-place').html("");
+
+			//送信用変数にセット
+			$(".js-subumit-lng").val($("body").data("lng"));
+			$(".js-subumit-lat").val($("body").data("lat"));
+			$(".js-subumit-reference").val("");
+
 		},
 		//File APIs 対応チェック
 		check_browser: function(){

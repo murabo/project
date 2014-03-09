@@ -5,7 +5,6 @@ $(function(){
 
 	$('img').lazyload({ threshold : 200 });//画像遅延読み込み
 	$('input').keydown(function(e) {if (e.keyCode === 13) e.preventDefault();});//enter key無効
-	$('textarea').autoResize();	//テキストエリア自動拡張
 	$('body').defer();//画像遅延読み込み
 
 });

@@ -1,0 +1,291 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/*@import "compass/reset";*/
+/* line 18, ../sass/search_footer.scss */
+.sprite_icon_footer {
+  -webkit-background-size: 48px auto;
+  background-size: 48px auto;
+}
+
+/* line 21, ../sass/search_footer.scss */
+.sprite_icon01 {
+  background-image: url('/img-sd189bbd9cf.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 22px;
+  width: 22px;
+  background-position: 0 -67px;
+  position: absolute;
+  top: 14px;
+  left: 12px;
+}
+
+/* line 27, ../sass/search_footer.scss */
+.sprite_icon02 {
+  background-image: url('/img-sd189bbd9cf.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 13px;
+  width: 13px;
+  background-position: 0 -121px;
+  position: absolute;
+  top: 13px;
+  right: 10px;
+}
+
+/* line 33, ../sass/search_footer.scss */
+.sprite_icon03 {
+  background-image: url('/img-sd189bbd9cf.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 24px;
+  width: 36px;
+  background-position: 0 -97px;
+}
+
+/* line 36, ../sass/search_footer.scss */
+.sprite_icon04 {
+  background-image: url('/img-sd189bbd9cf.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 8px;
+  width: 48px;
+  background-position: 0 -89px;
+  display: block;
+  margin-top: 2px;
+}
+
+/* wrapper */
+/* line 45, ../sass/search_footer.scss */
+.footer_search_wrapper {
+  position: fixed;
+  bottom: -100px;
+  width: 100%;
+  height: 190px;
+  left: 0;
+  z-index: 999;
+  overflow: hidden;
+  margin: 0;
+}
+
+/* tab */
+/* line 57, ../sass/search_footer.scss */
+.footer_search_tab,
+.footer_search_active {
+  float: right;
+  z-index: 2;
+  width: 70px;
+  height: 65px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* line 66, ../sass/search_footer.scss */
+.footer_search_tab .footer_layout,
+.footer_search_active .footer_layout {
+  position: relative;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  opacity: 1;
+  border: 1px solid #b4b4b4;
+  background-color: #f3f3f3;
+  margin: 10px 10px 0 10px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* line 80, ../sass/search_footer.scss */
+.footer_search_active .footer_layout {
+  height: 55px;
+}
+
+/* line 85, ../sass/search_footer.scss */
+.footer_search_active div {
+  height: 60px;
+  background-color: #f3f3f3;
+  -webkit-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+}
+
+/* bar */
+/* line 93, ../sass/search_footer.scss */
+.footer_search_bar {
+  overflow: hidden;
+  *zoom: 1;
+  z-index: 1;
+  width: 100%;
+  height: 120px;
+  border-top: 1px solid #b4b4b4;
+  background-color: #f3f3f3;
+  -webkit-box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px 10px 8px 10px;
+}
+
+/* line 105, ../sass/search_footer.scss */
+.footer_search_bottom_wrapper .footer_search_bar {
+  top: 0px;
+  height: 110px;
+  padding: 10px;
+}
+
+/* line 112, ../sass/search_footer.scss */
+.footer_search_bar a {
+  color: #000;
+  -webkit-tap-highlight-color: rgba(102, 204, 255, 0.5);
+}
+
+/* line 118, ../sass/search_footer.scss */
+.footer_search_bar .frame {
+  display: -webkit-box;
+  display: box;
+}
+
+/* line 123, ../sass/search_footer.scss */
+.footer_search_bar .txt_bx {
+  height: 40px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-align: center;
+  -webkit-box-flex: 1;
+  box-flex: 1;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  display: -webkit-box;
+  display: box;
+  margin-right: 10px;
+}
+
+/* line 137, ../sass/search_footer.scss */
+.footer_search_bar .txt_bx input {
+  box-align: center;
+  -webkit-box-align: center;
+  padding: 0 10px;
+  margin-left: 0;
+  border: none;
+  height: 38px;
+  font-size: 14px;
+  background: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  display: -webkit-box;
+  display: box;
+  -webkit-box-flex: 1;
+  box-flex: 1;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* line 154, ../sass/search_footer.scss */
+.footer_search_bar .cross {
+  position: relative;
+  display: block;
+  padding-left: 10px;
+  width: 25px;
+  height: 40px;
+}
+
+/* line 163, ../sass/search_footer.scss */
+.footer_search_bar .search_btn {
+  height: 35px;
+  line-height: 35px;
+  width: 48px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
+  border: #000 1px solid;
+  background-color: #333;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* word */
+/* line 178, ../sass/search_footer.scss */
+.footer_search_bar .hotword {
+  width: 100%;
+  padding-top: 5px;
+  display: -webkit-box;
+  display: box;
+}
+
+/* line 185, ../sass/search_footer.scss */
+.footer_search_bar .hotword > ul {
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  display: box;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
+}
+
+/* line 195, ../sass/search_footer.scss */
+.footer_search_bar .hotword ul > li {
+  width: 33.33%;
+}
+
+/* line 200, ../sass/search_footer.scss */
+.footer_search_bar .hotword > ul a {
+  height: 35px;
+  display: block;
+  padding: 0 2px;
+  margin-left: 5px;
+  line-height: 37px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  overflow: hidden;
+  text-align: center;
+  color: #000;
+  white-space: nowrap;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  font-family: 'Hiragino Kaku Gothic ProN';
+  text-overflow: ellipsis;
+}
+
+/* line 220, ../sass/search_footer.scss */
+.footer_search_bar .hotword_more {
+  display: block;
+  padding: 7px 5px 0 0;
+}
+
+/* anime */
+@-webkit-keyframes animation_up {
+  /* line 227, ../sass/search_footer.scss */
+  0% {
+    bottom: -100px;
+  }
+
+  /* line 228, ../sass/search_footer.scss */
+  60% {
+    bottom: 0px;
+  }
+
+  /* line 229, ../sass/search_footer.scss */
+  100% {
+    bottom: -10px;
+  }
+}
+
+@-webkit-keyframes animation_down {
+  /* line 232, ../sass/search_footer.scss */
+  0% {
+    bottom: -10px;
+  }
+
+  /* line 233, ../sass/search_footer.scss */
+  100% {
+    bottom: -100px;
+  }
+}

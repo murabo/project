@@ -34,7 +34,8 @@
         },
  		orientEvent  : function(){
 
-            //setTimeout(function(){
+            var that = this;
+            setTimeout(function(){
 
                 var test = document.getElementById("test");
                 var test2 = document.getElementById("test2");
@@ -42,27 +43,27 @@
                 test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
                 if (window.innerHeight > window.innerWidth) {
                     test2.innerHTML = "たて123";
-                    this.landscape = 0;
-                    this.setTabStyle();
+                    that.landscape = 0;
+                    that.setTabStyle();
                 } else {
 
-                    this.landscape = 1;
+                    that.landscape = 1;
                     if(this.activeFlg == 1){
                         test2.innerHTML = "よこ　上";
-                        this.wrapp.style.webkitAnimationName = 'animation_down';
-                        this.wrapp.style.webkitTransitionDuration = '0.1s';
-                        this.tab.style.opacity = '0';
-                        this.tab.style.webkitTransitionDuration = '0';
-                        this.tab.className = 'footer_search_tab';
-                        this.activeFlg = 0;
+                        that.wrapp.style.webkitAnimationName = 'animation_down';
+                        that.wrapp.style.webkitTransitionDuration = '0.1s';
+                        that.tab.style.opacity = '0';
+                        that.tab.style.webkitTransitionDuration = '0';
+                        that.tab.className = 'footer_search_tab';
+                        that.activeFlg = 0;
                     }else{
                         test2.innerHTML = "よこ　下";
-                        this.tab.style.opacity = '0';
-                        this.tab.style.webkitTransitionDuration = '0';
+                        that.tab.style.opacity = '0';
+                        that.tab.style.webkitTransitionDuration = '0';
                     }
                 }
 
-           // },1000);
+            },1000);
 
 
             test2.innerHTML = "あわあわ";

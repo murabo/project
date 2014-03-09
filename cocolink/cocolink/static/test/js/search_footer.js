@@ -38,7 +38,7 @@
             clearTimeout(this.timer);
             var test = document.getElementById("test");
             var test2 = document.getElementById("test2");
-
+            that = this;
             test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
             if (Math.abs(window.orientation) === 90) {
                 this.landscape = 1;
@@ -46,7 +46,7 @@
                     this.tab.style.opacity = '0';
                     this.tab.style.webkitTransitionDuration = '0';
                     this.tab.className = 'footer_search_tab';
-                    this.clickEvent();
+                    that.clickEvent();
                 }else{
                     this.setTabStyle();
                 }

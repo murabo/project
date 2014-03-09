@@ -64,7 +64,7 @@
 
 		},
 		clickEvent : function(){
-
+alert();
             if ( this.activeFlg == 1 ) {
                 this.activeFlg = 0;
                 this.wrapp.style.webkitAnimationName = 'animation_down';

@@ -29,7 +29,7 @@
             document.addEventListener("touchstart",bind(this,"setTabStyle"),false);
             this.tab.addEventListener("click", bind(this,"clickEvent"), false);
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
-            window.addEventListener("orientationchange", bind(this,"orientEvent"), false);
+            window.addEventListener("resize", bind(this,"orientEvent"), false);
 
         },
  		orientEvent  : function(){
@@ -63,10 +63,7 @@
                     }
                 }
 
-            },1000);
-
-
-            test2.innerHTML = "あわあわ";
+            },1500);
 
 		},
 		clickEvent : function(){

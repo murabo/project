@@ -46,7 +46,7 @@
 
                     that.landscape = 1;
                     if(this.activeFlg == 1){
-                        this.tab.click();
+                        this.clickEvent();
                     }else{
                         test2.innerHTML = "よこ　下";
                         that.setTabStyle();
@@ -64,7 +64,7 @@
 
 		},
 		clickEvent : function(){
-alert();
+
             if ( this.activeFlg == 1 ) {
                 this.activeFlg = 0;
                 this.wrapp.style.webkitAnimationName = 'animation_down';

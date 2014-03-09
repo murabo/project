@@ -30,37 +30,27 @@
             this.tab.addEventListener("click", bind(this,"clickEvent"), false);
             this.wrapp.addEventListener("webkitAnimationEnd", bind(this,"animeEndEvent"), false);
             window.addEventListener("orientationchange", bind(this,"orientEvent"), false);
-           // window.addEventListener("resize", bind(this,"orientEvent"), false);
+
 
         },
  		orientEvent  : function(){
 
-            var that = this;
-            //setTimeout(function(){
+            clearTimeout(this.timer);
+            var test = document.getElementById("test");
+            var test2 = document.getElementById("test2");
 
-                var test = document.getElementById("test");
-                var test2 = document.getElementById("test2");
-                clearTimeout(this.timer);
-                test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
-                if (Math.abs(window.orientation) === 90) {
-
-                    this.landscape = 1;
-                    if(this.activeFlg == 1){
-                        this.clickEvent();
-                    }else{
-                        test2.innerHTML = "よこ　下";
-                        this.setTabStyle();
-                    }
-
-                } else {
-
-                    test2.innerHTML = "たて123";
-                    this.landscape = 0;
+            test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
+            if (Math.abs(window.orientation) === 90) {
+                this.landscape = 1;
+                if(this.activeFlg == 1){
+                    this.clickEvent();
+                }else{
                     this.setTabStyle();
-
                 }
-
-          //  },1500);
+            } else {
+                this.landscape = 0;
+                this.setTabStyle();
+            }
 
 		},
 		clickEvent : function(){
@@ -69,6 +59,13 @@
                 this.activeFlg = 0;
                 this.wrapp.style.webkitAnimationName = 'animation_down';
                 this.wrapp.style.WebkitAnimationDuration = '0.2s';
+
+                if(this.landscape == 1){
+                    this.tab.style.opacity = '0';
+                    this.tab.style.webkitTransitionDuration = '0';
+                    this.tab.className = 'footer_search_tab';
+                }
+
                 this.setTabStyle();
 
             } else{
@@ -98,28 +95,21 @@
 		},
 		setTabStyle : function () {
 
-			//if(this.landscape == 0 ){
-                var that = this;
-				this.timer = null;
+            var that = this;
+            this.timer = null;
 
-                if(this.landscape == 0 ){
-                    this.tab.style.opacity = '1';
-                    this.tab.style.webkitTransitionDuration = '';
-                }else{
-                    this.tab.style.opacity = '0';
-                    this.tab.style.webkitTransitionDuration = '0';
-                    this.tab.className = 'footer_search_tab';
+            if(this.landscape == 0 ){
+                this.tab.style.opacity = '1';
+                this.tab.style.webkitTransitionDuration = '0';
+            }
+
+            this.timer = setTimeout(function(){
+                if(that.activeFlg == 0 && that.landscape == 0){
+                    that.tab.style.opacity = '0.5';
+                    that.tab.style.webkitTransitionDuration  = '2s';
+                    that = null;
                 }
-
-                this.timer = setTimeout(function(){
-                    if(that.activeFlg == 0 && that.landscape == 0){
-                        that.tab.style.opacity = '0.5';
-                        that.tab.style.webkitTransitionDuration  = '2s';
-                        that = null;
-                    }
-                } , 1000);
-
-		//	}
+            } ,1000);
 
 		},
 		createTemplate : function (islowOs){

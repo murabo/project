@@ -46,17 +46,10 @@
 
                     that.landscape = 1;
                     if(this.activeFlg == 1){
-                        test2.innerHTML = "よこ　上";
-                        that.wrapp.style.webkitAnimationName = 'animation_down';
-                        that.wrapp.style.webkitTransitionDuration = '0.1s';
-                        that.tab.style.opacity = '0';
-                        that.tab.style.webkitTransitionDuration = '0';
-                        that.tab.className = 'footer_search_tab';
-                        that.activeFlg = 0;
+                        this.tab.click();
                     }else{
                         test2.innerHTML = "よこ　下";
-                        that.tab.style.opacity = '0';
-                        that.tab.style.webkitTransitionDuration = '0';
+                        that.setTabStyle();
                     }
 
                 } else {
@@ -71,7 +64,6 @@
 
 		},
 		clickEvent : function(){
-
 
             if ( this.activeFlg == 1 ) {
                 this.activeFlg = 0;
@@ -109,19 +101,24 @@
 			//if(this.landscape == 0 ){
                 var that = this;
 				this.timer = null;
+
                 if(this.landscape == 0 ){
                     this.tab.style.opacity = '1';
                     this.tab.style.webkitTransitionDuration = '';
+                }else{
+                    this.tab.style.opacity = '0';
+                    this.tab.style.webkitTransitionDuration = '0';
+                    this.tab.className = 'footer_search_tab';
                 }
-				this.timer = setTimeout(function(){
-				
-					if(that.activeFlg == 0 && that.landscape == 0){
+
+                if(that.activeFlg == 0 && that.landscape == 0){
+				    this.timer = setTimeout(function(){
 						that.tab.style.opacity = '0.5';
 						that.tab.style.webkitTransitionDuration  = '2s';
 						that = null;
-					}
 
-				} , 1000);
+			    	} , 1000);
+                 }
 		//	}
 
 		},

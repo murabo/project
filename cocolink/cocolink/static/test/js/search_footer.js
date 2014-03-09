@@ -55,7 +55,7 @@
 			    }else{
 			    	//test.innerHTML = "よこ　下";
 					this.tab.style.opacity = '0';
-					this.tab.style.webkitTransitionDuration = '';
+					this.tab.style.webkitTransitionDuration = '0';
 			    }
 			}
 
@@ -99,9 +99,10 @@
 			//if(this.portrait == 0 ){
                 var that = this;
 				this.timer = null;
-				this.tab.style.opacity = '1';
-				this.tab.style.webkitTransitionDuration = '';	
-			
+                if(this.portrait == 0 ){
+                    this.tab.style.opacity = '1';
+                    this.tab.style.webkitTransitionDuration = '';
+                }
 				this.timer = setTimeout(function(){
 				
 					if(that.activeFlg == 0 && that.portrait == 0){
@@ -165,7 +166,7 @@
 			this.wrapp = document.getElementById("footer_search_wrapper");
 			this.tab =  document.getElementById("footer_search_tab");
 			this.bar =  document.getElementById("footer_search_bar");
-			if (!islowOs) this.bar.style.opacity = '0';			
+			if (!islowOs) this.bar.style.opacity = '0';
 
 		}
 

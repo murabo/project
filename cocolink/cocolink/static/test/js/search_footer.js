@@ -39,14 +39,14 @@
 			clearTimeout(this.timer);
             test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
 			if (window.innerHeight > window.innerWidth) {
-				test.innerHTML = "たて123";
+				//test.innerHTML = "たて123";
 				this.portrait = 0;
 			   	this.setTabStyle();
 			} else {
 
 				this.portrait = 1;
 			    if(this.activeFlg == 1){
-			    	test.innerHTML = "よこ　上";
+			    	//test.innerHTML = "よこ　上";
 					this.wrapp.style.webkitAnimationName = 'animation_down';
 					this.wrapp.style.webkitTransitionDuration = '0.1s';
 					this.tab.style.opacity = '0';
@@ -54,7 +54,7 @@
 					this.tab.className = 'footer_search_tab';
 					this.activeFlg = 0;
 			    }else{
-			    	test.innerHTML = "よこ　下";
+			    	//test.innerHTML = "よこ　下";
 					this.tab.style.opacity = '0';
 					this.tab.style.webkitTransitionDuration = '0';
 			    }

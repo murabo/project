@@ -44,19 +44,19 @@
                 test.innerHTML = "たて"+window.innerHeight +'//'+'よこ'+window.innerWidth;
                 if (Math.abs(window.orientation) === 90) {
 
-                    that.landscape = 1;
+                    this.landscape = 1;
                     if(this.activeFlg == 1){
                         this.clickEvent();
                     }else{
                         test2.innerHTML = "よこ　下";
-                        that.setTabStyle();
+                        this.setTabStyle();
                     }
 
                 } else {
 
                     test2.innerHTML = "たて123";
-                    that.landscape = 0;
-                    that.setTabStyle();
+                    this.landscape = 0;
+                    this.setTabStyle();
 
                 }
 

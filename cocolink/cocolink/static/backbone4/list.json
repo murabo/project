@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "user_id": 1, 
+            "name": "山田太郎", 
+            "address": "東京",
+            "postno": 123
+        }, 
+        {
+            "user_id": 2, 
+            "name": "山田太郎", 
+            "address": "東京",
+            "postno": 123
+        }, 
+        {
+            "user_id": 3, 
+            "name": "山田太郎", 
+            "address": "東京",
+            "postno": 123
+        }
+    ]
+}

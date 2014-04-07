@@ -22,8 +22,6 @@ define([
         },
         render : function() {
             $(this.el).empty();
-            // リソースから取得
-            // （collectionのurlにGETリクエストを送信する）
             this.collection.fetch({
                 data : {
                     user_id : $('#user_id').val()
@@ -35,8 +33,7 @@ define([
         add : function(collection, resp) {
             var that = this;
             if (collection.length == 0) {
-                // データが無い →専用のテンプレートを表示
-                $(that.el).append(_.template($('#user_norow_template').html(), null));
+                //$(that.el).append(_.template($('#user_norow_template').html(), null));
                 return;
             }
             collection.each(function(model) {

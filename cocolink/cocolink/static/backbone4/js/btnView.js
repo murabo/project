@@ -12,16 +12,12 @@ define([
             this.userView = data.userView;
         },
         events: {
-            // clickイベントの登録
             'click' : 'click'
         },
         click : function(e) {
-            // ユーザー一覧を描画する
             this.userView.render();
         }
     });
-
-
 
     return BtnShowView;
 
